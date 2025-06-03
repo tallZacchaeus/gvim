@@ -6,11 +6,11 @@
 }
 
 :root {
-    /* Primary Colors - Church theme with blues and golds */
-    --primary-blue: 25 47% 15%; /* #1a365d - Deep blue */
-    --primary-light: 210 40% 50%; /* #4299e1 - Medium blue */
-    --accent-gold: 45 100% 60%; /* #ffd700 - Gold */
-    --accent-light: 45 100% 90%; /* #fffbeb - Light gold */
+    /* Primary Colors - Blue, Sky Blue, and White theme */
+    --primary-blue: 213 94% 68%; /* #3b82f6 - Blue */
+    --primary-light: 200 100% 70%; /* #38bdf8 - Sky blue */
+    --accent-blue: 220 100% 50%; /* #0066ff - Bright blue */
+    --accent-light: 200 100% 95%; /* #f0f9ff - Very light sky blue */
     
     /* Neutral Colors */
     --white: 0 0% 100%; /* #ffffff */
@@ -203,13 +203,13 @@ main {
 }
 
 .btn-secondary {
-    background-color: hsl(var(--accent-gold));
-    color: hsl(var(--primary-blue));
+    background-color: hsl(var(--primary-light));
+    color: hsl(var(--white));
 }
 
 .btn-secondary:hover {
-    background-color: hsl(var(--accent-gold) / 0.9);
-    color: hsl(var(--primary-blue));
+    background-color: hsl(var(--primary-light) / 0.9);
+    color: hsl(var(--white));
     transform: translateY(-2px);
 }
 
@@ -325,7 +325,7 @@ main {
 }
 
 .time-card i {
-    color: hsl(var(--accent-gold));
+    color: hsl(var(--primary-light));
     margin-bottom: var(--spacing-md);
 }
 
@@ -360,14 +360,14 @@ main {
 }
 
 .theme-text h3 {
-    color: hsl(var(--accent-gold));
+    color: hsl(var(--primary-light));
     margin-bottom: var(--spacing-lg);
 }
 
 blockquote {
     background-color: hsl(var(--gray-50));
     padding: var(--spacing-lg);
-    border-left: 4px solid hsl(var(--accent-gold));
+    border-left: 4px solid hsl(var(--primary-light));
     margin: var(--spacing-lg) 0;
     font-style: italic;
 }
@@ -381,7 +381,7 @@ blockquote cite {
 
 .theme-image {
     text-align: center;
-    color: hsl(var(--accent-gold));
+    color: hsl(var(--primary-light));
 }
 
 /* Welcome Section */
@@ -410,7 +410,7 @@ blockquote cite {
 }
 
 .feature i {
-    color: hsl(var(--accent-gold));
+    color: hsl(var(--primary-light));
     margin-top: var(--spacing-xs);
     flex-shrink: 0;
 }
@@ -450,7 +450,7 @@ blockquote cite {
 }
 
 .vm-card i {
-    color: hsl(var(--accent-gold));
+    color: hsl(var(--primary-light));
     margin-bottom: var(--spacing-lg);
 }
 
@@ -496,7 +496,7 @@ blockquote cite {
 }
 
 .pillar-icon i {
-    color: hsl(var(--accent-gold));
+    color: hsl(var(--primary-light));
     font-size: 2rem;
 }
 
@@ -542,7 +542,7 @@ blockquote cite {
 }
 
 .leader-info h4 {
-    color: hsl(var(--accent-gold));
+    color: hsl(var(--primary-light));
     margin-bottom: var(--spacing-md);
     font-size: 1rem;
 }
