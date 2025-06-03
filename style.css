@@ -564,8 +564,8 @@ blockquote cite {
 }
 
 .leader-contact a:hover {
-    background-color: hsl(var(--accent-gold));
-    color: hsl(var(--primary-blue));
+    background-color: hsl(var(--primary-light));
+    color: hsl(var(--white));
 }
 
 /* History Section */
@@ -613,7 +613,7 @@ blockquote cite {
 
 .stat h3 {
     font-size: 2rem;
-    color: hsl(var(--accent-gold));
+    color: hsl(var(--primary-light));
     margin-bottom: var(--spacing-sm);
 }
 
@@ -725,8 +725,8 @@ blockquote cite {
 }
 
 .view-btn {
-    background-color: hsl(var(--accent-gold));
-    color: hsl(var(--primary-blue));
+    background-color: hsl(var(--primary-light));
+    color: hsl(var(--white));
     border: none;
     padding: var(--spacing-sm) var(--spacing-md);
     border-radius: var(--radius-md);
@@ -736,7 +736,7 @@ blockquote cite {
 }
 
 .view-btn:hover {
-    background-color: hsl(var(--white));
+    background-color: hsl(var(--accent-blue));
 }
 
 /* Gallery Modal */
