@@ -344,6 +344,19 @@ main {
     color: hsl(var(--deep-blue));
 }
 
+.time-card.special-service {
+    border: 2px solid hsl(var(--accent-gold));
+    background: linear-gradient(135deg, hsl(var(--white)), hsl(var(--accent-light)));
+}
+
+.time-card.special-service i {
+    color: hsl(var(--accent-gold));
+}
+
+.time-card.special-service .time {
+    color: hsl(var(--primary-blue));
+}
+
 /* Monthly Theme */
 .monthly-theme {
     padding: var(--spacing-3xl) 0;
