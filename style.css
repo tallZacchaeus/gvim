@@ -129,25 +129,12 @@ a:hover {
 .nav-logo {
     display: flex;
     align-items: center;
-    gap: var(--spacing-md);
 }
 
 .header-logo {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     object-fit: contain;
-}
-
-.logo-text h2 {
-    color: hsl(var(--deep-blue));
-    margin-bottom: 0;
-    font-size: 1.5rem;
-}
-
-.logo-text span {
-    font-size: 0.875rem;
-    color: hsl(var(--gray-500));
-    display: block;
 }
 
 .nav-menu {
