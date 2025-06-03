@@ -1106,9 +1106,9 @@ blockquote cite {
     color: hsl(var(--white));
 }
 
-.subscribe-btn.podcast {
-    background-color: hsl(var(--accent-gold));
-    color: hsl(var(--primary-blue));
+.subscribe-btn.zoom {
+    background-color: #2D8CFF;
+    color: hsl(var(--white));
 }
 
 .subscribe-btn:hover {
