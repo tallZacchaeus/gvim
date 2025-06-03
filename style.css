@@ -228,7 +228,7 @@ main {
 .hero {
     position: relative;
     height: 600px;
-    background: linear-gradient(135deg, hsl(var(--primary-blue)), hsl(var(--primary-light)));
+    background: hsl(var(--primary-blue));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -243,7 +243,7 @@ main {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(45deg, hsl(var(--primary-blue) / 0.8), hsl(var(--primary-light) / 0.6));
+    background: hsl(var(--primary-blue) / 0.1);
 }
 
 .hero-content {
@@ -274,7 +274,7 @@ main {
 
 /* Page Header */
 .page-header {
-    background: linear-gradient(135deg, hsl(var(--primary-blue)), hsl(var(--primary-light)));
+    background: hsl(var(--primary-blue));
     color: hsl(var(--white));
     padding: var(--spacing-3xl) 0 var(--spacing-2xl);
     text-align: center;
@@ -702,7 +702,7 @@ blockquote cite {
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(transparent, hsl(var(--primary-blue) / 0.9));
+    background: hsl(var(--primary-blue) / 0.9);
     color: hsl(var(--white));
     padding: var(--spacing-xl);
     transform: translateY(100%);
