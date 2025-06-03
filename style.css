@@ -1742,13 +1742,12 @@ blockquote cite {
         grid-template-columns: 1fr;
         gap: var(--spacing-md);
     }
-}
 
     .footer-content {
         grid-template-columns: 1fr;
         text-align: center;
     }
-
+    
     .social-links {
         justify-content: center;
     }
