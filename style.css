@@ -70,7 +70,7 @@ body {
 h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
     line-height: 1.25;
-    color: hsl(var(--primary-blue));
+    color: hsl(var(--deep-blue));
     margin-bottom: var(--spacing-md);
 }
 
@@ -87,7 +87,7 @@ p {
 }
 
 a {
-    color: hsl(var(--primary-light));
+    color: hsl(var(--deep-blue));
     text-decoration: none;
     transition: var(--transition);
 }
@@ -217,12 +217,12 @@ main {
 
 .btn-outline {
     background-color: transparent;
-    color: hsl(var(--primary-blue));
-    border: 2px solid hsl(var(--primary-blue));
+    color: hsl(var(--deep-blue));
+    border: 2px solid hsl(var(--deep-blue));
 }
 
 .btn-outline:hover {
-    background-color: hsl(var(--primary-blue));
+    background-color: hsl(var(--deep-blue));
     color: hsl(var(--white));
 }
 
@@ -342,7 +342,7 @@ main {
 
 .time-card .time {
     font-weight: 600;
-    color: hsl(var(--primary-blue));
+    color: hsl(var(--deep-blue));
 }
 
 /* Monthly Theme */
@@ -378,7 +378,7 @@ blockquote cite {
     display: block;
     margin-top: var(--spacing-md);
     font-weight: 600;
-    color: hsl(var(--primary-blue));
+    color: hsl(var(--deep-blue));
 }
 
 .theme-image {
