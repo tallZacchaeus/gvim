@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - God's Vessels International Ministry</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <h2>GVIM</h2>
+                    <span>God's Vessels International Ministry</span>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="index.html" class="nav-link">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="about.html" class="nav-link">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="gallery.html" class="nav-link">Gallery</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="sermons.html" class="nav-link">Sermons</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="contact.html" class="nav-link active">Contact</a>
+                    </li>
+                </ul>
+                <div class="nav-toggle" id="mobile-menu">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Page Header -->
+        <section class="page-header">
+            <div class="container">
+                <h1>Contact Us</h1>
+                <p>We'd love to hear from you. Reach out with questions, prayer requests, or testimonies</p>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="contact-section">
+            <div class="container">
+                <div class="contact-grid">
+                    <!-- Contact Form -->
+                    <div class="contact-form-section">
+                        <h2>Send Us a Message</h2>
+                        <form class="contact-form" id="contactForm">
+                            <div class="form-group">
+                                <label for="name">Full Name *</label>
+                                <input type="text" id="name" name="name" required>
+                                <span class="error-message" id="nameError"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email Address *</label>
+                                <input type="email" id="email" name="email" required>
+                                <span class="error-message" id="emailError"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="subject">Subject *</label>
+                                <select id="subject" name="subject" required>
+                                    <option value="">Please select a subject</option>
+                                    <option value="general-inquiry">General Inquiry</option>
+                                    <option value="prayer-request">Prayer Request</option>
+                                    <option value="testimony">Testimony</option>
+                                    <option value="ministry-involvement">Ministry Involvement</option>
+                                    <option value="counseling">Counseling Request</option>
+                                    <option value="event-information">Event Information</option>
+                                    <option value="volunteer">Volunteer Opportunities</option>
+                                    <option value="pastoral-care">Pastoral Care</option>
+                                    <option value="other">Other</option>
+                                </select>
+                                <span class="error-message" id="subjectError"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="message">Message *</label>
+                                <textarea id="message" name="message" rows="6" required placeholder="Please share your message, prayer request, or testimony with us..."></textarea>
+                                <span class="error-message" id="messageError"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="newsletter" name="newsletter">
+                                    <span class="checkmark"></span>
+                                    I would like to receive newsletters and updates from GVIM
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i>
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="contact-info-section">
+                        <h2>Get in Touch</h2>
+                        
+                        <div class="contact-info">
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div class="info-content">
+                                    <h4>Visit Us</h4>
+                                    <p>123 Faith Avenue<br>Grace City, GC 12345<br>United States</p>
+                                    <a href="https://maps.google.com" target="_blank" class="map-link">
+                                        <i class="fas fa-external-link-alt"></i> View on Google Maps
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <div class="info-content">
+                                    <h4>Call Us</h4>
+                                    <p>Main Office: <a href="tel:+15551234567">(555) 123-4567</a></p>
+                                    <p>Prayer Line: <a href="tel:+15551234568">(555) 123-4568</a></p>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div class="info-content">
+                                    <h4>Email Us</h4>
+                                    <p>General: <a href="mailto:info@gvim.org">info@gvim.org</a></p>
+                                    <p>Pastor: <a href="mailto:pastor@gvim.org">pastor@gvim.org</a></p>
+                                    <p>Prayer: <a href="mailto:prayer@gvim.org">prayer@gvim.org</a></p>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="info-content">
+                                    <h4>Office Hours</h4>
+                                    <p>Monday - Friday: 9:00 AM - 5:00 PM</p>
+                                    <p>Saturday: 10:00 AM - 2:00 PM</p>
+                                    <p>Sunday: Available during services</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="emergency-contact">
+                            <h3>Emergency Pastoral Care</h3>
+                            <p>For urgent pastoral care needs, please call our emergency line:</p>
+                            <a href="tel:+15551234569" class="emergency-number">
+                                <i class="fas fa-phone"></i> (555) 123-4569
+                            </a>
+                            <p><small>Available 24/7 for members in crisis</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Map Section -->
+        <section class="map-section">
+            <div class="container">
+                <h2>Find Us</h2>
+                <div class="map-container">
+                    <!-- Placeholder for Google Maps embed -->
+                    <div class="map-placeholder">
+                        <i class="fas fa-map fa-4x"></i>
+                        <h3>Interactive Map</h3>
+                        <p>123 Faith Avenue, Grace City, GC 12345</p>
+                        <p>Click below to view directions in Google Maps</p>
+                        <a href="https://maps.google.com/?q=123+Faith+Avenue+Grace+City+GC+12345" target="_blank" class="btn btn-outline">
+                            <i class="fas fa-directions"></i> Get Directions
+                        </a>
+                    </div>
+                    <!-- 
+                    To add actual Google Maps embed, replace the placeholder above with:
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3023.123456789!2d-74.0060!3d40.7128!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDQyJzQ2LjEiTiA3NMKwMDAnMjEuNiJX!5e0!3m2!1sen!2sus!4v1234567890123!5m2!1sen!2sus" 
+                        width="100%" 
+                        height="450" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                    -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Service Times Reminder -->
+        <section class="service-times-reminder">
+            <div class="container">
+                <h2>Join Us for Worship</h2>
+                <div class="times-grid">
+                    <div class="time-card">
+                        <i class="fas fa-sun"></i>
+                        <h3>Sunday Morning</h3>
+                        <p>Worship Service</p>
+                        <span class="time">9:00 AM - 11:30 AM</span>
+                    </div>
+                    <div class="time-card">
+                        <i class="fas fa-moon"></i>
+                        <h3>Sunday Evening</h3>
+                        <p>Evening Service</p>
+                        <span class="time">6:00 PM - 8:00 PM</span>
+                    </div>
+                    <div class="time-card">
+                        <i class="fas fa-praying-hands"></i>
+                        <h3>Wednesday</h3>
+                        <p>Bible Study & Prayer</p>
+                        <span class="time">7:00 PM - 9:00 PM</span>
+                    </div>
+                    <div class="time-card">
+                        <i class="fas fa-users"></i>
+                        <h3>Friday</h3>
+                        <p>Youth Fellowship</p>
+                        <span class="time">7:00 PM - 9:00 PM</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>God's Vessels International Ministry</h3>
+                    <p>Transforming lives through the power of God's love</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="gallery.html">Gallery</a></li>
+                        <li><a href="sermons.html">Sermons</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Service Times</h4>
+                    <ul>
+                        <li>Sunday: 9:00 AM & 6:00 PM</li>
+                        <li>Wednesday: 7:00 PM</li>
+                        <li>Friday: 7:00 PM (Youth)</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt"></i> 123 Faith Avenue, Grace City, GC 12345</li>
+                        <li><i class="fas fa-phone"></i> (555) 123-4567</li>
+                        <li><i class="fas fa-envelope"></i> info@gvim.org</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 God's Vessels International Ministry. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

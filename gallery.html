@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery - God's Vessels International Ministry</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <h2>GVIM</h2>
+                    <span>God's Vessels International Ministry</span>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="index.html" class="nav-link">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="about.html" class="nav-link">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="gallery.html" class="nav-link active">Gallery</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="sermons.html" class="nav-link">Sermons</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="contact.html" class="nav-link">Contact</a>
+                    </li>
+                </ul>
+                <div class="nav-toggle" id="mobile-menu">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Page Header -->
+        <section class="page-header">
+            <div class="container">
+                <h1>Photo Gallery</h1>
+                <p>Celebrating moments of worship, fellowship, and community service</p>
+            </div>
+        </section>
+
+        <!-- Gallery Filter -->
+        <section class="gallery-filter">
+            <div class="container">
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">All Photos</button>
+                    <button class="filter-btn" data-filter="worship">Worship Services</button>
+                    <button class="filter-btn" data-filter="events">Special Events</button>
+                    <button class="filter-btn" data-filter="community">Community Service</button>
+                    <button class="filter-btn" data-filter="youth">Youth Ministry</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Photo Gallery -->
+        <section class="gallery">
+            <div class="container">
+                <div class="gallery-grid">
+                    <!-- Worship Services -->
+                    <div class="gallery-item" data-category="worship">
+                        <div class="gallery-placeholder">
+                            <i class="fas fa-praying-hands fa-3x"></i>
+                            <span>Sunday Morning Worship</span>
+                        </div>
+                        <div class="gallery-overlay">
+                            <h4>Sunday Morning Worship</h4>
+                            <p>Our congregation gathered in praise and worship</p>
+                            <button class="view-btn" data-title="Sunday Morning Worship" data-description="Our congregation gathered in praise and worship during our Sunday morning service">View</button>
+                        </div>
+                    </div>
+
+                    <div class="gallery-item" data-category="worship">
+                        <div class="gallery-placeholder">
+                            <i class="fas fa-music fa-3x"></i>
+                            <span>Worship Team</span>
+                        </div>
+                        <div class="gallery-overlay">
+                            <h4>Worship Team in Action</h4>
+                            <p>Our talented worship team leading us in song</p>
+                            <button class="view-btn" data-title="Worship Team in Action" data-description="Our talented worship team leading us in song during Sunday service">View</button>
+                        </div>
+                    </div>
+
+                    <div class="gallery-item" data-category="worship">
+                        <div class="gallery-placeholder">
+                            <i class="fas fa-bible fa-3x"></i>
+                            <span>Bible Study</span>
+                        </div>
+                        <div class="gallery-overlay">
+                            <h4>Wednesday Bible Study</h4>
+                            <p>Deep study into God's Word together</p>
+                            <button class="view-btn" data-title="Wednesday Bible Study" data-description="Members engaged in deep study of God's Word during our Wednesday evening session">View</button>
+                        </div>
+                    </div>
+
+                    <!-- Special Events -->
+                    <div class="gallery-item" data-category="events">
+                        <div class="gallery-placeholder">
+                            <i class="fas fa-birthday-cake fa-3x"></i>
+                            <span>Church Anniversary</span>
+                        </div>
+                        <div class="gallery-overlay">
+                            <h4>14th Anniversary Celebration</h4>
+                            <p>Celebrating 14 years of God's faithfulness</p>
+                            <button class="view-btn" data-title="14th Anniversary Celebration" data-description="Celebrating 14 years of God's faithfulness and ministry at GVIM">View</button>
+                        </div>
+                    </div>
+
+                    <div class="gallery-item" data-category="events">
+                        <div class="gallery-placeholder">
+                            <i class="fas fa-water fa-3x"></i>
+                            <span>Baptism Service</span>
+                        </div>
+                        <div class="gallery-overlay">
+                            <h4>Baptism Sunday</h4>
+                            <p>New believers declaring their faith</p>
+                            <button class="view-btn" data-title="Baptism Sunday" data-description="New believers publicly declaring their faith through baptism">View</button>
+                        </div>
+                    </div>
+
+                    <div class="gallery-item" data-category="events">
+                        <div class="gallery-placeholder">
+                            <i class="fas fa-heart fa-3x"></i>
+                            <span>Christmas Service</span>
+                        </div>
+                        <div class="gallery-overlay">
+                            <h4>Christmas Eve Service</h4>
+                            <p>Celebrating the birth of our Savior</p>
+                            <button class="view-btn" data-title="Christmas Eve Service" data-description="Our beautiful Christmas Eve service celebrating the birth of Jesus Christ">View</button>
+                        </div>
+                    </div>
+
+                    <!-- Community Service -->
+                    <div class="gallery-item" data-category="community">
+                        <div class="gallery-placeholder">
+                            <i class="fas fa-hands-helping fa-3x"></i>
+                            <span>Food Drive</span>
+                        </div>
+                        <div class="gallery-overlay">
+                            <h4>Community Food Drive</h4>
+                            <p>Serving families in need</p>
+                            <button class="view-btn" data-title="Community Food Drive" data-description="Church members organizing and distributing food to families in need">View</button>
+                        </div>
+                    </div>
+
+                    <div class="gallery-item" data-category="community">
+                        <div class="gallery-placeholder">
+                            <i class="fas fa-school fa-3x"></i>
+                            <span>School Supplies</span>
+                        </div>
+                        <div class="gallery-overlay">
+                            <h4>Back-to-School Drive</h4>
+                            <p>Supporting local students</p>
+                            <button class="view-btn" data-title="Back-to-School Drive" data-description="Providing school supplies and backpacks to students in our community">View</button>
+                        </div>
+                    </div>
+
+                    <div class="gallery-item" data-category="community">
+                        <div class="gallery-placeholder">
+                            <i class="fas fa-home fa-3x"></i>
+                            <span>Habitat Build</span>
+                        </div>
+                        <div class="gallery-overlay">
+                            <h4>Habitat for Humanity</h4>
+                            <p>Building homes and hope</p>
+                            <button class="view-btn" data-title="Habitat for Humanity" data-description="Church volunteers working together to build homes for families in need">View</button>
+                        </div>
+                    </div>
+
+                    <!-- Youth Ministry -->
+                    <div class="gallery-item" data-category="youth">
+                        <div class="gallery-placeholder">
+                            <i class="fas fa-campground fa-3x"></i>
+                            <span>Youth Camp</span>
+                        </div>
+                        <div class="gallery-overlay">
+                            <h4>Summer Youth Camp</h4>
+                            <p>Building faith and friendships</p>
+                            <button class="view-btn" data-title="Summer Youth Camp" data-description="Young people growing in faith and building lasting friendships at summer camp">View</button>
+                        </div>
+                    </div>
+
+                    <div class="gallery-item" data-category="youth">
+                        <div class="gallery-placeholder">
+                            <i class="fas fa-gamepad fa-3x"></i>
+                            <span>Youth Night</span>
+                        </div>
+                        <div class="gallery-overlay">
+                            <h4>Friday Youth Night</h4>
+                            <p>Fun, fellowship, and faith</p>
+                            <button class="view-btn" data-title="Friday Youth Night" data-description="Youth enjoying games, worship, and fellowship during Friday night activities">View</button>
+                        </div>
+                    </div>
+
+                    <div class="gallery-item" data-category="youth">
+                        <div class="gallery-placeholder">
+                            <i class="fas fa-graduation-cap fa-3x"></i>
+                            <span>Youth Graduation</span>
+                        </div>
+                        <div class="gallery-overlay">
+                            <h4>Youth Ministry Graduation</h4>
+                            <p>Celebrating achievements and growth</p>
+                            <button class="view-btn" data-title="Youth Ministry Graduation" data-description="Celebrating the achievements and spiritual growth of our graduating youth">View</button>
+                        </div>
+                    </div>
+
+                    <!-- Additional worship and event photos -->
+                    <div class="gallery-item" data-category="events">
+                        <div class="gallery-placeholder">
+                            <i class="fas fa-ring fa-3x"></i>
+                            <span>Church Wedding</span>
+                        </div>
+                        <div class="gallery-overlay">
+                            <h4>Wedding Ceremony</h4>
+                            <p>Celebrating love and commitment</p>
+                            <button class="view-btn" data-title="Wedding Ceremony" data-description="A beautiful wedding ceremony celebrating love and commitment in our sanctuary">View</button>
+                        </div>
+                    </div>
+
+                    <div class="gallery-item" data-category="worship">
+                        <div class="gallery-placeholder">
+                            <i class="fas fa-dove fa-3x"></i>
+                            <span>Prayer Meeting</span>
+                        </div>
+                        <div class="gallery-overlay">
+                            <h4>Prayer Meeting</h4>
+                            <p>Coming together in prayer</p>
+                            <button class="view-btn" data-title="Prayer Meeting" data-description="Members gathered together for our weekly prayer meeting">View</button>
+                        </div>
+                    </div>
+
+                    <div class="gallery-item" data-category="community">
+                        <div class="gallery-placeholder">
+                            <i class="fas fa-tree fa-3x"></i>
+                            <span>Park Cleanup</span>
+                        </div>
+                        <div class="gallery-overlay">
+                            <h4>Community Park Cleanup</h4>
+                            <p>Caring for our neighborhood</p>
+                            <button class="view-btn" data-title="Community Park Cleanup" data-description="Volunteers working together to clean and beautify our local park">View</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal -->
+    <div id="gallery-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-image">
+                <i class="fas fa-image fa-8x"></i>
+            </div>
+            <div class="modal-info">
+                <h3 id="modal-title">Image Title</h3>
+                <p id="modal-description">Image description will appear here.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>God's Vessels International Ministry</h3>
+                    <p>Transforming lives through the power of God's love</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="gallery.html">Gallery</a></li>
+                        <li><a href="sermons.html">Sermons</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Service Times</h4>
+                    <ul>
+                        <li>Sunday: 9:00 AM & 6:00 PM</li>
+                        <li>Wednesday: 7:00 PM</li>
+                        <li>Friday: 7:00 PM (Youth)</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt"></i> 123 Faith Avenue, Grace City, GC 12345</li>
+                        <li><i class="fas fa-phone"></i> (555) 123-4567</li>
+                        <li><i class="fas fa-envelope"></i> info@gvim.org</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 God's Vessels International Ministry. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
