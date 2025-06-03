@@ -691,12 +691,37 @@ blockquote cite {
     padding: var(--spacing-lg);
 }
 
-.gallery-placeholder i {
-    margin-bottom: var(--spacing-md);
+.image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: hsl(var(--gray-200));
+    border: 2px dashed hsl(var(--gray-300));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    position: relative;
 }
 
-.gallery-placeholder span {
+.image-placeholder::before {
+    content: "📷";
+    font-size: 2rem;
+    margin-bottom: var(--spacing-sm);
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.image-placeholder span {
     font-weight: 500;
+    font-size: 0.875rem;
+    color: hsl(var(--gray-500));
+    position: absolute;
+    bottom: 25%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
 }
 
 .gallery-overlay {
