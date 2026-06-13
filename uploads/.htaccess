@@ -1,0 +1,8 @@
+# Block PHP execution in uploads directory — security critical
+<FilesMatch "\.php$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Allow direct access to media files only
+Options -Indexes
