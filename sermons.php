@@ -4,16 +4,16 @@ $page_desc = "Listen to and watch messages from God's Vessels International Mini
 $root = '';
 require_once 'includes/header.php';
 
-$data = load_sermons();
-$sermons = $data['sermons'] ?? [];
+$sermons  = get_sermons();
 $featured = !empty($sermons) ? $sermons[0] : null;
-$rest = array_slice($sermons, 1);
+$rest     = array_slice($sermons, 1);
 ?>
 
 <section class="page-header">
     <div class="container">
-        <h1>Sermons &amp; Messages</h1>
-        <p>Be encouraged and inspired by God's Word through our sermons and teachings</p>
+        <span class="eyebrow" data-hero>The Word, Undiluted</span>
+        <h1 data-hero>Sermons &amp; Messages</h1>
+        <p data-hero>Be encouraged and inspired by God's Word through our sermons and teachings.</p>
     </div>
 </section>
 
@@ -21,14 +21,17 @@ $rest = array_slice($sermons, 1);
 <!-- Featured / Latest Sermon -->
 <section class="featured-sermon">
     <div class="container">
-        <h2>Latest Message</h2>
+        <div class="section-head">
+            <span class="eyebrow">Now Playing</span>
+            <h2>Latest Message</h2>
+        </div>
         <div class="featured-content">
             <div class="sermon-video">
-                <?php if (!empty($featured['file'])): ?>
-                    <?php $ext = strtolower(pathinfo($featured['file'], PATHINFO_EXTENSION)); ?>
+                <?php if (!empty($featured['file_path'])): ?>
+                    <?php $ext = strtolower(pathinfo($featured['file_path'], PATHINFO_EXTENSION)); ?>
                     <?php if (in_array($ext, ['mp4','webm','ogg','mov'])): ?>
                         <video controls preload="metadata" poster="<?= h($featured['thumbnail'] ?? '') ?>" style="width:100%;border-radius:0.75rem">
-                            <source src="../<?= h($featured['file']) ?>" type="video/mp4">
+                            <source src="../<?= h($featured['file_path']) ?>" type="video/mp4">
                             Your browser does not support video.
                         </video>
                     <?php elseif (in_array($ext, ['mp3','ogg','wav','m4a'])): ?>
@@ -37,15 +40,15 @@ $rest = array_slice($sermons, 1);
                             <div class="play-overlay"><i class="fas fa-headphones fa-3x"></i></div>
                         </div>
                         <audio controls style="width:100%;margin-top:1rem">
-                            <source src="<?= h($featured['file']) ?>" type="audio/mpeg">
+                            <source src="<?= h($featured['file_path']) ?>" type="audio/mpeg">
                         </audio>
-                    <?php elseif (!empty($featured['youtube'])): ?>
-                        <iframe src="https://www.youtube.com/embed/<?= h($featured['youtube']) ?>"
+                    <?php elseif (!empty($featured['youtube_id'])): ?>
+                        <iframe src="https://www.youtube.com/embed/<?= h($featured['youtube_id']) ?>"
                                 frameborder="0" allowfullscreen style="width:100%;aspect-ratio:16/9;border-radius:0.75rem"
                                 loading="lazy"></iframe>
                     <?php endif; ?>
-                <?php elseif (!empty($featured['youtube'])): ?>
-                    <iframe src="https://www.youtube.com/embed/<?= h($featured['youtube']) ?>"
+                <?php elseif (!empty($featured['youtube_id'])): ?>
+                    <iframe src="https://www.youtube.com/embed/<?= h($featured['youtube_id']) ?>"
                             frameborder="0" allowfullscreen style="width:100%;aspect-ratio:16/9;border-radius:0.75rem"
                             loading="lazy"></iframe>
                 <?php else: ?>
@@ -58,7 +61,7 @@ $rest = array_slice($sermons, 1);
             <div class="sermon-details">
                 <h3><?= h($featured['title']) ?></h3>
                 <p class="sermon-meta">
-                    <i class="fas fa-calendar"></i> <?= h($featured['date'] ?? '') ?> &nbsp;|&nbsp;
+                    <i class="fas fa-calendar"></i> <?= h($featured['sermon_date'] ?? '') ?> &nbsp;|&nbsp;
                     <i class="fas fa-user"></i> <?= h($featured['speaker'] ?? 'Rev. Godwin BB. Olutimi') ?> &nbsp;|&nbsp;
                     <i class="fas fa-clock"></i> <?= h($featured['duration'] ?? '') ?>
                 </p>
@@ -67,13 +70,13 @@ $rest = array_slice($sermons, 1);
                 <p class="sermon-verse"><strong>Key Scripture:</strong> <?= h($featured['scripture']) ?></p>
                 <?php endif; ?>
                 <div class="sermon-actions">
-                    <?php if (!empty($featured['youtube'])): ?>
-                    <a href="https://www.youtube.com/watch?v=<?= h($featured['youtube']) ?>" target="_blank" rel="noopener" class="btn btn-primary">
+                    <?php if (!empty($featured['youtube_id'])): ?>
+                    <a href="https://www.youtube.com/watch?v=<?= h($featured['youtube_id']) ?>" target="_blank" rel="noopener" class="btn btn-primary">
                         <i class="fab fa-youtube"></i> Watch on YouTube
                     </a>
                     <?php endif; ?>
-                    <?php if (!empty($featured['file']) && in_array(strtolower(pathinfo($featured['file'], PATHINFO_EXTENSION)), ['mp3','wav','m4a'])): ?>
-                    <a href="<?= h($featured['file']) ?>" download class="btn btn-outline">
+                    <?php if (!empty($featured['file_path']) && in_array(strtolower(pathinfo($featured['file_path'], PATHINFO_EXTENSION)), ['mp3','wav','m4a'])): ?>
+                    <a href="<?= h($featured['file_path']) ?>" download class="btn btn-outline">
                         <i class="fas fa-download"></i> Download Audio
                     </a>
                     <?php endif; ?>
@@ -86,7 +89,10 @@ $rest = array_slice($sermons, 1);
 <?php if (!empty($rest)): ?>
 <section class="recent-sermons">
     <div class="container">
-        <h2>More Messages</h2>
+        <div class="section-head">
+            <span class="eyebrow">Keep Growing</span>
+            <h2>More Messages</h2>
+        </div>
         <div class="sermons-grid">
             <?php foreach ($rest as $s): ?>
             <div class="sermon-card">
@@ -100,21 +106,21 @@ $rest = array_slice($sermons, 1);
                 </div>
                 <div class="sermon-info">
                     <h4><?= h($s['title']) ?></h4>
-                    <p class="sermon-date"><i class="fas fa-calendar"></i> <?= h($s['date'] ?? '') ?></p>
+                    <p class="sermon-date"><i class="fas fa-calendar"></i> <?= h($s['sermon_date'] ?? '') ?></p>
                     <p class="sermon-speaker"><i class="fas fa-user"></i> <?= h($s['speaker'] ?? 'Rev. Godwin BB. Olutimi') ?></p>
                     <p class="sermon-excerpt"><?= h(mb_substr($s['description'] ?? '', 0, 120)) ?>...</p>
                     <div class="sermon-links">
-                        <?php if (!empty($s['youtube'])): ?>
-                        <a href="https://www.youtube.com/watch?v=<?= h($s['youtube']) ?>" target="_blank" rel="noopener" class="watch-link">
+                        <?php if (!empty($s['youtube_id'])): ?>
+                        <a href="https://www.youtube.com/watch?v=<?= h($s['youtube_id']) ?>" target="_blank" rel="noopener" class="watch-link">
                             <i class="fas fa-play"></i> Watch
                         </a>
-                        <?php elseif (!empty($s['file'])): ?>
-                        <a href="<?= h($s['file']) ?>" class="watch-link">
+                        <?php elseif (!empty($s['file_path'])): ?>
+                        <a href="<?= h($s['file_path']) ?>" class="watch-link">
                             <i class="fas fa-play"></i> Play
                         </a>
                         <?php endif; ?>
-                        <?php if (!empty($s['file']) && in_array(strtolower(pathinfo($s['file'], PATHINFO_EXTENSION)), ['mp3','wav','m4a'])): ?>
-                        <a href="<?= h($s['file']) ?>" download class="audio-link">
+                        <?php if (!empty($s['file_path']) && in_array(strtolower(pathinfo($s['file_path'], PATHINFO_EXTENSION)), ['mp3','wav','m4a'])): ?>
+                        <a href="<?= h($s['file_path']) ?>" download class="audio-link">
                             <i class="fas fa-download"></i> Audio
                         </a>
                         <?php endif; ?>
@@ -128,11 +134,12 @@ $rest = array_slice($sermons, 1);
 <?php endif; ?>
 
 <?php else: ?>
-<section style="padding:4rem 0; text-align:center">
+<section class="empty-state">
     <div class="container">
-        <i class="fas fa-microphone-slash fa-3x" style="color:#a0aec0; margin-bottom:1rem"></i>
+        <i class="fas fa-microphone-lines fa-3x"></i>
         <h2>Sermons Coming Soon</h2>
         <p>Check back soon or subscribe to our YouTube channel for the latest messages.</p>
+        <a href="https://www.youtube.com/@godsvesselsinternationalmi4365" target="_blank" rel="noopener" class="btn btn-primary mt-2"><i class="fab fa-youtube"></i> Subscribe on YouTube</a>
     </div>
 </section>
 <?php endif; ?>

@@ -1,0 +1,20 @@
+name = "gvim"
+compatibility_date = "2025-01-01"
+pages_build_output_dir = "dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "gvim-db"
+database_id = "b4310931-6ff3-4df6-97e4-4fe67076301a"
+
+[[r2_buckets]]
+binding = "GALLERY_BUCKET"
+bucket_name = "gvim-gallery"
+
+[[r2_buckets]]
+binding = "SERMONS_BUCKET"
+bucket_name = "gvim-sermons"
+
+[vars]
+PUBLIC_GALLERY_BASE = "https://pub-294f59fe9da048038154a5cfe900e95d.r2.dev"
+PUBLIC_SERMONS_BASE = "https://pub-2d6c5594e1c04df39a2223bd60d5b5d4.r2.dev"

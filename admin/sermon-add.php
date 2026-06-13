@@ -52,20 +52,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (empty($errors)) {
-            $data = load_sermons();
-            array_unshift($data['sermons'], [
+            insert_sermon([
                 'id'          => generate_id(),
                 'title'       => $title,
                 'speaker'     => $speaker,
-                'date'        => $date,
+                'sermon_date' => $date,
                 'scripture'   => $scripture,
                 'description' => $description,
-                'youtube'     => $youtube,
-                'file'        => $file_path,
+                'youtube_id'  => $youtube,
+                'file_path'   => $file_path,
                 'duration'    => $duration,
-                'created_at'  => date('Y-m-d H:i:s'),
             ]);
-            save_sermons($data);
             admin_flash('success', "Sermon \"$title\" added successfully.");
             header('Location: sermon-manage.php');
             exit;
@@ -92,8 +89,10 @@ $flash = admin_get_flash();
         <a href="dashboard.php">Dashboard</a>
         <a href="gallery-upload.php">Upload Media</a>
         <a href="gallery-manage.php">Gallery</a>
+        <a href="categories.php">Categories</a>
         <a href="sermon-add.php" class="active">Add Sermon</a>
         <a href="sermon-manage.php">Sermons</a>
+        <a href="contacts.php">Messages</a>
         <a href="../index.php" target="_blank">View Site</a>
         <a href="logout.php" class="logout-link">Logout</a>
     </div>

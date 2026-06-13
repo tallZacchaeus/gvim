@@ -1,0 +1,42 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { api } from '../../lib/api';
+
+export default function Login() {
+  const [username, setU] = useState('');
+  const [password, setP] = useState('');
+  const [err, setErr] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setErr(''); setLoading(true);
+    try {
+      await api.auth.login(username, password);
+      navigate('/admin/dashboard');
+    } catch (e: any) { setErr(e.message || 'Login failed'); }
+    finally { setLoading(false); }
+  }
+
+  return (
+    <div className="admin-login">
+      <div className="admin-login-card">
+        <img src="/gvim-logo.jpg" alt="GVIM" width={80} height={80} />
+        <h1>Admin Login</h1>
+        <form onSubmit={onSubmit}>
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
+            <input id="username" type="text" required value={username} onChange={e => setU(e.target.value)} autoComplete="username" />
+          </div>
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input id="password" type="password" required value={password} onChange={e => setP(e.target.value)} autoComplete="current-password" />
+          </div>
+          {err && <div className="alert alert-error">{err}</div>}
+          <button type="submit" className="btn btn-primary" disabled={loading}>{loading ? 'Signing in…' : 'Sign In'}</button>
+        </form>
+      </div>
+    </div>
+  );
+}

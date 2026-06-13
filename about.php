@@ -7,14 +7,19 @@ require_once 'includes/header.php';
 
 <section class="page-header">
     <div class="container">
-        <h1>About Us</h1>
-        <p>Discover our heart, mission, and the people who make GVIM a place of worship and fellowship</p>
+        <span class="eyebrow" data-hero>Who We Are</span>
+        <h1 data-hero>About God's Vessels</h1>
+        <p data-hero>Discover our heart, mission, and the people who make GVIM a place of worship and fellowship.</p>
     </div>
 </section>
 
 <!-- Vision & Mission -->
 <section class="vision-mission">
     <div class="container">
+        <div class="section-head">
+            <span class="eyebrow">Our Foundation</span>
+            <h2>Vision, Mission &amp; Values</h2>
+        </div>
         <div class="vm-grid">
             <div class="vm-card">
                 <i class="fas fa-eye fa-3x"></i>
@@ -38,7 +43,10 @@ require_once 'includes/header.php';
 <!-- Ministry Pillars -->
 <section class="ministry-pillars">
     <div class="container">
-        <h2>Our Ministry Pillars</h2>
+        <div class="section-head">
+            <span class="eyebrow">What We Stand On</span>
+            <h2>Our Ministry Pillars</h2>
+        </div>
         <div class="pillars-grid">
             <?php
             $pillars = [
@@ -64,7 +72,10 @@ require_once 'includes/header.php';
 <!-- Leadership -->
 <section class="leadership">
     <div class="container">
-        <h2>Our Lead Pastor</h2>
+        <div class="section-head">
+            <span class="eyebrow">Our Shepherds</span>
+            <h2>Our Lead Pastor</h2>
+        </div>
         <div class="lead-pastor-section">
             <div class="leader-card lead-pastor-card">
                 <div class="leader-image">
@@ -121,6 +132,7 @@ require_once 'includes/header.php';
     <div class="container">
         <div class="history-content">
             <div class="history-text">
+                <span class="eyebrow">Our Journey</span>
                 <h2>Our Story</h2>
                 <p>The name first started as God's Vessels back in 2014 when Rev. Godwin was reading his Bible on a faithful morning. Years before then, he had received a clear message from the Lord that he would be a pastor for His glory. So the name was kept until the appointed time.</p>
                 <p>When he came to Canada in 2017, the Holy Spirit led him to start a Bible study group. This group started in 2018 in his living room in Lachine, Quebec with 5 people and later grew to about 15.</p>
@@ -138,10 +150,10 @@ require_once 'includes/header.php';
                 </div>
             </div>
             <div class="history-stats">
-                <div class="stat"><h3>25+</h3><p>Active Members</p></div>
-                <div class="stat"><h3>6+</h3><p>Ministry Teams</p></div>
-                <div class="stat"><h3>1000+</h3><p>Lives Impacted</p></div>
-                <div class="stat"><h3>8</h3><p>Years of Ministry</p></div>
+                <div class="stat"><h3><span data-count="25" data-suffix="+">25+</span></h3><p>Active Members</p></div>
+                <div class="stat"><h3><span data-count="6" data-suffix="+">6+</span></h3><p>Ministry Teams</p></div>
+                <div class="stat"><h3><span data-count="1000" data-suffix="+">1000+</span></h3><p>Lives Impacted</p></div>
+                <div class="stat"><h3><span data-count="8">8</span></h3><p>Years of Ministry</p></div>
             </div>
         </div>
     </div>
@@ -150,7 +162,10 @@ require_once 'includes/header.php';
 <!-- Service Times -->
 <section class="service-times">
     <div class="container">
-        <h2>Join Us for Worship</h2>
+        <div class="section-head">
+            <span class="eyebrow">Gather With Us</span>
+            <h2>Join Us for Worship</h2>
+        </div>
         <div class="times-grid">
             <div class="time-card"><i class="fas fa-sun fa-2x"></i><h3>Sunday Morning</h3><p>First Service</p><span class="time">10:00 AM MDT</span></div>
             <div class="time-card"><i class="fas fa-sunset fa-2x"></i><h3>Sunday Afternoon</h3><p>Second Service</p><span class="time">2:00 PM MDT</span></div>

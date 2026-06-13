@@ -4,12 +4,13 @@
         <div class="footer-content">
             <div class="footer-section">
                 <h3>God's Vessels International Ministry</h3>
-                <p>Transforming lives through the power of God's love</p>
+                <p>Transforming lives through the power of God's love — a vessel of truth in Edmonton and beyond.</p>
+                <?php require_once __DIR__ . '/social-icons.php'; ?>
                 <div class="social-links">
-                    <a href="https://web.facebook.com/GVIMM" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-                    <a href="https://www.youtube.com/@godsvesselsinternationalmi4365" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="#" aria-label="Twitter/X"><i class="fab fa-twitter"></i></a>
+                    <a href="https://web.facebook.com/GVIMM" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><?= social_icon('facebook') ?></a>
+                    <a href="https://www.youtube.com/@godsvesselsinternationalmi4365" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><?= social_icon('youtube') ?></a>
+                    <a href="#" aria-label="Instagram"><?= social_icon('instagram') ?></a>
+                    <a href="#" aria-label="X (Twitter)"><?= social_icon('x') ?></a>
                 </div>
             </div>
             <div class="footer-section">
@@ -47,6 +48,8 @@
         </div>
     </div>
 </footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
 <script src="<?= $root ?>assets/js/main.js" defer></script>
 </body>
 </html>

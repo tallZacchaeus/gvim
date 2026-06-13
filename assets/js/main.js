@@ -1,12 +1,15 @@
 'use strict';
 
+const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 document.addEventListener('DOMContentLoaded', () => {
     initMobileNav();
+    initHeaderScroll();
     initGalleryFilter();
     initGalleryModal();
     initContactForm();
     initScrollToTop();
-    initScrollAnimations();
+    initMotion();
 });
 
 // ── Mobile navigation ──────────────────────────────────────────────────────
@@ -15,6 +18,13 @@ function initMobileNav() {
     const menu   = document.getElementById('nav-menu');
     if (!toggle || !menu) return;
 
+    const close = () => {
+        menu.classList.remove('active');
+        toggle.classList.remove('active');
+        toggle.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+    };
+
     toggle.addEventListener('click', () => {
         const open = menu.classList.toggle('active');
         toggle.classList.toggle('active', open);
@@ -22,23 +32,21 @@ function initMobileNav() {
         document.body.style.overflow = open ? 'hidden' : '';
     });
 
-    menu.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', () => {
-            menu.classList.remove('active');
-            toggle.classList.remove('active');
-            toggle.setAttribute('aria-expanded', 'false');
-            document.body.style.overflow = '';
-        });
-    });
+    menu.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', close));
 
     document.addEventListener('click', e => {
-        if (!toggle.contains(e.target) && !menu.contains(e.target)) {
-            menu.classList.remove('active');
-            toggle.classList.remove('active');
-            toggle.setAttribute('aria-expanded', 'false');
-            document.body.style.overflow = '';
-        }
+        if (!toggle.contains(e.target) && !menu.contains(e.target)) close();
     });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+}
+
+// ── Sticky header scroll state ─────────────────────────────────────────────
+function initHeaderScroll() {
+    const header = document.getElementById('site-header');
+    if (!header) return;
+    const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
 }
 
 // ── Gallery filter (client-side) ───────────────────────────────────────────
@@ -57,13 +65,15 @@ function initGalleryFilter() {
                 const match = filter === 'all' || item.dataset.category === filter;
                 if (match) {
                     item.style.display = 'block';
-                    requestAnimationFrame(() => {
-                        item.style.opacity = '1';
-                        item.style.transform = 'translateY(0)';
-                    });
+                    if (window.gsap && !REDUCED_MOTION) {
+                        window.gsap.fromTo(item, { opacity: 0, scale: 0.94, y: 12 },
+                            { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: 'power2.out', clearProps: 'transform' });
+                    } else {
+                        requestAnimationFrame(() => { item.style.opacity = '1'; item.style.transform = 'none'; });
+                    }
                 } else {
                     item.style.opacity = '0';
-                    item.style.transform = 'translateY(-12px)';
+                    item.style.transform = 'translateY(-10px)';
                     setTimeout(() => { item.style.display = 'none'; }, 250);
                 }
             });
@@ -93,35 +103,31 @@ function initGalleryModal() {
         if (type === 'video') {
             const vid = document.createElement('video');
             vid.src = src; vid.controls = true; vid.autoplay = true;
-            vid.style.cssText = 'max-width:100%;max-height:60vh;display:block;margin:0 auto;';
             mediaEl.appendChild(vid);
         } else {
             const img = document.createElement('img');
             img.src = src; img.alt = title;
-            img.style.cssText = 'max-width:100%;max-height:60vh;object-fit:contain;display:block;margin:0 auto;';
             mediaEl.appendChild(img);
         }
 
         modal.classList.add('open');
         document.body.style.overflow = 'hidden';
+        closeBtn?.focus();
     }
 
     function closeModal() {
         modal.classList.remove('open');
         document.body.style.overflow = '';
-        // Stop video if playing
         const vid = mediaEl.querySelector('video');
         if (vid) { vid.pause(); vid.src = ''; }
-        mediaEl.innerHTML = '';
+        setTimeout(() => { mediaEl.innerHTML = ''; }, 300);
     }
 
-    // Delegate clicks on .view-btn
     document.addEventListener('click', e => {
         const btn = e.target.closest('.view-btn');
         if (btn) { e.stopPropagation(); openModal(btn); }
     });
 
-    // Also click on gallery item itself opens modal
     document.querySelectorAll('.gallery-item').forEach(item => {
         item.addEventListener('click', e => {
             if (e.target.closest('.view-btn')) return;
@@ -164,14 +170,16 @@ function initContactForm() {
             showErr('messageError', 'Message must be at least 10 characters.'); valid = false;
         }
 
-        if (!valid) e.preventDefault();
-        else {
+        if (!valid) {
+            e.preventDefault();
+            form.querySelector('.error-message:not(:empty)')?.closest('.form-group')
+                ?.querySelector('input,select,textarea')?.focus();
+        } else {
             const btn = form.querySelector('[type=submit]');
             if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…'; }
         }
     });
 
-    // Live clearing
     form.querySelectorAll('input, select, textarea').forEach(el => {
         el.addEventListener('input', () => {
             const err = document.getElementById(el.id + 'Error');
@@ -184,7 +192,7 @@ function showErr(id, msg) {
     const el = document.getElementById(id);
     const field = document.getElementById(id.replace('Error',''));
     if (el) el.textContent = msg;
-    if (field) field.style.borderColor = 'hsl(0 84% 60%)';
+    if (field) field.style.borderColor = 'hsl(0 72% 51%)';
 }
 
 function clearErrors() {
@@ -201,29 +209,104 @@ function initScrollToTop() {
     btn.innerHTML = '<i class="fas fa-chevron-up"></i>';
     document.body.appendChild(btn);
 
-    const toggle = () => btn.classList.toggle('visible', window.scrollY > 300);
+    const toggle = () => btn.classList.toggle('visible', window.scrollY > 400);
     window.addEventListener('scroll', toggle, { passive: true });
-    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: REDUCED_MOTION ? 'auto' : 'smooth' }));
 }
 
-// ── Intersection observer animations ──────────────────────────────────────
-function initScrollAnimations() {
-    if (!('IntersectionObserver' in window)) return;
-    const observer = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+// ── Motion system (GSAP, progressive enhancement) ──────────────────────────
+function initMotion() {
+    const gsap = window.gsap;
+    // No GSAP or reduced motion → leave everything in its natural, visible state.
+    if (!gsap || REDUCED_MOTION) { animateCounters(true); return; }
 
-    document.querySelectorAll('.time-card,.vm-card,.pillar,.leader-card,.sermon-card,.feature,.gallery-item,.testimonial-card,.stat')
-        .forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(24px)';
-            el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-            observer.observe(el);
+    if (window.ScrollTrigger) gsap.registerPlugin(window.ScrollTrigger);
+
+    // Hero entrance
+    const heroBits = document.querySelectorAll('.hero [data-hero]');
+    if (heroBits.length) {
+        gsap.timeline({ defaults: { ease: 'power3.out' } })
+            .from(heroBits, { y: 36, opacity: 0, duration: 0.9, stagger: 0.12, delay: 0.1 });
+    }
+
+    // Page-header entrance
+    const phBits = document.querySelectorAll('.page-header [data-hero]');
+    if (phBits.length) {
+        gsap.from(phBits, { y: 28, opacity: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out' });
+    }
+
+    if (!window.ScrollTrigger) { animateCounters(true); return; }
+    const ST = window.ScrollTrigger;
+
+    // Scroll reveals — staggered, batched per section
+    const revealSel = '.section-head, .time-card, .vm-card, .pillar, .leader-card, .sermon-card,'
+        + '.feature, .gallery-item, .testimonial-card, .stat, .info-item, .theme-text, .theme-visual,'
+        + '.welcome-text, .welcome-features, .mini-gallery-item, .milestones, .emergency-contact, .contact-form';
+
+    gsap.set(revealSel, { opacity: 0, y: 30 });
+    ST.batch(revealSel, {
+        start: 'top 88%',
+        onEnter: batch => gsap.to(batch, {
+            opacity: 1, y: 0, duration: 0.7, ease: 'power2.out', stagger: 0.08, overwrite: true,
+        }),
+    });
+
+    // Parallax on hero aurora blobs
+    document.querySelectorAll('.hero-aurora span').forEach((blob, i) => {
+        gsap.to(blob, {
+            yPercent: (i + 1) * 12, ease: 'none',
+            scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true },
         });
+    });
+
+    // Featured visual subtle parallax
+    const visual = document.querySelector('.theme-visual');
+    if (visual) {
+        gsap.to(visual, { yPercent: -8, ease: 'none',
+            scrollTrigger: { trigger: visual, start: 'top bottom', end: 'bottom top', scrub: true } });
+    }
+
+    animateCounters(false);
+    initMagnetic();
+    ST.refresh();
+}
+
+// ── Animated stat counters ─────────────────────────────────────────────────
+function animateCounters(immediate) {
+    const els = document.querySelectorAll('[data-count]');
+    if (!els.length) return;
+    const gsap = window.gsap;
+
+    els.forEach(el => {
+        const target = parseFloat(el.dataset.count);
+        const suffix = el.dataset.suffix || '';
+        const fmt = v => Math.round(v).toLocaleString() + suffix;
+
+        if (immediate || !gsap || !window.ScrollTrigger) { el.textContent = fmt(target); return; }
+
+        const obj = { v: 0 };
+        gsap.to(obj, {
+            v: target, duration: 1.6, ease: 'power2.out',
+            onUpdate: () => { el.textContent = fmt(obj.v); },
+            scrollTrigger: { trigger: el, start: 'top 90%', once: true },
+        });
+    });
+}
+
+// ── Magnetic buttons (pointer-fine devices only) ───────────────────────────
+function initMagnetic() {
+    const gsap = window.gsap;
+    if (!gsap || !window.matchMedia('(pointer:fine)').matches) return;
+
+    document.querySelectorAll('.btn-primary, .btn-accent, .scroll-to-top').forEach(btn => {
+        btn.addEventListener('mousemove', e => {
+            const r = btn.getBoundingClientRect();
+            const mx = e.clientX - r.left - r.width / 2;
+            const my = e.clientY - r.top - r.height / 2;
+            gsap.to(btn, { x: mx * 0.25, y: my * 0.3, duration: 0.4, ease: 'power3.out' });
+        });
+        btn.addEventListener('mouseleave', () => {
+            gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.4)' });
+        });
+    });
 }

@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir *)",
+      "Bash(cp *)",
+      "Bash(cat *)",
+      "Bash(npm install 2>& *)",
+      "Bash(cd app && npm install 2>&1 | tail -30 || true)",
+      "Bash(npx tsc *)",
+      "Bash(cd app && npx tsc --noEmit 2>&1 | head -100 || true)",
+      "Bash(cd app && npx tsc --noEmit 2>&1 | head -50 || true)",
+      "Bash(npm run build *)"
+    ]
+  }
+}

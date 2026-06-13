@@ -4,24 +4,27 @@ $page_desc = "Browse photos and videos from GVIM worship services, community out
 $root = '';
 require_once 'includes/header.php';
 
-$filter = in_array($_GET['cat'] ?? '', ['worship','events','community','youth']) ? $_GET['cat'] : null;
-$all_items = get_gallery_items($filter);
-$categories = ['all' => 'All Media', 'worship' => 'Worship Services', 'events' => 'Special Events', 'community' => 'Community Service', 'youth' => 'Youth Ministry'];
+$db_cats    = get_categories();
+$valid_slugs = array_column($db_cats, 'slug');
+$filter     = in_array($_GET['cat'] ?? '', $valid_slugs) ? $_GET['cat'] : null;
+$all_items  = get_gallery_items($filter);
 ?>
 
 <section class="page-header">
     <div class="container">
-        <h1>Photo &amp; Video Gallery</h1>
-        <p>Celebrating moments of worship, fellowship, and community service</p>
+        <span class="eyebrow" data-hero>Moments of Grace</span>
+        <h1 data-hero>Photo &amp; Video Gallery</h1>
+        <p data-hero>Celebrating moments of worship, fellowship, and community service.</p>
     </div>
 </section>
 
 <section class="gallery-filter">
     <div class="container">
         <div class="filter-buttons">
-            <?php foreach ($categories as $key => $label): ?>
-            <button class="filter-btn <?= ($filter === $key || ($key === 'all' && !$filter)) ? 'active' : '' ?>"
-                    data-filter="<?= $key ?>"><?= h($label) ?></button>
+            <button class="filter-btn <?= !$filter ? 'active' : '' ?>" data-filter="all">All Media</button>
+            <?php foreach ($db_cats as $cat): ?>
+            <button class="filter-btn <?= $filter === $cat['slug'] ? 'active' : '' ?>"
+                    data-filter="<?= h($cat['slug']) ?>"><?= h($cat['label']) ?></button>
             <?php endforeach; ?>
         </div>
     </div>
@@ -36,7 +39,7 @@ $categories = ['all' => 'All Media', 'worship' => 'Worship Services', 'events' =
             <?php foreach ($all_items as $item): ?>
             <div class="gallery-item" data-category="<?= h($item['category']) ?>">
                 <?php if ($item['type'] === 'video'): ?>
-                    <video src="<?= h($item['path']) ?>"
+                    <video src="<?= h($item['file_path']) ?>"
                            preload="metadata"
                            muted
                            class="gallery-media"
@@ -46,14 +49,14 @@ $categories = ['all' => 'All Media', 'worship' => 'Worship Services', 'events' =
                     </video>
                     <div class="video-badge"><i class="fas fa-play-circle"></i></div>
                 <?php else: ?>
-                    <img src="<?= h($item['path']) ?>"
+                    <img src="<?= h($item['file_path']) ?>"
                          alt="<?= h($item['title']) ?>"
                          loading="lazy"
                          class="gallery-media"
                          data-type="image"
                          data-title="<?= h($item['title']) ?>"
                          data-description="<?= h($item['description']) ?>"
-                         data-src="<?= h($item['path']) ?>"
+                         data-src="<?= h($item['file_path']) ?>"
                          width="400" height="300">
                 <?php endif; ?>
                 <div class="gallery-overlay">
@@ -61,7 +64,7 @@ $categories = ['all' => 'All Media', 'worship' => 'Worship Services', 'events' =
                     <p><?= h($item['description']) ?></p>
                     <button class="view-btn"
                             data-type="<?= h($item['type']) ?>"
-                            data-src="<?= h($item['path']) ?>"
+                            data-src="<?= h($item['file_path']) ?>"
                             data-title="<?= h($item['title']) ?>"
                             data-description="<?= h($item['description']) ?>">
                         <?= $item['type'] === 'video' ? '<i class="fas fa-play"></i> Play' : '<i class="fas fa-expand"></i> View' ?>

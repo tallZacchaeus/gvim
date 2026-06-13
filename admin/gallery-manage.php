@@ -2,9 +2,11 @@
 require_once __DIR__ . '/auth.php';
 require_admin();
 
-$flash = admin_get_flash();
+$flash      = admin_get_flash();
+$categories = get_categories();
 $filter_cat = $_GET['cat'] ?? 'all';
-$items = $filter_cat !== 'all' && in_array($filter_cat, ['worship','events','community','youth'])
+$valid_slugs = array_column($categories, 'slug');
+$items = ($filter_cat !== 'all' && in_array($filter_cat, $valid_slugs))
     ? get_gallery_items($filter_cat)
     : get_gallery_items();
 ?>
@@ -25,8 +27,10 @@ $items = $filter_cat !== 'all' && in_array($filter_cat, ['worship','events','com
         <a href="dashboard.php">Dashboard</a>
         <a href="gallery-upload.php">Upload Media</a>
         <a href="gallery-manage.php" class="active">Gallery</a>
+        <a href="categories.php">Categories</a>
         <a href="sermon-add.php">Add Sermon</a>
         <a href="sermon-manage.php">Sermons</a>
+        <a href="contacts.php">Messages</a>
         <a href="../index.php" target="_blank">View Site</a>
         <a href="logout.php" class="logout-link">Logout</a>
     </div>
@@ -39,13 +43,15 @@ $items = $filter_cat !== 'all' && in_array($filter_cat, ['worship','events','com
         </div>
 
         <?php if ($flash): ?>
-        <div class="alert alert-<?= $flash['type'] ?>"><?= htmlspecialchars($flash['msg'], ENT_QUOTES, 'UTF-8') ?></div>
+        <div class="alert alert-<?= $flash['type'] ?>"><?= h($flash['msg']) ?></div>
         <?php endif; ?>
 
-        <!-- Filter tabs -->
         <div class="filter-tabs">
-            <?php foreach (['all'=>'All', 'worship'=>'Worship', 'events'=>'Events', 'community'=>'Community', 'youth'=>'Youth'] as $k => $v): ?>
-            <a href="?cat=<?= $k ?>" class="filter-tab <?= $filter_cat === $k ? 'active' : '' ?>"><?= $v ?></a>
+            <a href="?cat=all" class="filter-tab <?= $filter_cat === 'all' ? 'active' : '' ?>">All</a>
+            <?php foreach ($categories as $cat): ?>
+            <a href="?cat=<?= h($cat['slug']) ?>" class="filter-tab <?= $filter_cat === $cat['slug'] ? 'active' : '' ?>">
+                <?= h($cat['label']) ?>
+            </a>
             <?php endforeach; ?>
         </div>
 
@@ -59,21 +65,21 @@ $items = $filter_cat !== 'all' && in_array($filter_cat, ['worship','events','com
             <?php foreach ($items as $item): ?>
             <div class="admin-gallery-item">
                 <?php if ($item['type'] === 'video'): ?>
-                    <video src="../<?= htmlspecialchars($item['path'], ENT_QUOTES, 'UTF-8') ?>" muted preload="metadata" class="admin-thumb"></video>
+                    <video src="../<?= h($item['file_path']) ?>" muted preload="metadata" class="admin-thumb"></video>
                     <div class="media-type-badge video"><i class="fas fa-film"></i></div>
                 <?php else: ?>
-                    <img src="../<?= htmlspecialchars($item['path'], ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($item['title'], ENT_QUOTES, 'UTF-8') ?>" class="admin-thumb" loading="lazy">
+                    <img src="../<?= h($item['file_path']) ?>" alt="<?= h($item['title']) ?>" class="admin-thumb" loading="lazy">
                 <?php endif; ?>
                 <div class="admin-item-info">
-                    <p class="item-title"><?= htmlspecialchars($item['title'], ENT_QUOTES, 'UTF-8') ?></p>
-                    <span class="cat-badge cat-<?= $item['category'] ?>"><?= ucfirst($item['category']) ?></span>
+                    <p class="item-title"><?= h($item['title']) ?></p>
+                    <span class="cat-badge" style="background:var(--blue-light);color:var(--blue-dark)"><?= h($item['category']) ?></span>
                 </div>
                 <div class="admin-item-actions">
                     <form method="POST" action="delete.php" onsubmit="return confirm('Delete this item? This cannot be undone.')">
                         <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                         <input type="hidden" name="type" value="gallery">
-                        <input type="hidden" name="path" value="<?= htmlspecialchars($item['path'], ENT_QUOTES, 'UTF-8') ?>">
-                        <input type="hidden" name="filename" value="<?= htmlspecialchars($item['filename'], ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="hidden" name="path" value="<?= h($item['file_path']) ?>">
+                        <input type="hidden" name="filename" value="<?= h($item['filename']) ?>">
                         <button type="submit" class="btn-delete" title="Delete"><i class="fas fa-trash"></i></button>
                     </form>
                 </div>

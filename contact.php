@@ -9,8 +9,9 @@ require_once 'includes/header.php';
 
 <section class="page-header">
     <div class="container">
-        <h1>Contact Us</h1>
-        <p>We'd love to hear from you. Reach out with questions, prayer requests, or testimonies</p>
+        <span class="eyebrow" data-hero>We're Listening</span>
+        <h1 data-hero>Contact Us</h1>
+        <p data-hero>We'd love to hear from you. Reach out with questions, prayer requests, or testimonies.</p>
     </div>
 </section>
 
@@ -18,11 +19,19 @@ require_once 'includes/header.php';
     <div class="container">
         <?php if ($success): ?>
         <div class="alert alert-success" role="alert">
-            <i class="fas fa-check-circle"></i> Thank you! Your message has been sent. We'll get back to you soon.
+            <i class="fas fa-check-circle"></i> Thank you! Your message has been received. We'll get back to you soon.
         </div>
-        <?php elseif ($error): ?>
+        <?php elseif ($error):
+            $error_messages = [
+                'ratelimit'  => 'You\'ve sent a few messages already — please wait a moment before sending another.',
+                'validation' => 'Please check the highlighted fields and try again.',
+                'csrf'       => 'Your session expired. Please refresh the page and try again.',
+                'mail'       => 'Sorry, there was an issue sending your message. Please try again or email us directly.',
+            ];
+            $error_text = $error_messages[$error] ?? $error_messages['mail'];
+        ?>
         <div class="alert alert-error" role="alert">
-            <i class="fas fa-exclamation-circle"></i> Sorry, there was an issue sending your message. Please try again or email us directly.
+            <i class="fas fa-exclamation-circle"></i> <?= h($error_text) ?>
         </div>
         <?php endif; ?>
 
