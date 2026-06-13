@@ -9,39 +9,13 @@ $valid_slugs = array_column($categories, 'slug');
 $items = ($filter_cat !== 'all' && in_array($filter_cat, $valid_slugs))
     ? get_gallery_items($filter_cat)
     : get_gallery_items();
+$admin_page    = 'gallery-manage';
+$admin_title   = 'Gallery';
+$admin_subtitle = count($items) . ' item' . (count($items) === 1 ? '' : 's')
+    . ($filter_cat !== 'all' ? ' in this category' : ' across all categories');
+$admin_actions = '<a href="gallery-upload.php" class="btn-admin-primary"><i class="fas fa-cloud-arrow-up"></i> Upload New</a>';
+require __DIR__ . '/partials/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Gallery — GVIM Admin</title>
-    <link rel="icon" href="../assets/images/gvim-logo.jpg" type="image/jpeg">
-    <link rel="stylesheet" href="assets/admin.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body class="admin-body">
-<nav class="admin-nav">
-    <div class="admin-nav-brand"><img src="../assets/images/gvim-logo.jpg" alt="GVIM" width="40" height="40"><span>GVIM Admin</span></div>
-    <div class="admin-nav-links">
-        <a href="dashboard.php">Dashboard</a>
-        <a href="gallery-upload.php">Upload Media</a>
-        <a href="gallery-manage.php" class="active">Gallery</a>
-        <a href="categories.php">Categories</a>
-        <a href="sermon-add.php">Add Sermon</a>
-        <a href="sermon-manage.php">Sermons</a>
-        <a href="contacts.php">Messages</a>
-        <a href="../index.php" target="_blank">View Site</a>
-        <a href="logout.php" class="logout-link">Logout</a>
-    </div>
-</nav>
-<main class="admin-main">
-    <div class="admin-container">
-        <div class="page-header-admin">
-            <h1><i class="fas fa-th"></i> Gallery (<?= count($items) ?> items)</h1>
-            <a href="gallery-upload.php" class="btn-admin-primary"><i class="fas fa-plus"></i> Upload New</a>
-        </div>
-
         <?php if ($flash): ?>
         <div class="alert alert-<?= $flash['type'] ?>"><?= h($flash['msg']) ?></div>
         <?php endif; ?>
@@ -87,7 +61,4 @@ $items = ($filter_cat !== 'all' && in_array($filter_cat, $valid_slugs))
             <?php endforeach; ?>
         </div>
         <?php endif; ?>
-    </div>
-</main>
-</body>
-</html>
+<?php require __DIR__ . '/partials/footer.php'; ?>

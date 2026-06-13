@@ -71,36 +71,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $flash = admin_get_flash();
+$admin_page    = 'sermon-add';
+$admin_title   = 'Add Sermon';
+$admin_subtitle = 'Publish a new message to the Sermons page';
+$admin_actions = '<a href="sermon-manage.php" class="btn-admin-secondary"><i class="fas fa-microphone"></i> All Sermons</a>';
+require __DIR__ . '/partials/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Sermon — GVIM Admin</title>
-    <link rel="icon" href="../assets/images/gvim-logo.jpg" type="image/jpeg">
-    <link rel="stylesheet" href="assets/admin.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body class="admin-body">
-<nav class="admin-nav">
-    <div class="admin-nav-brand"><img src="../assets/images/gvim-logo.jpg" alt="GVIM" width="40" height="40"><span>GVIM Admin</span></div>
-    <div class="admin-nav-links">
-        <a href="dashboard.php">Dashboard</a>
-        <a href="gallery-upload.php">Upload Media</a>
-        <a href="gallery-manage.php">Gallery</a>
-        <a href="categories.php">Categories</a>
-        <a href="sermon-add.php" class="active">Add Sermon</a>
-        <a href="sermon-manage.php">Sermons</a>
-        <a href="contacts.php">Messages</a>
-        <a href="../index.php" target="_blank">View Site</a>
-        <a href="logout.php" class="logout-link">Logout</a>
-    </div>
-</nav>
-<main class="admin-main">
-    <div class="admin-container">
-        <h1><i class="fas fa-plus-circle"></i> Add New Sermon</h1>
-
         <?php if (!empty($errors)): ?>
         <div class="alert alert-error">
             <ul style="margin:0;padding-left:1.25rem">
@@ -181,18 +157,4 @@ $flash = admin_get_flash();
                 </div>
             </form>
         </div>
-    </div>
-</main>
-<script>
-document.querySelectorAll('.file-drop-area').forEach(area => {
-    const input = area.querySelector('.file-input');
-    area.addEventListener('click', () => input.click());
-    input.addEventListener('change', () => {
-        if (input.files[0]) {
-            area.querySelector('p').textContent = input.files[0].name + ' (' + (input.files[0].size/1024/1024).toFixed(2) + ' MB)';
-        }
-    });
-});
-</script>
-</body>
-</html>
+<?php require __DIR__ . '/partials/footer.php'; ?>

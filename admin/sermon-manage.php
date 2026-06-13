@@ -4,39 +4,12 @@ require_admin();
 
 $flash   = admin_get_flash();
 $sermons = get_sermons();
+$admin_page    = 'sermon-manage';
+$admin_title   = 'Sermons';
+$admin_subtitle = count($sermons) . ' published sermon' . (count($sermons) === 1 ? '' : 's');
+$admin_actions = '<a href="sermon-add.php" class="btn-admin-primary"><i class="fas fa-circle-plus"></i> Add New</a>';
+require __DIR__ . '/partials/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Sermons — GVIM Admin</title>
-    <link rel="icon" href="../assets/images/gvim-logo.jpg" type="image/jpeg">
-    <link rel="stylesheet" href="assets/admin.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body class="admin-body">
-<nav class="admin-nav">
-    <div class="admin-nav-brand"><img src="../assets/images/gvim-logo.jpg" alt="GVIM" width="40" height="40"><span>GVIM Admin</span></div>
-    <div class="admin-nav-links">
-        <a href="dashboard.php">Dashboard</a>
-        <a href="gallery-upload.php">Upload Media</a>
-        <a href="gallery-manage.php">Gallery</a>
-        <a href="categories.php">Categories</a>
-        <a href="sermon-add.php">Add Sermon</a>
-        <a href="sermon-manage.php" class="active">Sermons</a>
-        <a href="contacts.php">Messages</a>
-        <a href="../index.php" target="_blank">View Site</a>
-        <a href="logout.php" class="logout-link">Logout</a>
-    </div>
-</nav>
-<main class="admin-main">
-    <div class="admin-container">
-        <div class="page-header-admin">
-            <h1><i class="fas fa-microphone"></i> Sermons (<?= count($sermons) ?>)</h1>
-            <a href="sermon-add.php" class="btn-admin-primary"><i class="fas fa-plus"></i> Add New</a>
-        </div>
-
         <?php if ($flash): ?>
         <div class="alert alert-<?= $flash['type'] ?>"><?= htmlspecialchars($flash['msg'], ENT_QUOTES, 'UTF-8') ?></div>
         <?php endif; ?>
@@ -92,7 +65,4 @@ $sermons = get_sermons();
             </table>
         </div>
         <?php endif; ?>
-    </div>
-</main>
-</body>
-</html>
+<?php require __DIR__ . '/partials/footer.php'; ?>

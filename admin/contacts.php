@@ -4,41 +4,11 @@ require_admin();
 
 $flash    = admin_get_flash();
 $contacts = get_contacts(100);
+$admin_page    = 'contacts';
+$admin_title   = 'Messages';
+$admin_subtitle = count($contacts) . ' submission' . (count($contacts) === 1 ? '' : 's') . ' from the contact form';
+require __DIR__ . '/partials/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messages — GVIM Admin</title>
-    <link rel="icon" href="../assets/images/gvim-logo.jpg" type="image/jpeg">
-    <link rel="stylesheet" href="assets/admin.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .msg-row td { vertical-align: top; }
-        .msg-body { white-space: pre-wrap; font-size: 0.875rem; color: var(--gray-700); max-width: 400px; }
-        .newsletter-yes { color: var(--green); font-size: 0.8rem; }
-    </style>
-</head>
-<body class="admin-body">
-<nav class="admin-nav">
-    <div class="admin-nav-brand"><img src="../assets/images/gvim-logo.jpg" alt="GVIM" width="40" height="40"><span>GVIM Admin</span></div>
-    <div class="admin-nav-links">
-        <a href="dashboard.php">Dashboard</a>
-        <a href="gallery-upload.php">Upload Media</a>
-        <a href="gallery-manage.php">Gallery</a>
-        <a href="categories.php">Categories</a>
-        <a href="sermon-add.php">Add Sermon</a>
-        <a href="sermon-manage.php">Sermons</a>
-        <a href="contacts.php" class="active">Messages</a>
-        <a href="../index.php" target="_blank">View Site</a>
-        <a href="logout.php" class="logout-link">Logout</a>
-    </div>
-</nav>
-<main class="admin-main">
-    <div class="admin-container">
-        <h1><i class="fas fa-envelope"></i> Contact Messages (<?= count($contacts) ?>)</h1>
-
         <?php if ($flash): ?>
         <div class="alert alert-<?= $flash['type'] ?>"><?= h($flash['msg']) ?></div>
         <?php endif; ?>
@@ -84,7 +54,4 @@ $contacts = get_contacts(100);
             </table>
         </div>
         <?php endif; ?>
-    </div>
-</main>
-</body>
-</html>
+<?php require __DIR__ . '/partials/footer.php'; ?>

@@ -87,48 +87,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $flash      = admin_get_flash();
 $categories = get_categories();
+$admin_page    = 'gallery-upload';
+$admin_title   = 'Upload Media';
+$admin_subtitle = 'Add new photos and videos to the gallery';
+$admin_actions = '<a href="gallery-manage.php" class="btn-admin-secondary"><i class="fas fa-images"></i> View Gallery</a>';
+require __DIR__ . '/partials/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Media — GVIM Admin</title>
-    <link rel="icon" href="../assets/images/gvim-logo.jpg" type="image/jpeg">
-    <link rel="stylesheet" href="assets/admin.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .file-list { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
-        .file-list-item { display: flex; align-items: center; gap: 0.75rem; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 0.5rem 0.75rem; font-size: 0.875rem; }
-        .file-list-item img, .file-list-item video { width: 48px; height: 48px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
-        .file-list-item .file-info { flex: 1; min-width: 0; }
-        .file-list-item .file-name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .file-list-item .file-size { color: var(--gray-400); font-size: 0.8rem; }
-        .file-count-badge { display: inline-flex; align-items: center; gap: 0.375rem; background: var(--blue); color: #fff; border-radius: 1rem; padding: 0.25rem 0.75rem; font-size: 0.875rem; font-weight: 600; }
-    </style>
-</head>
-<body class="admin-body">
-<nav class="admin-nav">
-    <div class="admin-nav-brand">
-        <img src="../assets/images/gvim-logo.jpg" alt="GVIM" width="40" height="40">
-        <span>GVIM Admin</span>
-    </div>
-    <div class="admin-nav-links">
-        <a href="dashboard.php">Dashboard</a>
-        <a href="gallery-upload.php" class="active">Upload Media</a>
-        <a href="gallery-manage.php">Gallery</a>
-        <a href="categories.php">Categories</a>
-        <a href="sermon-add.php">Add Sermon</a>
-        <a href="sermon-manage.php">Sermons</a>
-        <a href="contacts.php">Messages</a>
-        <a href="../index.php" target="_blank">View Site</a>
-        <a href="logout.php" class="logout-link">Logout</a>
-    </div>
-</nav>
-<main class="admin-main">
-    <div class="admin-container">
-        <h1><i class="fas fa-cloud-upload-alt"></i> Upload Photos &amp; Videos</h1>
-
         <?php if ($flash): ?>
         <div class="alert alert-<?= $flash['type'] ?>"><?= h($flash['msg']) ?></div>
         <?php endif; ?>
@@ -152,7 +116,7 @@ $categories = get_categories();
                             <i class="fas fa-check"></i> <span id="file-count-text">0 files</span>
                         </span>
                     </label>
-                    <div class="file-drop-area" id="file-drop">
+                    <div class="file-drop-area" id="file-drop" data-advanced>
                         <i class="fas fa-cloud-upload-alt fa-3x"></i>
                         <p><strong>Drag &amp; drop files here</strong> or click to select</p>
                         <p class="file-hint">Images: JPG, PNG, WebP, GIF &nbsp;|&nbsp; Videos: MP4, WebM, MOV &nbsp;|&nbsp; Max 50MB each &nbsp;|&nbsp; Multiple files allowed</p>
@@ -192,8 +156,6 @@ $categories = get_categories();
                 </div>
             </form>
         </div>
-    </div>
-</main>
 <script>
 const dropArea  = document.getElementById('file-drop');
 const fileInput = document.getElementById('media');
@@ -244,5 +206,4 @@ document.getElementById('upload-form').addEventListener('submit', () => {
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading…';
 });
 </script>
-</body>
-</html>
+<?php require __DIR__ . '/partials/footer.php'; ?>

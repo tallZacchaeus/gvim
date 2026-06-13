@@ -49,8 +49,8 @@ function generate_id(): string {
     return bin2hex(random_bytes(8));
 }
 
-function h(string $str): string {
-    return htmlspecialchars($str, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+function h(?string $str): string {
+    return htmlspecialchars($str ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
 // ── Category DB functions ──────────────────────────────────────────────────
@@ -191,4 +191,45 @@ function get_contacts(int $limit = 50): array {
 
 function count_contacts(): int {
     return (int) db()->query("SELECT COUNT(*) FROM contact_submissions")->fetchColumn();
+}
+
+// ── Admin analytics ─────────────────────────────────────────────────────────
+function count_newsletter_subscribers(): int {
+    return (int) db()->query("SELECT COUNT(*) FROM contact_submissions WHERE newsletter = 1")->fetchColumn();
+}
+
+function count_messages_since(string $sql_datetime): int {
+    $stmt = db()->prepare("SELECT COUNT(*) FROM contact_submissions WHERE submitted_at >= ?");
+    $stmt->execute([$sql_datetime]);
+    return (int) $stmt->fetchColumn();
+}
+
+/** Weekly message volume for the last $weeks weeks. Returns ['labels'=>[], 'data'=>[]]. */
+function analytics_messages_by_week(int $weeks = 8): array {
+    $buckets = [];
+    $labels  = [];
+    for ($i = $weeks - 1; $i >= 0; $i--) {
+        $start = new DateTimeImmutable("monday this week -{$i} weeks");
+        $buckets[$start->format('Y-m-d')] = 0;
+        $labels[$start->format('Y-m-d')]  = $start->format('M j');
+    }
+    $since = (new DateTimeImmutable("monday this week -" . ($weeks - 1) . " weeks"))->format('Y-m-d 00:00:00');
+    $stmt  = db()->prepare("SELECT submitted_at FROM contact_submissions WHERE submitted_at >= ?");
+    $stmt->execute([$since]);
+    foreach ($stmt->fetchAll() as $row) {
+        $d   = new DateTimeImmutable($row['submitted_at']);
+        $key = $d->modify('monday this week')->format('Y-m-d');
+        if (isset($buckets[$key])) $buckets[$key]++;
+    }
+    return ['labels' => array_values($labels), 'data' => array_values($buckets)];
+}
+
+/** Message counts grouped by subject, highest first. */
+function analytics_messages_by_subject(): array {
+    return db()->query("
+        SELECT subject, COUNT(*) AS total
+        FROM contact_submissions
+        GROUP BY subject
+        ORDER BY total DESC
+    ")->fetchAll();
 }

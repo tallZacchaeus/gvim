@@ -48,36 +48,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delet
 
 $flash      = admin_get_flash();
 $categories = get_categories();
+$admin_page    = 'categories';
+$admin_title   = 'Categories';
+$admin_subtitle = 'Organise how gallery media is grouped';
+require __DIR__ . '/partials/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Categories — GVIM Admin</title>
-    <link rel="icon" href="../assets/images/gvim-logo.jpg" type="image/jpeg">
-    <link rel="stylesheet" href="assets/admin.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body class="admin-body">
-<nav class="admin-nav">
-    <div class="admin-nav-brand"><img src="../assets/images/gvim-logo.jpg" alt="GVIM" width="40" height="40"><span>GVIM Admin</span></div>
-    <div class="admin-nav-links">
-        <a href="dashboard.php">Dashboard</a>
-        <a href="gallery-upload.php">Upload Media</a>
-        <a href="gallery-manage.php">Gallery</a>
-        <a href="categories.php" class="active">Categories</a>
-        <a href="sermon-add.php">Add Sermon</a>
-        <a href="sermon-manage.php">Sermons</a>
-        <a href="contacts.php">Messages</a>
-        <a href="../index.php" target="_blank">View Site</a>
-        <a href="logout.php" class="logout-link">Logout</a>
-    </div>
-</nav>
-<main class="admin-main">
-    <div class="admin-container" style="max-width:700px">
-        <h1><i class="fas fa-tags"></i> Gallery Categories</h1>
-
+        <div style="max-width:780px">
         <?php if ($flash): ?>
         <div class="alert alert-<?= $flash['type'] ?>"><?= h($flash['msg']) ?></div>
         <?php endif; ?>
@@ -148,7 +124,5 @@ $categories = get_categories();
             </div>
             <?php endif; ?>
         </div>
-    </div>
-</main>
-</body>
-</html>
+        </div><!-- /.narrow wrapper -->
+<?php require __DIR__ . '/partials/footer.php'; ?>
