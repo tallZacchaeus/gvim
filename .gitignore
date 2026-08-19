@@ -1,3 +1,12 @@
+node_modules
+dist
+*.log
+.DS_Store
 
-# Local-only database overrides
-includes/db.local.php
+# D1 -> Turso migration dumps (contains contact submissions: names, emails, IPs)
+d1-export/
+.smoke-build/
+.env.local
+.env*.local
+.vercel
+*.tsbuildinfo
