@@ -1,7 +1,0 @@
-Options -Indexes
-# Admin directory — PHP session authentication enforced per-file
-# Block direct access to credential and hash files
-<FilesMatch "\.(hash|env|txt)$">
-    Order Allow,Deny
-    Deny from all
-</FilesMatch>
