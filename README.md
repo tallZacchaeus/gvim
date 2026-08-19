@@ -57,9 +57,10 @@ handlers against a throwaway libSQL file and an in-memory R2 stub.
 ## Uploads
 
 Media never passes through the API. The browser asks `/api/uploads/presign` for a
-signed URL, PUTs the file straight to R2, then posts only the key back. This is what
-keeps uploads clear of Vercel's 4.5 MB request body limit. Both buckets therefore
-need a CORS rule — see `R2_UPLOAD_SETUP.md`.
+signed URL, PUTs the file straight to R2, then posts only the key back. The file
+crosses the network once instead of twice, no function is held open for the duration
+of a large upload, and the browser gets real progress. Both buckets therefore need a
+CORS rule — see `R2_UPLOAD_SETUP.md`.
 
 ## Documentation
 

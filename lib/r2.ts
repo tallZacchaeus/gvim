@@ -67,8 +67,9 @@ export async function objectExists(bucket: Bucket, key: string): Promise<boolean
 }
 
 /**
- * Presigned PUT so the browser can upload straight to R2, bypassing Vercel's
- * 4.5 MB request body limit.
+ * Presigned PUT so the browser can upload straight to R2, rather than relaying
+ * the bytes through a function that would have to buffer them and stay open for
+ * the whole transfer.
  *
  * The browser must send exactly this Content-Type on the PUT or the signature
  * will not match. The bucket also needs a CORS rule allowing PUT from the site

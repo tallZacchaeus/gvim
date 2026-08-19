@@ -19,8 +19,8 @@ export default function SermonAdd() {
     e.preventDefault();
     setBusy(true); setStatus(null); setProgress(0);
     try {
-      // Sermon media is usually far over Vercel's 4.5 MB body limit, so it goes
-      // browser -> R2 directly and only the key is sent to our API.
+      // Sermon media is large, so it goes browser -> R2 directly and only the
+      // key is sent to our API. Keeps the request small and shows real progress.
       let uploaded: UploadedFile | null = null;
       if (file) {
         const [f] = await uploadFiles('sermons', [file], { onProgress: setProgress });

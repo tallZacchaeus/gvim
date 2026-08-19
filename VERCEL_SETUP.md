@@ -67,7 +67,7 @@ or the first production build will come up with failing API routes.
 1. Add the deployed origin to the R2 CORS policy on **both** buckets
    (`R2_UPLOAD_SETUP.md`) — uploads fail with an opaque error until you do.
 2. Visit `/api/gallery` — it should return JSON with 91 items.
-3. Log in at `/admin` and upload a photo larger than 4.5 MB. That single test
+3. Log in at `/admin` and upload a large photo (10 MB+). That single test
    exercises presign, direct-to-R2 upload, CORS, and the commit path at once.
 4. Submit the contact form and confirm the row appears under `/admin/contacts`.
 

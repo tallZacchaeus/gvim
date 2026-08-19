@@ -23,7 +23,7 @@ export async function GET(request: Request): Promise<Response> {
 /**
  * Commit gallery items that the browser has already uploaded to R2 via
  * POST /api/uploads/presign. Metadata only — no file bytes cross this handler,
- * which is what keeps uploads clear of Vercel's 4.5 MB request body limit.
+ * so the request stays small however large the media is.
  */
 export async function POST(request: Request): Promise<Response> {
   const denied = await guard(request);

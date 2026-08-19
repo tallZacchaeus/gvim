@@ -153,11 +153,11 @@ check('presign rejects unknown category -> 400', r.status===400);
 r = await presign({ kind:'gallery', category:'worship', files:[{name:'x.exe',type:'application/x-msdownload',size:100}] });
 check('presign rejects non-media type -> 400', r.status===400);
 
-// A 9 MB photo: over Vercel's 4.5 MB body limit, which is the whole point.
+// A 9 MB photo — large enough that relaying it through a function would be wasteful.
 r = await presign({ kind:'gallery', category:'worship', files:[{name:'big-photo.jpg',type:'image/jpeg',size:9_000_000}] });
 body = await r.json();
 const up = body.uploads?.[0];
-check('presign signs a 9MB photo (over Vercel body limit)', r.status===200 && !!up?.url);
+check('presign signs a 9MB photo', r.status===200 && !!up?.url);
 check('presign generates server-side key under the category',
   /^gallery\/worship\/[a-f0-9]{16}\.jpg$/.test(up?.key || ''), up?.key);
 

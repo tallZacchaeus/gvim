@@ -2,11 +2,17 @@
 
 ## Why this exists
 
-Vercel caps function request bodies at **4.5 MB**. On Cloudflare the file was streamed
-through the API into the bucket; on Vercel a 9 MB photo is rejected by the platform
-before the handler runs, and sermon audio never had a chance.
+On Cloudflare the file was streamed through the API into the bucket. Vercel Functions
+accept request bodies up to 100 MB, so routing a 50 MB sermon through the API would
+technically work — but it is the wrong shape:
 
-So the file no longer passes through the API at all:
+- the file crosses the network twice (browser -> function -> R2) instead of once
+- a slow 40 MB upload holds a function open for its whole duration, burning
+  compute on what is really just a byte pipe
+- the function has to buffer the file in memory to hand it to the S3 client
+- upload progress is invisible to the browser
+
+So the file does not pass through the API at all:
 
 ```
 browser ──1── POST /api/uploads/presign      (auth; returns a signed PUT URL + key)

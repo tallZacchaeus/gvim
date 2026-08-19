@@ -9,9 +9,10 @@ interface FileReq { name?: string; type?: string; size?: number }
 /**
  * Issue presigned PUT URLs so the browser uploads straight to R2.
  *
- * Vercel caps function request bodies at 4.5 MB, so the file cannot travel
- * through the API the way it did on Cloudflare. The client PUTs to the returned
- * URL, then calls POST /api/gallery or /api/sermons with the returned keys.
+ * Relaying file bytes through a function means buffering them in memory and
+ * holding the function open for the whole transfer, so uploads bypass the API
+ * entirely. The client PUTs to the returned URL, then calls POST /api/gallery
+ * or /api/sermons with the returned keys.
  *
  * Keys are always generated here — a client-supplied key would let an admin
  * write anywhere in the bucket, including over existing objects.
