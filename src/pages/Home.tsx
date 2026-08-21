@@ -25,20 +25,43 @@ export default function Home() {
   const [featured, setFeatured] = useState<GalleryItem[]>([]);
   useEffect(() => { api.gallery.list(undefined, 6).then(setFeatured).catch(() => {}); }, []);
 
+  // The hero mosaic needs four images. Prefer real photos; if the API is slow or
+  // empty the grid simply collapses rather than showing broken frames.
+  const mosaic = featured.filter(i => i.type === 'image').slice(0, 4);
+
   return (
     <>
       <section className="hero">
-        <div className="hero-content">
-          <h1>Welcome to God's Vessels International Ministry</h1>
-          <p>Where faith meets community and hearts are transformed</p>
-          <div className="hero-buttons">
-            <Link to="/about" className="btn btn-primary">Learn More</Link>
-            <a href="mailto:godvesselsinternational@gmail.com?subject=Donation&body=I would like to make a donation to GVIM." className="btn btn-secondary">
-              <i className="fas fa-heart"></i> Donate
-            </a>
+        <div className="hero-inner">
+          <div className="hero-content">
+            <span className="eyebrow"><i className="fas fa-dove"></i> Vessels of Truth · Edmonton, Canada</span>
+            <h1>Where faith meets community and hearts are <span className="accent">transformed</span></h1>
+            <p>
+              A family church standing for the truth — equipping every believer to walk
+              confidently in their divine purpose.
+            </p>
+            <div className="hero-buttons">
+              <Link to="/about" className="btn btn-primary">Discover GVIM</Link>
+              <a href="mailto:godvesselsinternational@gmail.com?subject=Donation&body=I would like to make a donation to GVIM." className="btn btn-secondary">
+                <i className="fas fa-heart"></i> Give a Gift
+              </a>
+            </div>
+            <dl className="hero-meta">
+              <div><dt>Sunday Worship</dt><dd>10:00 AM &amp; 2:00 PM</dd></div>
+              <div><dt>Bible Study</dt><dd>Tuesdays, 6:00 PM</dd></div>
+              <div><dt>Where</dt><dd>4511 36 Ave NW, Edmonton</dd></div>
+            </dl>
           </div>
+          {mosaic.length === 4 && (
+            <div className="hero-mosaic" aria-hidden="true">
+              {mosaic.map(item => (
+                <figure key={item.id}>
+                  <img src={item.url} alt="" loading="eager" decoding="async" />
+                </figure>
+              ))}
+            </div>
+          )}
         </div>
-        <div className="hero-overlay"></div>
       </section>
 
       <section className="service-times">

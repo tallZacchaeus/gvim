@@ -26,8 +26,9 @@ export default function Gallery() {
     <>
       <section className="page-header">
         <div className="container">
-          <h1>Photo & Video Gallery</h1>
-          <p>Celebrating moments of worship, fellowship, and community service</p>
+          <span className="eyebrow">Moments of Grace</span>
+          <h1>Photo &amp; Video Gallery</h1>
+          <p>Celebrating moments of worship, fellowship, and community service.</p>
         </div>
       </section>
 
