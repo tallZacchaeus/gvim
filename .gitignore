@@ -11,3 +11,4 @@ d1-export/
 .vercel
 *.tsbuildinfo
 .env*
+.vite
