@@ -44,26 +44,42 @@ Bucket bindings needed no credentials; the S3 API does. Treat the secret like a 
 
 ## 2. Add CORS to both buckets — REQUIRED
 
-The browser now PUTs directly to R2, so without a CORS rule every upload fails with
-an opaque network error. Cloudflare dashboard → each bucket → **Settings** → **CORS Policy**:
+The browser PUTs directly to R2, so without a CORS rule every upload fails with an
+opaque network error.
+
+### Via wrangler (easiest)
+
+Note the schema: wrangler wants the **R2 API** shape (`rules` / `allowed`), which is
+*not* the S3-style JSON the Cloudflare dashboard shows.
 
 ```json
-[
-  {
-    "AllowedOrigins": [
-      "https://<your-project>.vercel.app",
-      "http://localhost:5173"
-    ],
-    "AllowedMethods": ["PUT"],
-    "AllowedHeaders": ["content-type"],
-    "ExposeHeaders": ["etag"],
-    "MaxAgeSeconds": 3600
-  }
-]
+{
+  "rules": [
+    {
+      "allowed": {
+        "origins": ["https://<your-project>.vercel.app", "http://localhost:5173"],
+        "methods": ["PUT"],
+        "headers": ["content-type"]
+      },
+      "exposeHeaders": ["etag"],
+      "maxAgeSeconds": 3600
+    }
+  ]
+}
 ```
 
-Add your custom domain to `AllowedOrigins` when you set one up. The UI surfaces a
-CORS hint on network failure, but the fix is always here.
+```bash
+npx wrangler r2 bucket cors set gvim-gallery --file r2-cors.json --force
+npx wrangler r2 bucket cors set gvim-sermons --file r2-cors.json --force
+```
+
+Check it with `npx wrangler r2 bucket cors list gvim-gallery`.
+
+### Current state
+
+`http://localhost:5173` is already configured on both buckets, so local development
+works. **The production origin still has to be added after the first Vercel deploy** —
+re-run the two commands above with the real URL in `origins`.
 
 ## 3. Verify
 
