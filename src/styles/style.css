@@ -151,8 +151,10 @@ main { margin-top: 80px; }
     position: relative;
     background: var(--background);
     padding: clamp(3rem, 7vw, 5.5rem) 0 clamp(3rem, 6vw, 4.5rem);
-    overflow: hidden;
+    /* No fixed height and no clipping: the hero is sized by its content so the
+       photo mosaic can never be cut off. The decorative wash below is inset. */
 }
+.hero::before { border-radius: inherit; }
 .hero::before {
     content: ''; position: absolute; inset: 0;
     background:
@@ -233,18 +235,45 @@ main { margin-top: 80px; }
 .page-header h1 { color: var(--foreground); margin-bottom: 0.5rem; }
 .page-header p { font-size: 1.1rem; color: var(--muted-foreground); max-width: 44rem; margin: 0; }
 
-/* === SERVICE TIMES === */
-.service-times { padding: 4rem 0; background: var(--gray-50); }
-.service-times h2 { text-align: center; margin-bottom: 2.5rem; }
-.times-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
-.time-card { background: var(--white); padding: 1.75rem; border-radius: var(--radius-lg); text-align: center; box-shadow: var(--shadow); transition: var(--transition); }
-.time-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
-.time-card i { color: var(--blue-sky); margin-bottom: 1rem; }
-.time-card h3 { margin-bottom: 0.5rem; }
-.time-card p { color: var(--gray-700); margin-bottom: 0.75rem; }
-.time-card .time { font-weight: 600; color: var(--blue-deep); }
-.time-card.special-service { border: 2px solid var(--gold); background: linear-gradient(135deg, var(--white), var(--blue-light)); }
-.time-card.special-service i { color: var(--gold); }
+/* === SECTION RHYTHM ===
+   Sections were uniformly centred, which is a large part of the templated feel.
+   Headings now sit left by default; .section-head.center opts back in. */
+.section-head { max-width: 46rem; margin: 0 0 clamp(1.75rem, 3.5vw, 2.5rem); }
+.section-head.center { margin-left: auto; margin-right: auto; text-align: center; }
+.section-head h2 { margin-bottom: 0.5rem; }
+.section-head .lede { margin-bottom: 0; }
+
+/* === SERVICE TIMES (schedule) ===
+   Seven identical icon cards read as filler. A congregation wants a timetable,
+   so this is one — split by the distinction that matters, weekly vs monthly. */
+.service-times { padding: clamp(3.5rem, 7vw, 6rem) 0; background: var(--surface-2); }
+.schedule {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+    gap: clamp(1.5rem, 4vw, 3rem);
+}
+.schedule-col { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: clamp(1.25rem, 2.5vw, 1.75rem); }
+.schedule-title {
+    font-family: var(--font-sans); font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--subtle-foreground);
+    margin: 0 0 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border);
+}
+.schedule-list li {
+    display: grid;
+    grid-template-columns: minmax(6.5rem, auto) 1fr auto;
+    gap: 0.5rem 1rem; align-items: baseline;
+    padding: 0.7rem 0; border-bottom: 1px solid var(--border);
+}
+.schedule-list li:last-child { border-bottom: 0; padding-bottom: 0; }
+.schedule-when { font-family: var(--font-sans); font-size: 0.82rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--brand); }
+.schedule-what { color: var(--foreground); }
+.schedule-time {
+    font-family: var(--font-display); font-size: 1.05rem; font-weight: 600;
+    color: var(--foreground); font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+@media (max-width: 480px) {
+    .schedule-list li { grid-template-columns: 1fr auto; }
+    .schedule-when { grid-column: 1 / -1; margin-bottom: -0.25rem; }
+}
 
 /* === MONTHLY THEME === */
 .monthly-theme { padding: 4rem 0; }
@@ -252,7 +281,11 @@ main { margin-top: 80px; }
 .theme-text h3 { color: var(--blue-sky); margin-bottom: 1.25rem; }
 blockquote { background: var(--gray-50); padding: 1.25rem; border-left: 4px solid var(--blue-sky); margin: 1.5rem 0; font-style: italic; border-radius: 0 var(--radius) var(--radius) 0; }
 blockquote cite { display: block; margin-top: 0.75rem; font-weight: 600; color: var(--blue-deep); font-style: normal; }
-.theme-image { text-align: center; color: var(--blue-sky); }
+.theme-image {
+    margin: 0; border-radius: var(--radius-xl); overflow: hidden;
+    box-shadow: var(--shadow-lg); aspect-ratio: 4 / 5; background: var(--surface-2);
+}
+.theme-image img { width: 100%; height: 100%; object-fit: cover; }
 
 /* === WELCOME === */
 .welcome { padding: 4rem 0; background: var(--gray-50); }
@@ -270,7 +303,7 @@ blockquote cite { display: block; margin-top: 0.75rem; font-weight: 600; color: 
 
 /* === PILLARS === */
 .ministry-pillars { padding: 4rem 0; }
-.ministry-pillars h2 { text-align: center; margin-bottom: 2.5rem; }
+.ministry-pillars h2 { text-align: left; margin-bottom: 2.5rem; }
 .pillars-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
 .pillar { background: var(--white); padding: 1.75rem; border-radius: var(--radius-lg); text-align: center; box-shadow: var(--shadow); transition: var(--transition); }
 .pillar:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
@@ -279,7 +312,7 @@ blockquote cite { display: block; margin-top: 0.75rem; font-weight: 600; color: 
 
 /* === LEADERSHIP === */
 .leadership { padding: 4rem 0; background: var(--gray-50); }
-.leadership h2 { text-align: center; margin-bottom: 2.5rem; }
+.leadership h2 { text-align: left; margin-bottom: 2.5rem; }
 .lead-pastor-section { margin-bottom: 3rem; }
 .lead-pastor-card { border: 2px solid var(--blue); }
 .leaders-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 1.5rem; }
@@ -307,8 +340,8 @@ blockquote cite { display: block; margin-top: 0.75rem; font-weight: 600; color: 
 
 /* === MINI GALLERY === */
 .mini-gallery { padding: 4rem 0; background: var(--gray-50); }
-.mini-gallery h2 { text-align: center; margin-bottom: 0.5rem; }
-.mini-gallery > .container > p { text-align: center; margin-bottom: 2rem; }
+.mini-gallery h2 { text-align: left; margin-bottom: 0.5rem; }
+.mini-gallery > .container > p { text-align: left; margin-bottom: 2rem; }
 .mini-gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-bottom: 1.5rem; }
 .mini-gallery-item { position: relative; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); aspect-ratio: 4/3; cursor: pointer; }
 .mini-gallery-item:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
@@ -320,8 +353,8 @@ blockquote cite { display: block; margin-top: 0.75rem; font-weight: 600; color: 
 
 /* === TESTIMONIALS === */
 .testimonials { padding: 4rem 0; }
-.testimonials h2 { text-align: center; margin-bottom: 0.5rem; }
-.testimonials > .container > p { text-align: center; margin-bottom: 2rem; }
+.testimonials h2 { text-align: left; margin-bottom: 0.5rem; }
+.testimonials > .container > p { text-align: left; margin-bottom: 2rem; }
 .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
 .testimonial-card { background: var(--white); border-radius: var(--radius-lg); padding: 1.75rem; box-shadow: var(--shadow); transition: var(--transition); border-left: 4px solid var(--blue-sky); }
 .testimonial-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
@@ -383,7 +416,7 @@ blockquote cite { display: block; margin-top: 0.75rem; font-weight: 600; color: 
 
 /* === SERMONS === */
 .featured-sermon { padding: 4rem 0; background: var(--gray-50); }
-.featured-sermon h2 { text-align: center; margin-bottom: 2.5rem; }
+.featured-sermon h2 { text-align: left; margin-bottom: 2.5rem; }
 .featured-content { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
 .sermon-video { border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); }
 .video-placeholder { height: 280px; background: linear-gradient(135deg, var(--gray-200), var(--gray-300)); display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--gray-500); position: relative; }
@@ -393,7 +426,7 @@ blockquote cite { display: block; margin-top: 0.75rem; font-weight: 600; color: 
 .sermon-verse { background: var(--blue-light); padding: 1.25rem; border-left: 4px solid var(--gold); border-radius: var(--radius); margin-bottom: 1.25rem; font-style: italic; }
 .sermon-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
 .sermon-series, .recent-sermons { padding: 4rem 0; }
-.sermon-series h2, .recent-sermons h2 { text-align: center; margin-bottom: 2.5rem; }
+.sermon-series h2, .recent-sermons h2 { text-align: left; margin-bottom: 2.5rem; }
 .series-grid, .sermons-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
 .sermon-card { background: var(--white); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); transition: var(--transition); }
 .sermon-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
@@ -442,7 +475,7 @@ blockquote cite { display: block; margin-top: 0.75rem; font-weight: 600; color: 
 .emergency-number { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--error); color: var(--white); padding: 0.75rem 1.25rem; border-radius: var(--radius); font-weight: 600; margin: 0.5rem 0; }
 .emergency-number:hover { opacity: 0.9; color: var(--white); }
 .map-section { padding: 4rem 0; background: var(--gray-50); }
-.map-section h2 { text-align: center; margin-bottom: 2rem; }
+.map-section h2 { text-align: left; margin-bottom: 2rem; }
 .map-container { border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); }
 .alert { padding: 0.875rem 1.25rem; border-radius: var(--radius); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
 .alert-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
@@ -481,8 +514,6 @@ blockquote cite { display: block; margin-top: 0.75rem; font-weight: 600; color: 
     .nav-menu.active { left: 0; }
     .nav-menu li { text-align: center; }
     .nav-toggle { display: flex; }
-    .hero h1 { font-size: 2rem; }
-    .hero { height: 500px; }
     .theme-content, .welcome-grid, .history-content, .featured-content, .contact-grid { grid-template-columns: 1fr; }
     .gallery-grid { grid-template-columns: repeat(2, 1fr); }
     .mini-gallery-grid { grid-template-columns: repeat(2, 1fr); }
@@ -498,4 +529,85 @@ blockquote cite { display: block; margin-top: 0.75rem; font-weight: 600; color: 
     .mini-gallery-grid { grid-template-columns: 1fr; }
     .history-stats { grid-template-columns: 1fr 1fr; }
     .times-grid { grid-template-columns: 1fr; }
+}
+
+
+/* ============================================================
+   PHASE 4 — DETAIL PASS
+   ============================================================ */
+
+/* Images fade in as they decode instead of snapping in, which is what makes a
+   photo-heavy page feel janky on a slow connection. */
+@keyframes img-in { from { opacity: 0; } to { opacity: 1; } }
+.gallery-item img,
+.mini-gallery-item img,
+.hero-mosaic img,
+/* Deliberately no fill-mode: if animations are ever suppressed (backgrounded tab,
+   reduced-motion override, older engine) the worst case is an image that appears
+   without fading, never one stuck at opacity 0. */
+.theme-image img { animation: img-in 0.5s var(--ease); }
+@media (prefers-reduced-motion: reduce) {
+    .gallery-item img, .mini-gallery-item img,
+    .hero-mosaic img, .theme-image img { animation: none; }
+}
+
+/* Buttons: a real pressed state, and lift only where a pointer can hover. */
+.btn { font-family: var(--font-sans); font-weight: 550; letter-spacing: 0.01em; will-change: transform; }
+.btn:active { transform: translateY(0) scale(0.985); }
+@media (hover: none) {
+    .btn:hover, .time-card:hover, .gallery-item:hover,
+    .testimonial-card:hover, .schedule-col:hover { transform: none; }
+}
+
+/* Cards lift on hover with a matching border shift rather than shadow alone. */
+.testimonial-card, .schedule-col, .vm-card, .pillar {
+    transition: transform var(--t), box-shadow var(--t), border-color var(--t);
+}
+.testimonial-card:hover, .vm-card:hover, .pillar:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-strong);
+}
+
+/* Gallery: zoom the photo inside a fixed frame rather than moving the tile. */
+.gallery-item, .mini-gallery-item { transform: none !important; }
+.gallery-item .gallery-media, .mini-gallery-item img {
+    transition: transform 0.6s var(--ease);
+}
+.gallery-item:hover .gallery-media, .mini-gallery-item:hover img { transform: scale(1.05); }
+.gallery-item:hover, .mini-gallery-item:hover { box-shadow: var(--shadow-lg); }
+
+/* Filter pills */
+.filter-btn {
+    font-family: var(--font-sans); font-size: 0.9rem; font-weight: 550;
+    border-radius: 999px; border: 1px solid var(--border-strong);
+    background: var(--surface); color: var(--muted-foreground);
+    padding: 0.5rem 1.1rem; cursor: pointer; transition: var(--transition);
+}
+.filter-btn:hover { border-color: var(--brand-300); color: var(--foreground); }
+.filter-btn.active { background: var(--brand-900); border-color: var(--brand-900); color: #fff; }
+.filter-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+/* Quotes get typographic treatment rather than a plain grey box. */
+blockquote {
+    background: transparent; border-left: 3px solid var(--gold);
+    padding: 0.25rem 0 0.25rem 1.25rem; margin: 1.5rem 0;
+    font-family: var(--font-display); font-style: italic;
+    font-size: 1.15rem; line-height: 1.5; color: var(--foreground);
+}
+blockquote cite {
+    display: block; margin-top: 0.6rem; font-family: var(--font-sans);
+    font-style: normal; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--subtle-foreground);
+}
+
+/* Vertical rhythm: one scale for every major band, tightening on small screens. */
+.monthly-theme, .welcome, .mini-gallery, .testimonials,
+.ministry-pillars, .leadership, .map-section { padding: clamp(3.5rem, 7vw, 6rem) 0; }
+
+@media (max-width: 640px) {
+    .container { padding: 0 1.25rem; }
+    .theme-content, .welcome-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .theme-image { aspect-ratio: 3 / 2; }
+    .hero-meta { gap: 1rem 1.5rem; }
 }

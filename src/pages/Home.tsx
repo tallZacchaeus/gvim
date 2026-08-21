@@ -11,14 +11,19 @@ const testimonials = [
   { name: 'Oladimeji Shina', role: 'Leader', text: 'Being a member of the GVIM family has uplifted my spiritual life. The teachings and prayers have kept my faith alive in Christ Jesus.' }
 ];
 
-const services = [
-  { icon: 'fa-sun', h3: 'Sunday Morning', p: 'First Service', time: '10:00 AM MDT' },
-  { icon: 'fa-sunset', h3: 'Sunday Afternoon', p: 'Second Service', time: '2:00 PM MDT' },
-  { icon: 'fa-book-open', h3: 'Tuesday', p: 'Bible Study', time: '6:00 PM MDT' },
-  { icon: 'fa-hands-praying', h3: '1st of the Month', p: 'Healing Hour', time: '6:00 AM MDT' },
-  { icon: 'fa-heart', h3: 'Third Sunday', p: '"Just as it was" — Family Service', time: '2:00 PM MDT', special: true },
-  { icon: 'fa-heart', h3: 'Fourth Sunday', p: 'Prayer Meeting', time: '2:00 PM MDT', special: true },
-  { icon: 'fa-users', h3: 'Fifth Sunday', p: 'Youth Service', time: '2:00 PM MDT', special: true }
+/* A congregation reads this as a timetable, not as seven feature cards. Grouping
+   weekly from monthly is the distinction that actually matters to a visitor. */
+const weekly = [
+  { when: 'Sunday',  what: 'First Service',  time: '10:00 AM' },
+  { when: 'Sunday',  what: 'Second Service', time: '2:00 PM' },
+  { when: 'Tuesday', what: 'Bible Study',    time: '6:00 PM' }
+];
+
+const monthly = [
+  { when: '1st of the month', what: 'Healing Hour',                        time: '6:00 AM' },
+  { when: 'Third Sunday',     what: '"Just as it was" — Family Service',   time: '2:00 PM' },
+  { when: 'Fourth Sunday',    what: 'Prayer Meeting',                      time: '2:00 PM' },
+  { when: 'Fifth Sunday',     what: 'Youth Service',                       time: '2:00 PM' }
 ];
 
 export default function Home() {
@@ -66,16 +71,36 @@ export default function Home() {
 
       <section className="service-times">
         <div className="container">
-          <h2>Service Times</h2>
-          <div className="times-grid">
-            {services.map((s, i) => (
-              <div key={i} className={`time-card${s.special ? ' special-service' : ''}`}>
-                <i className={`fas ${s.icon} fa-2x`}></i>
-                <h3>{s.h3}</h3>
-                <p>{s.p}</p>
-                <span className="time">{s.time}</span>
-              </div>
-            ))}
+          <div className="section-head">
+            <span className="eyebrow">Gather With Us</span>
+            <h2>Service Times</h2>
+            <p className="lede">Join us in person throughout the week as we worship, study and pray together. All times Mountain (MDT).</p>
+          </div>
+          <div className="schedule">
+            <div className="schedule-col">
+              <h3 className="schedule-title">Every Week</h3>
+              <ul className="schedule-list">
+                {weekly.map((s, i) => (
+                  <li key={i}>
+                    <span className="schedule-when">{s.when}</span>
+                    <span className="schedule-what">{s.what}</span>
+                    <span className="schedule-time">{s.time}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="schedule-col">
+              <h3 className="schedule-title">Through the Month</h3>
+              <ul className="schedule-list">
+                {monthly.map((s, i) => (
+                  <li key={i}>
+                    <span className="schedule-when">{s.when}</span>
+                    <span className="schedule-what">{s.what}</span>
+                    <span className="schedule-time">{s.time}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </section>
@@ -84,15 +109,20 @@ export default function Home() {
         <div className="container">
           <div className="theme-content">
             <div className="theme-text">
-              <h2>This Month's Theme</h2>
-              <h3>"Walking in Divine Purpose"</h3>
+              <span className="eyebrow">This Month at GVIM</span>
+              <h2>Walking in Divine Purpose</h2>
               <p>Join us this month as we explore God's divine purpose for our lives. Through prayer, study, and fellowship, we'll discover how to align our hearts with His will and walk confidently in the path He has prepared for us.</p>
               <blockquote>
                 "For I know the plans I have for you," declares the Lord, "plans to prosper you and not to harm you, to give you hope and a future."
                 <cite>— Jeremiah 29:11</cite>
               </blockquote>
             </div>
-            <div className="theme-image"><i className="fas fa-cross fa-8x"></i></div>
+            {/* A real photograph rather than an oversized icon placeholder. */}
+            {mosaic[1] && (
+              <figure className="theme-image">
+                <img src={mosaic[1].url} alt="" loading="lazy" decoding="async" />
+              </figure>
+            )}
           </div>
         </div>
       </section>
@@ -101,7 +131,8 @@ export default function Home() {
         <div className="container">
           <div className="welcome-grid">
             <div className="welcome-text">
-              <h2>Welcome to Our Family Church</h2>
+              <span className="eyebrow">Who We Are</span>
+              <h2>A family church standing for the truth</h2>
               <p>At God's Vessels International Ministry, we believe that every person is a vessel chosen by God for His glory. Our mission is to equip believers to fulfill their divine calling through worship, fellowship, and service.</p>
               <p>Whether you're seeking spiritual growth, community connection, or answers to life's questions, you'll find a warm welcome here. Join us as we journey together in faith, hope, and love.</p>
               <Link to="/about" className="btn btn-outline">Discover Our Story</Link>
@@ -139,8 +170,11 @@ export default function Home() {
 
       <section className="testimonials">
         <div className="container">
-          <h2>Lives Transformed</h2>
-          <p>Hear from our church family about God's work in their lives</p>
+          <div className="section-head">
+            <span className="eyebrow">Testimonies</span>
+            <h2>Lives Transformed</h2>
+            <p className="lede">Hear from our church family about God's work in their lives</p>
+          </div>
           <div className="testimonials-grid">
             {testimonials.map((t, i) => (
               <div key={i} className="testimonial-card">
