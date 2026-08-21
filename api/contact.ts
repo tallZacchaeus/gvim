@@ -1,5 +1,5 @@
-import { json, bad, clientIp } from '../lib/util';
-import { db } from '../lib/db';
+import { json, bad, clientIp } from '../lib/util.js';
+import { db } from '../lib/db.js';
 
 export async function POST(request: Request): Promise<Response> {
   const ct = request.headers.get('content-type') || '';

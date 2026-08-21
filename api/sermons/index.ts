@@ -1,6 +1,6 @@
-import { json, bad, genId, guard } from '../../lib/util';
-import { db } from '../../lib/db';
-import { objectExists, deleteObject, publicBase } from '../../lib/r2';
+import { json, bad, genId, guard } from '../../lib/util.js';
+import { db } from '../../lib/db.js';
+import { objectExists, deleteObject, publicBase } from '../../lib/r2.js';
 
 function extractYouTubeId(url: string): string {
   if (!url) return '';

@@ -11,7 +11,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "types": ["vite/client"]
+    // "node" is here for Vercel's function builder, which compiles lib/*.ts
+    // against this config and otherwise reports `process` as undefined.
+    "types": ["vite/client", "node"]
   },
   "include": ["src"]
 }

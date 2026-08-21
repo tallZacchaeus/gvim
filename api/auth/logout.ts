@@ -1,4 +1,4 @@
-import { json } from '../../lib/util';
+import { json } from '../../lib/util.js';
 
 export async function POST(): Promise<Response> {
   return json({ ok: true }, {

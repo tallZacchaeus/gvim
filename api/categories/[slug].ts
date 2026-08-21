@@ -1,5 +1,5 @@
-import { json, bad, guard, pathParam } from '../../lib/util';
-import { db } from '../../lib/db';
+import { json, bad, guard, pathParam } from '../../lib/util.js';
+import { db } from '../../lib/db.js';
 
 export async function DELETE(request: Request): Promise<Response> {
   const denied = await guard(request);

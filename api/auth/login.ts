@@ -1,4 +1,4 @@
-import { json, bad, signJwt, verifyPassword, env } from '../../lib/util';
+import { json, bad, signJwt, verifyPassword, env } from '../../lib/util.js';
 
 export async function POST(request: Request): Promise<Response> {
   const body = await request.json().catch(() => null) as { username?: string; password?: string } | null;

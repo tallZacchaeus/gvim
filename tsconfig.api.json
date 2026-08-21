@@ -2,8 +2,12 @@
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    // NodeNext mirrors how Vercel actually runs these files: package.json has
+    // "type": "module", so Node uses strict ESM resolution and relative imports
+    // MUST carry a .js extension. Bundler resolution hid that and the missing
+    // extensions only failed at runtime in production.
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "strict": true,
     "skipLibCheck": true,
     "esModuleInterop": true,

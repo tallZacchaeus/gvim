@@ -1,4 +1,4 @@
-import { json, requireAdmin } from '../../lib/util';
+import { json, requireAdmin } from '../../lib/util.js';
 
 export async function GET(request: Request): Promise<Response> {
   const user = await requireAdmin(request);

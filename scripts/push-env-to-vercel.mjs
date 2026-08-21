@@ -31,6 +31,8 @@ for (const line of readFileSync(join(ROOT, '.env.local'), 'utf8').split('\n')) {
   const key = line.slice(0, eq).trim();
   const value = line.slice(eq + 1).trim();
   if (!value || /^<.*>$/.test(value)) { console.log(`  skip ${key} (empty or placeholder)`); continue; }
+  // VERCEL_* are injected by the CLI/platform per environment — never push them back.
+  if (key.startsWith('VERCEL_')) { console.log(`  skip ${key} (managed by Vercel)`); continue; }
   vars.push({ key, value });
 }
 

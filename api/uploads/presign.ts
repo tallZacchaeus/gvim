@@ -1,6 +1,6 @@
-import { json, bad, genId, guard } from '../../lib/util';
-import { db } from '../../lib/db';
-import { presignPut, type Bucket } from '../../lib/r2';
+import { json, bad, genId, guard } from '../../lib/util.js';
+import { db } from '../../lib/db.js';
+import { presignPut, type Bucket } from '../../lib/r2.js';
 
 const MAX_BYTES = 50 * 1024 * 1024;
 

@@ -1,5 +1,5 @@
-import { json, bad, guard } from '../../lib/util';
-import { db } from '../../lib/db';
+import { json, bad, guard } from '../../lib/util.js';
+import { db } from '../../lib/db.js';
 
 export async function GET(): Promise<Response> {
   const { results } = await db()

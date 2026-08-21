@@ -10,3 +10,4 @@ d1-export/
 .env*.local
 .vercel
 *.tsbuildinfo
+.env*
