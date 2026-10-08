@@ -27,6 +27,16 @@ export interface Sermon {
 
 export interface Category { slug: string; label: string; }
 
+export interface AdminStats {
+  gallery: number;
+  sermons: number;
+  contacts: number;
+  categories: number;
+  newsletter: number;
+  contactsLast7Days: number;
+  byCategory: { slug: string; label: string; total: number }[];
+}
+
 export interface PresignedUpload {
   key: string;
   url: string;
@@ -105,6 +115,9 @@ export const api = {
   contacts: {
     list: () => http<ContactSubmission[]>('/api/contacts'),
     remove: (id: number) => http<{ ok: boolean }>(`/api/contacts?id=${id}`, { method: 'DELETE' })
+  },
+  stats: {
+    get: () => http<AdminStats>('/api/stats')
   },
   uploads: {
     presign: (kind: 'gallery' | 'sermons', files: File[], category?: string) =>

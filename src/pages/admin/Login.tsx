@@ -22,8 +22,9 @@ export default function Login() {
   return (
     <div className="admin-login">
       <div className="admin-login-card">
-        <img src="/gvim-logo.jpg" alt="GVIM" width={80} height={80} />
-        <h1>Admin Login</h1>
+        <img src="/gvim-logo.jpg" alt="" width={72} height={72} />
+        <h1>GVIM Admin</h1>
+        <p className="login-sub">Sign in to manage the website</p>
         <form onSubmit={onSubmit}>
           <div className="form-group">
             <label htmlFor="username">Username</label>
@@ -34,8 +35,9 @@ export default function Login() {
             <input id="password" type="password" required value={password} onChange={e => setP(e.target.value)} autoComplete="current-password" />
           </div>
           {err && <div className="alert alert-error">{err}</div>}
-          <button type="submit" className="btn btn-primary" disabled={loading}>{loading ? 'Signing in…' : 'Sign In'}</button>
+          <button type="submit" className="btn btn-primary" disabled={loading}>{loading ? 'Signing in…' : 'Sign in'}</button>
         </form>
+        <a href="/" className="admin-login-back">← Back to the website</a>
       </div>
     </div>
   );

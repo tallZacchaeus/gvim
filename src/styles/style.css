@@ -144,6 +144,8 @@ main { margin-top: 80px; }
 .btn-secondary { background: var(--blue-sky); color: var(--white); }
 .btn-secondary:hover { opacity: 0.9; color: var(--white); transform: translateY(-2px); }
 .btn-outline { background: transparent; color: var(--blue-deep); border: 2px solid var(--blue-deep); }
+.btn-danger { background: var(--error); color: var(--white); }
+.btn-danger:hover { background: hsl(0 68% 42%); color: var(--white); }
 .btn-outline:hover { background: var(--blue-deep); color: var(--white); }
 
 /* === HERO ===
