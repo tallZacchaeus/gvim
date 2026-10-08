@@ -34,6 +34,8 @@ export interface AdminStats {
   categories: number;
   newsletter: number;
   contactsLast7Days: number;
+  contactsLast30Days: number;
+  uploadsLast30Days: number;
   byCategory: { slug: string; label: string; total: number }[];
 }
 

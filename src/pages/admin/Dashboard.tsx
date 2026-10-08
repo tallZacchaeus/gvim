@@ -37,6 +37,24 @@ export default function Dashboard() {
         ))}
       </div>
 
+      {stats && (
+        <>
+          <h2 className="admin-section-title">Last 30 days</h2>
+          <div className="admin-stats">
+            <div className="stat-card">
+              <h3>{stats.contactsLast30Days}</h3>
+              <p>Enquiries received</p>
+              <span className="stat-note">from the contact form</span>
+            </div>
+            <div className="stat-card">
+              <h3>{stats.uploadsLast30Days}</h3>
+              <p>Photos added</p>
+              <span className="stat-note">to the gallery</span>
+            </div>
+          </div>
+        </>
+      )}
+
       <h2 className="admin-section-title">Quick actions</h2>
       <div className="admin-quick">
         <Link to="/admin/gallery-upload" className="btn btn-primary"><i className="fas fa-cloud-arrow-up" /> Upload photos</Link>

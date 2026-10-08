@@ -12,7 +12,7 @@ export async function GET(request: Request): Promise<Response> {
   const denied = await guard(request);
   if (denied) return denied;
 
-  const [gallery, sermons, contacts, categories, newsletter, recent] = await Promise.all([
+  const [gallery, sermons, contacts, categories, newsletter, recent, recent30, uploads30] = await Promise.all([
     db().prepare('SELECT COUNT(*) AS n FROM gallery').first<{ n: number }>(),
     db().prepare('SELECT COUNT(*) AS n FROM sermons').first<{ n: number }>(),
     db().prepare('SELECT COUNT(*) AS n FROM contact_submissions').first<{ n: number }>(),
@@ -20,6 +20,15 @@ export async function GET(request: Request): Promise<Response> {
     db().prepare('SELECT COUNT(*) AS n FROM contact_submissions WHERE newsletter = 1').first<{ n: number }>(),
     db().prepare(
       "SELECT COUNT(*) AS n FROM contact_submissions WHERE submitted_at >= datetime('now', '-7 days')"
+    ).first<{ n: number }>(),
+    /* Web Analytics on the Hobby plan has no custom events, so enquiry volume and
+       upload activity cannot be measured there. Both are already in the database,
+       so they are counted here instead — the PRD metrics for free. */
+    db().prepare(
+      "SELECT COUNT(*) AS n FROM contact_submissions WHERE submitted_at >= datetime('now', '-30 days')"
+    ).first<{ n: number }>(),
+    db().prepare(
+      "SELECT COUNT(*) AS n FROM gallery WHERE created_at >= datetime('now', '-30 days')"
     ).first<{ n: number }>()
   ]);
 
@@ -39,6 +48,8 @@ export async function GET(request: Request): Promise<Response> {
     categories: Number(categories?.n ?? 0),
     newsletter: Number(newsletter?.n ?? 0),
     contactsLast7Days: Number(recent?.n ?? 0),
+    contactsLast30Days: Number(recent30?.n ?? 0),
+    uploadsLast30Days: Number(uploads30?.n ?? 0),
     byCategory: (byCategory || []).map((r: any) => ({
       slug: r.slug, label: r.label, total: Number(r.total)
     }))

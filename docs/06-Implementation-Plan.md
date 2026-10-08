@@ -15,7 +15,7 @@
 | 7 | Design system restoration & public site redesign | ✅ Done |
 | 8 | Admin overhaul & mobile responsiveness | ✅ Done & verified |
 | 9 | Contact email notifications | ✅ Done — needs an API key to activate |
-| 10 | Analytics | ⬜ Pending |
+| 10 | Analytics | ✅ Done — enable in the Vercel dashboard |
 | 11 | Accessibility audit | ⬜ Pending |
 | 12 | Custom R2 domain | ⬜ Pending |
 | 13 | Publish sermon content | ⬜ Pending (content, not code) |
@@ -119,10 +119,26 @@ submission returns 200 and the row is persisted.
 Verify the domain in Resend and set `CONTACT_NOTIFY_FROM` to send from a real
 church address.
 
-### Phase 10 — Analytics ⬜
-No measurement exists, so none of the PRD metrics can be evaluated.
-Vercel Analytics (free tier) or Plausible. Privacy-respecting, no cookie banner.
-**Depends on:** nothing. **Estimate:** small.
+### Phase 10 — Analytics ✅ *(needs enabling in the dashboard)*
+Vercel Web Analytics via `@vercel/analytics/react`, page views only.
+
+Checked against the docs before building, which changed the design: **custom
+events are Pro-only on Hobby**, so `track()` calls would have been dead code. Two
+PRD metrics that needed them — enquiries and uploads per month — are instead
+computed with SQL in `/api/stats` and shown on the dashboard under "Last 30 days".
+Gallery engagement stays unmeasured rather than faked.
+
+`beforeSend` drops `/admin` URLs: staff traffic is not visitor behaviour and would
+skew every ratio while consuming the 50,000/month allowance.
+
+`<Analytics />` sits inside `SafeBoundary`, a small error boundary, so a failure in
+observational code can never blank the site.
+
+Verified in the browser: `/gallery` sends a view, `/admin/dashboard` logs "Page
+view would be ignored by `beforeSend`", and no cookies are set.
+
+**To activate:** Vercel dashboard → the `gvim` project → **Analytics** → Enable.
+The script is already deployed; until it is enabled nothing is collected.
 
 ### Phase 11 — Accessibility audit ⬜
 Practices in `04-UI-UX-Design-Brief.md` §7 were applied but never audited.
@@ -146,6 +162,7 @@ Content, not code. The sermons feature is built and unused.
 
 | Item | Note |
 |---|---|
+| Gallery engagement tracking | Needs Vercel Pro (custom events) or a different analytics provider |
 | Rotate the MySQL password in git history | `git show b74c465:includes/db.php`. Nothing uses that database, but the credential is exposed. **Do this regardless of priority.** |
 | Delete 29 orphaned R2 objects | Unused duplicates under `gallery/fellowship/` |
 | Fix footer social links | Instagram and X are `#` placeholders |

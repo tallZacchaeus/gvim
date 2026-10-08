@@ -24,7 +24,7 @@ function adminMock(): Plugin {
     '/api/auth/me': { authenticated: true, username: 'preview' },
     '/api/stats': {
       gallery: 91, sermons: 2, contacts: 3, categories: 6,
-      newsletter: 2, contactsLast7Days: 1,
+      newsletter: 2, contactsLast7Days: 1, contactsLast30Days: 4, uploadsLast30Days: 12,
       byCategory: [
         { slug: 'fellowship', label: 'Fellowship', total: 68 },
         { slug: 'events', label: 'Events & Programs', total: 11 },

@@ -54,6 +54,7 @@ compile error (TS2835) instead of a production outage.
 | Turso | All relational data | `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN` |
 | Cloudflare R2 | Gallery and sermon media | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` |
 | **Resend** | Emails the church when an enquiry arrives (optional) | `RESEND_API_KEY` |
+| **Vercel Web Analytics** | Page views, devices, referrers | none (enabled per project in the dashboard) |
 | Google Fonts / Font Awesome | Typography and icons | none |
 
 ### Environment variables (12 required, 3 optional)
@@ -135,6 +136,18 @@ the Cloudflare dashboard displays. See `R2_UPLOAD_SETUP.md`.
 - **`pub-*.r2.dev` is a development endpoint** that Cloudflare rate-limits. Fine at
   current traffic; a custom bucket domain is the correct fix before relying on it.
 - No CI. Checks are run locally: `npm run typecheck`, `npm run test:api`, `npm run build`.
+
+### Analytics
+Vercel Web Analytics, page views only. **Hobby includes 50,000 events/month with a
+one-month reporting window; custom events (`track()`) are Pro-only**, so none are
+used — on Hobby they would silently do nothing.
+
+No cookie banner is required: visitors are identified by a hash of the request, no
+IP or personal identifier is stored, and the session hash is discarded after 24
+hours. Verified empirically — the page sets no cookies.
+
+`<Analytics />` is wrapped in `SafeBoundary` so an exception in observational code
+can never blank the site, and `beforeSend` drops `/admin` URLs.
 
 ## 7. Testing
 

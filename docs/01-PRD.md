@@ -93,21 +93,24 @@ message reader.
 - As an administrator, I am asked to confirm before anything is permanently deleted.
 - As an administrator, I can add a category without understanding what a slug is.
 
-## 6. Success metrics — **proposed, not yet measured**
+## 6. Success metrics
 
-No analytics are installed, so there is no baseline. These are the measures worth
-instrumenting, not current targets:
+Measurement landed in Phase 10. There are no targets yet — a baseline has to
+accumulate first.
 
-| Metric | Why it matters |
-|---|---|
-| Contact form submissions per month | Direct signal of newcomer interest |
-| Share of sessions reaching the Contact page | Whether the site drives action |
-| Gallery engagement (photos opened per session) | Whether the photography earns its prominence |
-| Admin uploads per month | Whether staff can genuinely self-serve |
-| Mobile share of sessions | Confirms the mobile-first emphasis |
+| Metric | Why it matters | Where to read it |
+|---|---|---|
+| Contact enquiries per month | Direct signal of newcomer interest | Admin dashboard, "Last 30 days" |
+| Photos added per month | Whether staff can genuinely self-serve | Admin dashboard, "Last 30 days" |
+| Share of sessions reaching /contact | Whether the site drives action | Vercel Web Analytics |
+| Mobile share of sessions | Confirms the mobile-first emphasis | Vercel Web Analytics |
+| Gallery engagement (photos opened) | Whether the photography earns its prominence | **Not measurable** |
 
-Installing privacy-respecting analytics is tracked in `06-Implementation-Plan.md`
-as a pending phase.
+Gallery engagement needs custom events, which Vercel Web Analytics offers on Pro
+only. It remains unmeasured rather than approximated by something misleading.
+
+Admin page views are excluded from analytics: staff traffic is not visitor
+behaviour and would skew every ratio above.
 
 ## 7. Constraints
 
