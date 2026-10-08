@@ -74,6 +74,7 @@ Project docs live in `docs/`:
 | [04-UI-UX-Design-Brief](docs/04-UI-UX-Design-Brief.md) | Colour, type, components, accessibility |
 | [05-Backend-Schema](docs/05-Backend-Schema.md) | Tables, relationships, API surface |
 | [06-Implementation-Plan](docs/06-Implementation-Plan.md) | Phases, status, backlog |
+| [07-Redesign-Prompt-Plan](docs/07-Redesign-Prompt-Plan.md) | Sequenced prompts for the GSAP / shadcn / Three.js redesign |
 
 Operational runbooks:
 
