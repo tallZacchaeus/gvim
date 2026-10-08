@@ -662,3 +662,14 @@ blockquote cite {
     .gallery-filter .filter-buttons::-webkit-scrollbar { display: none; }
     .gallery-filter .filter-btn { flex: 0 0 auto; scroll-snap-align: start; }
 }
+
+/* WebGL light field behind the hero. Sits under .hero::before and the content,
+   so the photographs remain the subject. */
+.hero-field {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    display: block; pointer-events: none;
+    z-index: 0;
+}
+.hero-inner { position: relative; z-index: 1; }
+@media (prefers-reduced-motion: reduce) { .hero-field { display: none; } }
