@@ -13,7 +13,7 @@
 | 5 | Environment & deployment tooling | ✅ Done |
 | 6 | Retire PHP and Cloudflare builds | ✅ Done |
 | 7 | Design system restoration & public site redesign | ✅ Done |
-| 8 | Admin overhaul & mobile responsiveness | ✅ Done — **awaiting visual QA** |
+| 8 | Admin overhaul & mobile responsiveness | ✅ Done & verified |
 | 9 | Contact email notifications | ⬜ Pending |
 | 10 | Analytics | ⬜ Pending |
 | 11 | Accessibility audit | ⬜ Pending |
@@ -65,7 +65,7 @@ Fraunces + Inter and the warm token system recovered from the PHP site's
 stylesheet in git history. Photography-led hero, editorial gallery, timetable in
 place of icon-cards, mobile polish. See `04-UI-UX-Design-Brief.md`.
 
-### Phase 8 — Admin overhaul ✅ (visual QA outstanding)
+### Phase 8 — Admin overhaul ✅
 `admin.css` rewritten as one scoped system; off-canvas drawer below 900px; tables
 become stacked cards; `GET /api/stats`; in-app confirm dialogs and toasts
 replacing `window.confirm`/`alert`; search and filtering; formatted dates; loading
@@ -76,10 +76,24 @@ from a dead rule and wrapping nine links into overflowing columns; and
 `.modal-content` had no CSS rule at all, so reading a message rendered unstyled
 text on a near-black overlay.
 
-> ⚠️ **Not visually verified.** Local port binding was unavailable, port 5173 was
-> occupied by an unrelated project, and the Vercel CLI had no credentials. Verified
-> by typecheck, build, 32 passing tests and static CSS analysis only. Run
-> `npm run dev:admin` and check `/admin/dashboard` on a phone before trusting it.
+**Verified in the browser** at 1280px and 375px (2026-10-08, via `npm run dev:admin`):
+all seven pages render; the message reader and confirm dialog work; the drawer
+opens with a scrim, scroll lock, `aria-expanded` and 47px targets, and closes on
+Escape; tables become labelled cards with no horizontal overflow; gallery search
+filters 91 items to 6.
+
+Rendering the pages found two defects that typecheck, build and the API tests all
+missed, because both were runtime tree/cascade problems rather than type errors:
+
+- `AdminFeedbackProvider` sat inside `AdminLayout`, but pages call `useFeedback()`
+  and *then* return `<AdminLayout>` — the provider was a child of its own consumer,
+  so four pages crashed to a blank screen. It now lives in `ProtectedRoute`.
+- A global `main { margin-top: 80px }` in `style.css` (for the public site's fixed
+  header) leaked onto `.admin-main`, leaving an 80px dead band and breaking the
+  admin header's `position: sticky`.
+
+**Lesson for future phases:** a green typecheck and a passing API suite say nothing
+about whether a page renders. Load the pages.
 
 ---
 
@@ -104,7 +118,7 @@ Vercel Analytics (free tier) or Plausible. Privacy-respecting, no cookie banner.
 Practices in `04-UI-UX-Design-Brief.md` §7 were applied but never audited.
 Run axe/Lighthouse, measure colour contrast (particularly gold on white), and do a
 keyboard and screen-reader pass over the admin drawer and dialogs.
-**Depends on:** Phase 8 QA. **Estimate:** small–medium.
+**Depends on:** nothing (Phase 8 QA complete). **Estimate:** small–medium.
 
 ### Phase 12 — Custom R2 domain ⬜
 `pub-*.r2.dev` is a development endpoint that Cloudflare rate-limits. Attach a
