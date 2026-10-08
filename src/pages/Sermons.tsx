@@ -113,7 +113,7 @@ export default function Sermons() {
                     <div className="sermon-play-overlay"><i className="fas fa-play-circle fa-3x"></i></div>
                   </div>
                   <div className="sermon-info">
-                    <h4>{s.title}</h4>
+                    <h3>{s.title}</h3>
                     <p className="sermon-date"><i className="fas fa-calendar"></i> {s.sermon_date || ''}</p>
                     <p className="sermon-speaker"><i className="fas fa-user"></i> {s.speaker || 'Rev. Godwin BB. Olutimi'}</p>
                     <p className="sermon-excerpt">{(s.description || '').slice(0, 120)}...</p>

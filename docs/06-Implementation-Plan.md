@@ -16,7 +16,7 @@
 | 8 | Admin overhaul & mobile responsiveness | ✅ Done & verified |
 | 9 | Contact email notifications | ✅ Done — needs an API key to activate |
 | 10 | Analytics | ✅ Done — enable in the Vercel dashboard |
-| 11 | Accessibility audit | ⬜ Pending |
+| 11 | Accessibility audit | ✅ Done — 0 axe violations |
 | 12 | Custom R2 domain | ⬜ Pending |
 | 13 | Publish sermon content | ⬜ Pending (content, not code) |
 
@@ -140,11 +140,34 @@ view would be ignored by `beforeSend`", and no cookies are set.
 **To activate:** Vercel dashboard → the `gvim` project → **Analytics** → Enable.
 The script is already deployed; until it is enabled nothing is collected.
 
-### Phase 11 — Accessibility audit ⬜
-Practices in `04-UI-UX-Design-Brief.md` §7 were applied but never audited.
-Run axe/Lighthouse, measure colour contrast (particularly gold on white), and do a
-keyboard and screen-reader pass over the admin drawer and dialogs.
-**Depends on:** nothing (Phase 8 QA complete). **Estimate:** small–medium.
+### Phase 11 — Accessibility audit ✅
+axe-core 4.10.2 run against all 13 pages (5 public, 8 admin). **13 pages, 0
+violations.** The practices claimed in `04-UI-UX-Design-Brief.md` had never been
+verified, and the audit found real defects:
+
+| Issue | Impact | Detail |
+|---|---|---|
+| `nested-interactive` | serious, ×91 | Every gallery tile was a `role="button"` div wrapping a real `<button>` |
+| `color-contrast` | serious | `.eyebrow` gold measured **2.69:1** against a 4.5:1 requirement; `--subtle-foreground` 3.45:1; YouTube/Facebook/Zoom buttons 3.32–4.23:1 |
+| `label` | serious, ×10 | Upload and sermon form labels were not associated with their inputs |
+| `heading-order` | moderate | The footer sat at `h3` directly under each page's `h1`; stat values and card titles were marked up as headings |
+| `landmark-one-main` | moderate | The admin login page had no `<main>` |
+
+Fixes, with values solved rather than guessed:
+- `--gold-600` 44% → **32.5%** lightness (4.57–5.06:1 across paper, surface-2 and
+  white); `--subtle-foreground` → **46%**. Brand buttons darkened the minimum
+  needed to clear 4.5:1 while staying recognisable.
+- Gallery tiles are no longer controls; the inner button is the single control and
+  carries an accessible name. It sits in an overlay translated out of view, so
+  `:focus-within` now reveals it — otherwise keyboard users would focus something
+  invisible.
+- Footer `h3/h4` → `h2/h3`; stat values and card titles became spans, since a
+  number is not a section heading.
+- All 18 form fields given `htmlFor`/`id` pairs.
+
+**Not covered:** no screen-reader pass (VoiceOver/NVDA) and no manual tab-order
+review beyond the gallery. Automated tooling catches perhaps half of WCAG issues;
+this is a floor, not a guarantee.
 
 ### Phase 12 — Custom R2 domain ⬜
 `pub-*.r2.dev` is a development endpoint that Cloudflare rate-limits. Attach a

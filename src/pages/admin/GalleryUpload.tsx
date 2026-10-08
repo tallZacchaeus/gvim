@@ -43,26 +43,26 @@ export default function GalleryUpload() {
       <form onSubmit={onSubmit} className="admin-form">
         {status && <div className={`alert alert-${status.type}`}>{status.msg}</div>}
         <div className="form-group">
-          <label>Title *</label>
-          <input type="text" required value={title} onChange={e => setTitle(e.target.value)} />
+          <label htmlFor="g-title">Title *</label>
+          <input id="g-title" type="text" required value={title} onChange={e => setTitle(e.target.value)} />
         </div>
         <div className="form-group">
-          <label>Description</label>
-          <textarea rows={3} value={description} onChange={e => setDescription(e.target.value)} />
+          <label htmlFor="g-desc">Description</label>
+          <textarea id="g-desc" rows={3} value={description} onChange={e => setDescription(e.target.value)} />
         </div>
         <div className="form-group">
-          <label>Category *</label>
-          <select required value={category} onChange={e => setCategory(e.target.value)}>
+          <label htmlFor="g-cat">Category *</label>
+          <select id="g-cat" required value={category} onChange={e => setCategory(e.target.value)}>
             <option value="">-- choose --</option>
             {cats.map(c => <option key={c.slug} value={c.slug}>{c.label}</option>)}
           </select>
         </div>
         <div className="form-group">
-          <label>Date</label>
-          <input type="date" value={itemDate} onChange={e => setItemDate(e.target.value)} />
+          <label htmlFor="g-date">Date</label>
+          <input id="g-date" type="date" value={itemDate} onChange={e => setItemDate(e.target.value)} />
         </div>
         <div className="form-group">
-          <label>Files (images or videos, max 50MB each) *</label>
+          <label htmlFor="files-input">Files (images or videos, max 50MB each) *</label>
           <input id="files-input" type="file" multiple accept="image/*,video/*" onChange={e => setFiles(e.target.files)} />
         </div>
         {busy && (

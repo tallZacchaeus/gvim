@@ -47,14 +47,14 @@ export default function SermonAdd() {
     <AdminLayout title="Add Sermon">
       <form onSubmit={onSubmit} className="admin-form">
         {status && <div className={`alert alert-${status.type}`}>{status.msg}</div>}
-        <div className="form-group"><label>Title *</label><input required value={title} onChange={e => setTitle(e.target.value)} /></div>
-        <div className="form-group"><label>Speaker</label><input value={speaker} onChange={e => setSpeaker(e.target.value)} /></div>
-        <div className="form-group"><label>Date</label><input type="date" value={sermon_date} onChange={e => setDate(e.target.value)} /></div>
-        <div className="form-group"><label>Scripture</label><input value={scripture} onChange={e => setScripture(e.target.value)} placeholder="e.g. John 3:16" /></div>
-        <div className="form-group"><label>Description</label><textarea rows={4} value={description} onChange={e => setDescription(e.target.value)} /></div>
-        <div className="form-group"><label>YouTube URL or ID</label><input value={youtube_url} onChange={e => setYoutube(e.target.value)} /></div>
-        <div className="form-group"><label>Duration</label><input value={duration} onChange={e => setDuration(e.target.value)} placeholder="e.g. 45:30" /></div>
-        <div className="form-group"><label>Audio/Video File (optional, max 50MB)</label><input id="sermon-file" type="file" accept="audio/*,video/*" onChange={e => setFile(e.target.files?.[0] || null)} /></div>
+        <div className="form-group"><label htmlFor="s-title">Title *</label><input id="s-title" required value={title} onChange={e => setTitle(e.target.value)} /></div>
+        <div className="form-group"><label htmlFor="s-speaker">Speaker</label><input id="s-speaker" value={speaker} onChange={e => setSpeaker(e.target.value)} /></div>
+        <div className="form-group"><label htmlFor="s-date">Date</label><input id="s-date" type="date" value={sermon_date} onChange={e => setDate(e.target.value)} /></div>
+        <div className="form-group"><label htmlFor="s-scripture">Scripture</label><input id="s-scripture" value={scripture} onChange={e => setScripture(e.target.value)} placeholder="e.g. John 3:16" /></div>
+        <div className="form-group"><label htmlFor="s-desc">Description</label><textarea id="s-desc" rows={4} value={description} onChange={e => setDescription(e.target.value)} /></div>
+        <div className="form-group"><label htmlFor="s-yt">YouTube URL or ID</label><input id="s-yt" value={youtube_url} onChange={e => setYoutube(e.target.value)} /></div>
+        <div className="form-group"><label htmlFor="s-duration">Duration</label><input id="s-duration" value={duration} onChange={e => setDuration(e.target.value)} placeholder="e.g. 45:30" /></div>
+        <div className="form-group"><label htmlFor="sermon-file">Audio/Video File (optional, max 50MB)</label><input id="sermon-file" type="file" accept="audio/*,video/*" onChange={e => setFile(e.target.files?.[0] || null)} /></div>
         {busy && file && (
           <div className="upload-progress" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
             <div className="upload-progress-bar" style={{ width: `${progress}%` }} />

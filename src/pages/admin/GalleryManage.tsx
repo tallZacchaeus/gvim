@@ -88,7 +88,7 @@ export default function GalleryManage() {
                     {item.type === 'video' && <span className="admin-card-badge">Video</span>}
                   </div>
                   <div className="admin-card-body">
-                    <h4>{item.title}</h4>
+                    <span className="admin-card-title">{item.title}</span>
                     <p className="muted">{cats.find(c => c.slug === item.category)?.label || item.category}</p>
                     <button className="btn btn-danger" onClick={() => remove(item)}>Delete</button>
                   </div>

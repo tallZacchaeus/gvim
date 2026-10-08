@@ -102,7 +102,7 @@ export default function Contact() {
                 <div className="info-item">
                   <div className="info-icon"><i className="fas fa-map-marker-alt"></i></div>
                   <div className="info-content">
-                    <h4>Visit Us</h4>
+                    <h3>Visit Us</h3>
                     <p>4511, 36 Ave NW<br />Edmonton, T6L 3R9<br />Alberta, Canada</p>
                     <a href="https://maps.google.com/maps?q=4511+36+Ave+NW+Edmonton+T6L+3R9" target="_blank" rel="noopener noreferrer" className="map-link">
                       <i className="fas fa-external-link-alt"></i> View on Google Maps
@@ -112,7 +112,7 @@ export default function Contact() {
                 <div className="info-item">
                   <div className="info-icon"><i className="fas fa-phone"></i></div>
                   <div className="info-content">
-                    <h4>Call Us</h4>
+                    <h3>Call Us</h3>
                     <p>Main: <a href="tel:+18252027450">+1 (825) 202-7450</a></p>
                     <p>Prayer Line: <a href="http://bit.ly/463cEXB" target="_blank" rel="noopener noreferrer">Join Prayer Line</a></p>
                   </div>
@@ -120,14 +120,14 @@ export default function Contact() {
                 <div className="info-item">
                   <div className="info-icon"><i className="fas fa-envelope"></i></div>
                   <div className="info-content">
-                    <h4>Email Us</h4>
+                    <h3>Email Us</h3>
                     <p><a href="mailto:godvesselsinternational@gmail.com">godvesselsinternational@gmail.com</a></p>
                   </div>
                 </div>
                 <div className="info-item">
                   <div className="info-icon"><i className="fas fa-clock"></i></div>
                   <div className="info-content">
-                    <h4>Office Hours</h4>
+                    <h3>Office Hours</h3>
                     <p>Monday – Friday: 9:00 AM – 5:00 PM</p>
                     <p>Saturday: 10:00 AM – 2:00 PM</p>
                     <p>Sunday: Available during services</p>

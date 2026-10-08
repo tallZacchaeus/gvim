@@ -116,9 +116,14 @@ Target: **WCAG 2.1 AA**.
 - `prefers-reduced-motion` disables fade-ins, shimmer and smooth scrolling.
 - Tap targets ≥44px; inputs 16px to prevent iOS zoom-on-focus.
 
-**Not yet verified:** no automated audit (axe/Lighthouse) or screen-reader pass has
-been run. Colour-contrast ratios have not been formally measured. Tracked in
-`06-Implementation-Plan.md`.
+**Verified (2026-10-08):** axe-core 4.10.2 across all 13 pages — **0 violations**.
+Contrast was measured, not estimated: `.eyebrow` gold was 2.69:1 and is now
+4.57–5.06:1; `--subtle-foreground` was 3.45:1 and is now 4.54–5.03:1. Any new text
+colour must be checked against `--background`, `--surface-2` and `--surface`, since
+all three occur behind body text.
+
+**Still not covered:** no screen-reader pass and no full manual tab-order review.
+Automated tooling catches roughly half of WCAG issues.
 
 ## 8. Motion
 

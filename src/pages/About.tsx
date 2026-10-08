@@ -50,9 +50,9 @@ export default function About() {
       <section className="vision-mission">
         <div className="container">
           <div className="vm-grid">
-            <div className="vm-card"><i className="fas fa-eye fa-3x"></i><h3>Our Vision</h3><p>In a time marked by rampant falsehood and societal decay, we need a beacon of truth. God's Vessels International Ministry represents that light. We stand for the Truth and are Vessels of Truth.</p></div>
-            <div className="vm-card"><i className="fas fa-bullseye fa-3x"></i><h3>Our Mission</h3><p>Our goal is to seek, preach, and live the truth, ensuring that all who listen on this platform receive nothing but the genuine message of God, delivered with passion, patience, and wisdom.</p></div>
-            <div className="vm-card"><i className="fas fa-heart fa-3x"></i><h3>Our Values</h3><p>We value holiness and truth, striving to live righteously and preach the undiluted Word of God, while fostering empathy and togetherness through compassion, unity, and Christ-like love.</p></div>
+            <div className="vm-card"><i className="fas fa-eye fa-3x"></i><h2>Our Vision</h2><p>In a time marked by rampant falsehood and societal decay, we need a beacon of truth. God's Vessels International Ministry represents that light. We stand for the Truth and are Vessels of Truth.</p></div>
+            <div className="vm-card"><i className="fas fa-bullseye fa-3x"></i><h2>Our Mission</h2><p>Our goal is to seek, preach, and live the truth, ensuring that all who listen on this platform receive nothing but the genuine message of God, delivered with passion, patience, and wisdom.</p></div>
+            <div className="vm-card"><i className="fas fa-heart fa-3x"></i><h2>Our Values</h2><p>We value holiness and truth, striving to live righteously and preach the undiluted Word of God, while fostering empathy and togetherness through compassion, unity, and Christ-like love.</p></div>
           </div>
         </div>
       </section>

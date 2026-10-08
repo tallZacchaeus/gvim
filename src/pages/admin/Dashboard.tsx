@@ -30,7 +30,7 @@ export default function Dashboard() {
         ))}
         {cards?.map(c => (
           <div key={c.label} className="stat-card">
-            <h3>{c.n}</h3>
+            <span className="stat-value">{c.n}</span>
             <p>{c.label}</p>
             {c.note && <span className="stat-note">{c.note}</span>}
           </div>
@@ -42,12 +42,12 @@ export default function Dashboard() {
           <h2 className="admin-section-title">Last 30 days</h2>
           <div className="admin-stats">
             <div className="stat-card">
-              <h3>{stats.contactsLast30Days}</h3>
+              <span className="stat-value">{stats.contactsLast30Days}</span>
               <p>Enquiries received</p>
               <span className="stat-note">from the contact form</span>
             </div>
             <div className="stat-card">
-              <h3>{stats.uploadsLast30Days}</h3>
+              <span className="stat-value">{stats.uploadsLast30Days}</span>
               <p>Photos added</p>
               <span className="stat-note">to the gallery</span>
             </div>

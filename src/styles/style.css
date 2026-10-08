@@ -12,7 +12,10 @@
     --brand-100: hsl(214 90% 95%);
 
     /* — Accent (warm gold) — */
-    --gold-600: hsl(35 92% 44%);
+    /* 32.5% not 44%: the eyebrow label measured 2.69:1 on warm paper against a
+       4.5:1 requirement. Only .eyebrow text uses this token, so darkening it does
+       not dull the decorative gold (--gold / --gold-300) elsewhere. */
+    --gold-600: hsl(35 92% 32.5%);
     --gold:     hsl(40 96% 53%);
     --gold-300: hsl(44 96% 75%);
     --gold-100: hsl(45 90% 94%);
@@ -23,7 +26,7 @@
     --surface-2:         hsl(38 24% 95%);
     --foreground:        hsl(224 32% 12%);
     --muted-foreground:  hsl(224 12% 42%);
-    --subtle-foreground: hsl(224 10% 56%);
+    --subtle-foreground: hsl(224 12% 46%);  /* was 10% 56% — 3.45:1 on white, below AA */
     --border:            hsl(36 22% 88%);
     --border-strong:     hsl(36 16% 80%);
 
@@ -401,8 +404,11 @@ blockquote cite { display: block; margin-top: 0.75rem; font-weight: 600; color: 
 .gallery-media { width: 100%; height: 100%; object-fit: cover; }
 .video-badge { position: absolute; top: 0.625rem; right: 0.625rem; background: rgba(0,0,0,0.65); color: var(--white); border-radius: var(--radius-sm); padding: 0.125rem 0.5rem; font-size: 0.875rem; }
 .gallery-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(29,78,216,0.92); color: var(--white); padding: 1.25rem; transform: translateY(100%); transition: var(--transition); }
-.gallery-item:hover .gallery-overlay { transform: translateY(0); }
-.gallery-overlay h4 { color: var(--white); margin-bottom: 0.375rem; font-size: 0.9375rem; }
+.gallery-item:hover .gallery-overlay,
+/* The overlay is translated out of view until hover. Without this, tabbing to the
+   View button inside it would focus a control the user cannot see. */
+.gallery-item:focus-within .gallery-overlay { transform: translateY(0); }
+.gallery-overlay .gallery-title, .gallery-overlay h4 { color: var(--white); margin-bottom: 0.375rem; font-size: 0.9375rem; }
 .gallery-overlay p { color: rgba(255,255,255,0.85); font-size: 0.8125rem; margin-bottom: 0.75rem; }
 .view-btn { background: var(--blue-sky); color: var(--white); border: none; padding: 0.375rem 0.875rem; border-radius: var(--radius); cursor: pointer; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.375rem; transition: var(--transition); }
 .view-btn:hover { background: var(--blue-accent); }
@@ -440,7 +446,7 @@ blockquote cite { display: block; margin-top: 0.75rem; font-weight: 600; color: 
 .sermon-thumbnail-logo { width: 100%; height: 100%; object-fit: cover; }
 .sermon-play-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: rgba(37,99,235,0.85); border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; color: var(--white); }
 .sermon-info { padding: 1.25rem; }
-.sermon-info h4 { margin-bottom: 0.375rem; }
+.sermon-info h3 { margin-bottom: 0.375rem; font-size: 1.2rem; }
 .sermon-date, .sermon-speaker { color: var(--gray-500); font-size: 0.875rem; margin-bottom: 0.25rem; }
 .sermon-excerpt { font-size: 0.875rem; margin-bottom: 1rem; }
 .sermon-links { display: flex; gap: 0.75rem; }
@@ -453,9 +459,9 @@ blockquote cite { display: block; margin-top: 0.75rem; font-weight: 600; color: 
 .subscribe-links { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
 .subscribe-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; border-radius: var(--radius); font-weight: 500; text-decoration: none; transition: var(--transition); }
 .subscribe-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
-.subscribe-btn.youtube  { background: #ff0000; color: var(--white); }
-.subscribe-btn.facebook { background: #1877f2; color: var(--white); }
-.subscribe-btn.zoom     { background: #2D8CFF; color: var(--white); }
+.subscribe-btn.youtube  { background: #ed0000; color: var(--white); } /* 4.56:1 — #ff0000 was 3.99 */
+.subscribe-btn.facebook { background: #1772e8; color: var(--white); } /* 4.56:1 — #1877f2 was 4.23 */
+.subscribe-btn.zoom     { background: #2676d6; color: var(--white); } /* 4.52:1 — #2D8CFF was 3.32 */
 
 /* === CONTACT === */
 .contact-section { padding: 4rem 0; }
@@ -473,11 +479,11 @@ blockquote cite { display: block; margin-top: 0.75rem; font-weight: 600; color: 
 .info-item { display: flex; gap: 1.25rem; align-items: flex-start; }
 .info-icon { background: var(--blue-light); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .info-icon i { color: var(--gold); font-size: 1.125rem; }
-.info-content h4 { color: var(--blue); margin-bottom: 0.375rem; }
+.info-content h3 { color: var(--blue); margin-bottom: 0.375rem; font-size: 1.2rem; }
 .info-content a { color: var(--blue-sky); }
 .map-link { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.875rem; margin-top: 0.375rem; color: var(--blue); }
 .emergency-contact { background: hsl(0 84% 97%); padding: 1.25rem; border-radius: var(--radius); border-left: 4px solid var(--error); margin-top: 1.5rem; }
-.emergency-contact h3 { color: var(--error); margin-bottom: 0.75rem; font-size: 1.125rem; }
+.emergency-contact h3 { color: hsl(0 72% 40%); /* 4.35:1 on the pale panel with --error */ margin-bottom: 0.75rem; font-size: 1.125rem; }
 .emergency-number { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--error); color: var(--white); padding: 0.75rem 1.25rem; border-radius: var(--radius); font-weight: 600; margin: 0.5rem 0; }
 .emergency-number:hover { opacity: 0.9; color: var(--white); }
 .map-section { padding: 4rem 0; background: var(--gray-50); }
@@ -490,7 +496,10 @@ blockquote cite { display: block; margin-top: 0.75rem; font-weight: 600; color: 
 /* === FOOTER === */
 .footer { background: var(--blue-deep); color: var(--white); padding: 4rem 0 1.5rem; }
 .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2.5rem; margin-bottom: 2.5rem; }
-.footer-section h3, .footer-section h4 { color: var(--white); margin-bottom: 1.25rem; }
+.footer-section h2, .footer-section h3, .footer-section h4 { color: var(--white); margin-bottom: 1.25rem; }
+/* Keep the previous visual sizes — only the semantic level changed. */
+.footer-section h2 { font-size: 1.5rem; }
+.footer-section h3 { font-size: 1.2rem; }
 .footer-section p { color: rgba(255,255,255,0.75); }
 .footer-section ul li { margin-bottom: 0.5rem; color: rgba(255,255,255,0.75); }
 .footer-section ul li a { color: rgba(255,255,255,0.75); }

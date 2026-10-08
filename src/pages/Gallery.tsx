@@ -49,10 +49,12 @@ export default function Gallery() {
             <p className="text-center" style={{ padding: '3rem' }}>No media yet. Check back soon!</p>
           ) : (
             <div className="gallery-grid">
+              {/* The tile is not itself a control: it used to carry role="button"
+                  while containing a real <button>, which nests interactive controls
+                  (axe flagged all 91 tiles). The inner button is now the single
+                  accessible control; the div's click handler is a mouse convenience. */}
               {visible.map(item => (
-                <div key={item.id} className="gallery-item" tabIndex={0} role="button"
-                  onClick={() => setModal(item)}
-                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setModal(item); } }}>
+                <div key={item.id} className="gallery-item" onClick={() => setModal(item)}>
                   {item.type === 'video' ? (
                     <>
                       <video src={item.url} preload="metadata" muted className="gallery-media" />
@@ -62,10 +64,16 @@ export default function Gallery() {
                     <img src={item.url} alt={item.title} loading="lazy" className="gallery-media" width={400} height={300} />
                   )}
                   <div className="gallery-overlay">
-                    <h4>{item.title}</h4>
-                    <p>{item.description}</p>
-                    <button className="view-btn" onClick={e => { e.stopPropagation(); setModal(item); }}>
-                      {item.type === 'video' ? <><i className="fas fa-play"></i> Play</> : <><i className="fas fa-expand"></i> View</>}
+                    {/* A caption, not document structure — an <h4> here skipped from
+                        <h2> and broke heading order. */}
+                    <span className="gallery-title">{item.title}</span>
+                    {item.description && <p>{item.description}</p>}
+                    <button
+                      className="view-btn"
+                      onClick={e => { e.stopPropagation(); setModal(item); }}
+                      aria-label={`${item.type === 'video' ? 'Play' : 'View'} ${item.title}`}
+                    >
+                      {item.type === 'video' ? <><i className="fas fa-play" aria-hidden="true"></i> Play</> : <><i className="fas fa-expand" aria-hidden="true"></i> View</>}
                     </button>
                   </div>
                 </div>

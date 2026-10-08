@@ -138,9 +138,9 @@ export default function Home() {
               <Link to="/about" className="btn btn-outline">Discover Our Story</Link>
             </div>
             <div className="welcome-features">
-              <div className="feature"><i className="fas fa-bible fa-lg"></i><div><h4>Biblical Teaching</h4><p>Sound doctrine grounded in God's Word</p></div></div>
-              <div className="feature"><i className="fas fa-hands-helping fa-lg"></i><div><h4>Community Service</h4><p>Serving our community with love and compassion</p></div></div>
-              <div className="feature"><i className="fas fa-heart fa-lg"></i><div><h4>Worship & Fellowship</h4><p>Authentic worship and meaningful connections</p></div></div>
+              <div className="feature"><i className="fas fa-bible fa-lg"></i><div><h3>Biblical Teaching</h3><p>Sound doctrine grounded in God's Word</p></div></div>
+              <div className="feature"><i className="fas fa-hands-helping fa-lg"></i><div><h3>Community Service</h3><p>Serving our community with love and compassion</p></div></div>
+              <div className="feature"><i className="fas fa-heart fa-lg"></i><div><h3>Worship & Fellowship</h3><p>Authentic worship and meaningful connections</p></div></div>
             </div>
           </div>
         </div>
@@ -157,7 +157,7 @@ export default function Home() {
                   {item.type === 'video'
                     ? <video src={item.url} muted preload="metadata" className="gallery-thumb-video"></video>
                     : <img src={item.url} alt={item.title} loading="lazy" width={400} height={300} />}
-                  <div className="mini-overlay"><h4>{item.title}</h4></div>
+                  <div className="mini-overlay"><h3>{item.title}</h3></div>
                 </div>
               ))}
             </div>
@@ -186,7 +186,7 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="author-info">
-                    <h4>{t.name}</h4>
+                    <h3>{t.name}</h3>
                     <span>{t.role}</span>
                   </div>
                 </div>

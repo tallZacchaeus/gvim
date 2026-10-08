@@ -20,7 +20,7 @@ export default function Login() {
   }
 
   return (
-    <div className="admin-login">
+    <main className="admin-login">
       <div className="admin-login-card">
         <img src="/gvim-logo.jpg" alt="" width={72} height={72} />
         <h1>GVIM Admin</h1>
@@ -39,6 +39,6 @@ export default function Login() {
         </form>
         <a href="/" className="admin-login-back">← Back to the website</a>
       </div>
-    </div>
+    </main>
   );
 }
