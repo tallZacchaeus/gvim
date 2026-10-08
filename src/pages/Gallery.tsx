@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useReveal } from '../lib/motion';
 import { api, Category, GalleryItem } from '../lib/api';
 
 export default function Gallery() {
+  const gridRef = useRef<HTMLDivElement>(null);
   const [cats, setCats] = useState<Category[]>([]);
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [filter, setFilter] = useState<string>('all');
@@ -21,6 +23,10 @@ export default function Gallery() {
   useEffect(() => { document.body.style.overflow = modal ? 'hidden' : ''; }, [modal]);
 
   const visible = filter === 'all' ? items : items.filter(i => i.category === filter);
+
+  /* Keyed on the visible count so the stagger re-runs after the fetch resolves
+     and whenever the category filter changes the set of tiles. */
+  useReveal(gridRef, { children: '.gallery-item', y: 18, stagger: 0.03, duration: 0.5 });
 
   return (
     <>
@@ -48,7 +54,7 @@ export default function Gallery() {
           {visible.length === 0 ? (
             <p className="text-center" style={{ padding: '3rem' }}>No media yet. Check back soon!</p>
           ) : (
-            <div className="gallery-grid">
+            <div className="gallery-grid" ref={gridRef}>
               {/* The tile is not itself a control: it used to carry role="button"
                   while containing a real <button>, which nests interactive controls
                   (axe flagged all 91 tiles). The inner button is now the single

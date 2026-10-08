@@ -81,7 +81,10 @@ export default defineConfig({
   plugins: [react(), tailwindcss(), ...(process.env.ADMIN_MOCK === '1' ? [adminMock()] : [])],
   resolve: { alias: { '@': path.resolve(__dirname, './src') } },
   server: {
-    port: 5173,
+    /* Honour an assigned PORT so the dev server can start when 5173 is taken.
+       5173 stays the default, because the R2 CORS allowlist contains
+       http://localhost:5173 — uploads only work from that exact origin. */
+    port: Number(process.env.PORT) || 5173,
     proxy: {
       '/api': { target: API_TARGET, changeOrigin: true, secure: true }
     }

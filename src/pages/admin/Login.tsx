@@ -22,7 +22,7 @@ export default function Login() {
   return (
     <main className="admin-login">
       <div className="admin-login-card">
-        <img src="/gvim-logo.jpg" alt="" width={72} height={72} />
+        <img src="/gvim-logo-128.jpg" alt="" width={72} height={72} />
         <h1>GVIM Admin</h1>
         <p className="login-sub">Sign in to manage the website</p>
         <form onSubmit={onSubmit}>

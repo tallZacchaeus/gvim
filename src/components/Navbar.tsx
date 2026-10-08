@@ -20,7 +20,7 @@ export default function Navbar() {
         <div className="nav-container">
           <div className="nav-logo">
             <NavLink to="/">
-              <img src="/gvim-logo.jpg" alt="GVIM Logo" className="header-logo" width={60} height={60} />
+              <img src="/gvim-logo-128.jpg" alt="GVIM Logo" className="header-logo" width={60} height={60} />
             </NavLink>
           </div>
           <ul className={`nav-menu${open ? ' active' : ''}`} id="nav-menu">

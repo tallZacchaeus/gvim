@@ -23,7 +23,7 @@ function FeaturedMedia({ s }: { s: Sermon }) {
     return (
       <>
         <div className="video-placeholder">
-          <img src="/gvim-logo.jpg" alt="GVIM" className="sermon-logo" />
+          <img src="/gvim-logo-128.jpg" alt="GVIM" className="sermon-logo" />
           <div className="play-overlay"><i className="fas fa-headphones fa-3x"></i></div>
         </div>
         <audio controls style={{ width: '100%', marginTop: '1rem' }}>
@@ -40,7 +40,7 @@ function FeaturedMedia({ s }: { s: Sermon }) {
   }
   return (
     <div className="video-placeholder">
-      <img src="/gvim-logo.jpg" alt="GVIM" className="sermon-logo" />
+      <img src="/gvim-logo-128.jpg" alt="GVIM" className="sermon-logo" />
       <div className="play-overlay"><i className="fas fa-play-circle fa-4x"></i></div>
     </div>
   );
@@ -109,7 +109,7 @@ export default function Sermons() {
               {rest.map(s => (
                 <div key={s.id} className="sermon-card">
                   <div className="sermon-thumbnail">
-                    <img src="/gvim-logo.jpg" alt="GVIM" className="sermon-thumbnail-logo" loading="lazy" />
+                    <img src="/gvim-logo-128.jpg" alt="GVIM" className="sermon-thumbnail-logo" loading="lazy" />
                     <div className="sermon-play-overlay"><i className="fas fa-play-circle fa-3x"></i></div>
                   </div>
                   <div className="sermon-info">

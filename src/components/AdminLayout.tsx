@@ -82,7 +82,7 @@ export default function AdminLayout({
         {/* Desktop sidebar. Sheet handles <900px, so this is hidden there. */}
         <aside className="admin-sidebar" id="admin-sidebar">
           <div className="admin-brand">
-            <img src="/gvim-logo.jpg" alt="" width={44} height={44} />
+            <img src="/gvim-logo-128.jpg" alt="" width={44} height={44} />
             <div><strong>GVIM</strong><span>Admin</span></div>
           </div>
           <Nav onLogout={logout} />
@@ -98,7 +98,7 @@ export default function AdminLayout({
             </SheetHeader>
             <div className="admin-sidebar admin-sidebar--sheet">
               <div className="admin-brand">
-                <img src="/gvim-logo.jpg" alt="" width={44} height={44} />
+                <img src="/gvim-logo-128.jpg" alt="" width={44} height={44} />
                 <div><strong>GVIM</strong><span>Admin</span></div>
               </div>
               <Nav onLogout={logout} />

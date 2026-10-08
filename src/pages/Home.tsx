@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useReveal } from '../lib/motion';
 import { Link } from 'react-router-dom';
 import { api, GalleryItem } from '../lib/api';
 
@@ -27,6 +28,22 @@ const monthly = [
 ];
 
 export default function Home() {
+  /* Scroll choreography. Every reveal animates an element from an offset TO its
+     natural state, so content is readable even if GSAP never loads. The hero
+     mosaic is deliberately NOT animated on load — it contains the LCP image and
+     delaying it would trade a real metric for decoration. */
+  const scheduleRef = useRef<HTMLDivElement>(null);
+  const themeRef = useRef<HTMLDivElement>(null);
+  const welcomeRef = useRef<HTMLDivElement>(null);
+  const galleryRef = useRef<HTMLDivElement>(null);
+  const testimonialsRef = useRef<HTMLDivElement>(null);
+
+  useReveal(scheduleRef, { children: '.schedule-col', y: 28 });
+  useReveal(themeRef, { y: 24 });
+  useReveal(welcomeRef, { children: '.feature', y: 20, stagger: 0.09 });
+  useReveal(galleryRef, { children: '.mini-gallery-item', y: 22, stagger: 0.06 });
+  useReveal(testimonialsRef, { children: '.testimonial-card', y: 24, stagger: 0.07 });
+
   const [featured, setFeatured] = useState<GalleryItem[]>([]);
   useEffect(() => { api.gallery.list(undefined, 6).then(setFeatured).catch(() => {}); }, []);
 
@@ -76,7 +93,7 @@ export default function Home() {
             <h2>Service Times</h2>
             <p className="lede">Join us in person throughout the week as we worship, study and pray together. All times Mountain (MDT).</p>
           </div>
-          <div className="schedule">
+          <div className="schedule" ref={scheduleRef}>
             <div className="schedule-col">
               <h3 className="schedule-title">Every Week</h3>
               <ul className="schedule-list">
@@ -107,7 +124,7 @@ export default function Home() {
 
       <section className="monthly-theme">
         <div className="container">
-          <div className="theme-content">
+          <div className="theme-content" ref={themeRef}>
             <div className="theme-text">
               <span className="eyebrow">This Month at GVIM</span>
               <h2>Walking in Divine Purpose</h2>
@@ -137,7 +154,7 @@ export default function Home() {
               <p>Whether you're seeking spiritual growth, community connection, or answers to life's questions, you'll find a warm welcome here. Join us as we journey together in faith, hope, and love.</p>
               <Link to="/about" className="btn btn-outline">Discover Our Story</Link>
             </div>
-            <div className="welcome-features">
+            <div className="welcome-features" ref={welcomeRef}>
               <div className="feature"><i className="fas fa-bible fa-lg"></i><div><h3>Biblical Teaching</h3><p>Sound doctrine grounded in God's Word</p></div></div>
               <div className="feature"><i className="fas fa-hands-helping fa-lg"></i><div><h3>Community Service</h3><p>Serving our community with love and compassion</p></div></div>
               <div className="feature"><i className="fas fa-heart fa-lg"></i><div><h3>Worship & Fellowship</h3><p>Authentic worship and meaningful connections</p></div></div>
@@ -151,7 +168,7 @@ export default function Home() {
           <div className="container">
             <h2>Our Ministry in Action</h2>
             <p>Capturing moments of faith, fellowship, and community service</p>
-            <div className="mini-gallery-grid">
+            <div className="mini-gallery-grid" ref={galleryRef}>
               {featured.map(item => (
                 <div key={item.id} className="mini-gallery-item">
                   {item.type === 'video'
@@ -175,7 +192,7 @@ export default function Home() {
             <h2>Lives Transformed</h2>
             <p className="lede">Hear from our church family about God's work in their lives</p>
           </div>
-          <div className="testimonials-grid">
+          <div className="testimonials-grid" ref={testimonialsRef}>
             {testimonials.map((t, i) => (
               <div key={i} className="testimonial-card">
                 <div className="testimonial-content"><p>{t.text}</p></div>
