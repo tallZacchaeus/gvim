@@ -30,18 +30,6 @@ export function env(name: string): string {
   return v;
 }
 
-/**
- * Vercel exposes dynamic path segments ([id].ts) as query parameters, but fall
- * back to the trailing path segment so the handlers also work when called directly.
- */
-export function pathParam(request: Request, name: string): string {
-  const url = new URL(request.url);
-  const fromQuery = url.searchParams.get(name);
-  if (fromQuery) return fromQuery;
-  const segments = url.pathname.split('/').filter(Boolean);
-  return decodeURIComponent(segments[segments.length - 1] || '');
-}
-
 function b64url(input: ArrayBuffer | Uint8Array | string): string {
   let bytes: Uint8Array;
   if (typeof input === 'string') bytes = new TextEncoder().encode(input);

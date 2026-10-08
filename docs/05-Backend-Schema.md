@@ -131,6 +131,14 @@ Index: `idx_contacts_date`. **Contains personal data** — exports are gitignore
 All routes are Vercel Functions under `api/`, using Web-standard `Request` /
 `Response`. **Auth** = requires the `gvim_admin` cookie (`guard()` in the handler).
 
+> **Deletes use a query parameter, not a path segment.** Vercel creates one
+> function per file and the Hobby plan caps a deployment at **12**. Dedicated
+> `[id].ts` files for gallery, sermons and categories cost three functions for
+> three DELETE handlers and pushed the project to 13, failing the deploy. Folding
+> them into the collection routes brought it to 10 and matches the convention
+> `/api/contacts` already used. **Adding a new file under `api/` consumes one of
+> the twelve.**
+
 | Method | Route | Auth | Purpose |
 |---|---|---|---|
 | POST | `/api/auth/login` | — | Sign in; sets the session cookie |
@@ -138,13 +146,13 @@ All routes are Vercel Functions under `api/`, using Web-standard `Request` /
 | GET | `/api/auth/me` | — | Reports session state (401 when absent) |
 | GET | `/api/gallery` | — | List; `?category=`, `?limit=` (bound, clamped to 500) |
 | POST | `/api/gallery` | ✅ | Commit uploaded media (metadata + keys) |
-| DELETE | `/api/gallery/:id` | ✅ | Delete row and R2 object |
+| DELETE | `/api/gallery?id=` | ✅ | Delete row and R2 object |
 | GET | `/api/sermons` | — | List; `?limit=` |
 | POST | `/api/sermons` | ✅ | Commit a sermon |
-| DELETE | `/api/sermons/:id` | ✅ | Delete row and any R2 object |
+| DELETE | `/api/sermons?id=` | ✅ | Delete row and any R2 object |
 | GET | `/api/categories` | — | List |
 | POST | `/api/categories` | ✅ | Create (slug normalised) |
-| DELETE | `/api/categories/:slug` | ✅ | Delete; **409** if still used by photos |
+| DELETE | `/api/categories?slug=` | ✅ | Delete; **409** if still used by photos |
 | POST | `/api/contact` | — | Public enquiry form |
 | GET | `/api/contacts` | ✅ | List messages; `?limit=` (default 100) |
 | DELETE | `/api/contacts?id=` | ✅ | Delete a message |

@@ -82,7 +82,7 @@ export const api = {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify(data)
     }),
-    remove: (id: string) => http<{ ok: boolean }>(`/api/gallery/${id}`, { method: 'DELETE' })
+    remove: (id: string) => http<{ ok: boolean }>(`/api/gallery?id=${encodeURIComponent(id)}`, { method: 'DELETE' })
   },
   sermons: {
     list: (limit?: number) => {
@@ -97,7 +97,7 @@ export const api = {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify(data)
     }),
-    remove: (id: string) => http<{ ok: boolean }>(`/api/sermons/${id}`, { method: 'DELETE' })
+    remove: (id: string) => http<{ ok: boolean }>(`/api/sermons?id=${encodeURIComponent(id)}`, { method: 'DELETE' })
   },
   categories: {
     list: () => http<Category[]>('/api/categories'),
@@ -105,7 +105,7 @@ export const api = {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ slug, label })
     }),
-    remove: (slug: string) => http<{ ok: boolean }>(`/api/categories/${slug}`, { method: 'DELETE' })
+    remove: (slug: string) => http<{ ok: boolean }>(`/api/categories?slug=${encodeURIComponent(slug)}`, { method: 'DELETE' })
   },
   contact: {
     send: (data: Record<string, any>) => http<{ ok: boolean }>('/api/contact', {

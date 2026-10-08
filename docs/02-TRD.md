@@ -116,6 +116,10 @@ the Cloudflare dashboard displays. See `R2_UPLOAD_SETUP.md`.
   free at this scale; Vercel Hobby is free.
 - **Vercel Hobby is non-commercial.** Adding real donation processing would require
   Pro (~$20/month).
+- **Hobby caps a deployment at 12 serverless functions**, and Vercel creates one per
+  file in `api/`. The project currently uses **10**. This is a hard deploy-time
+  failure, not a warning — adding three files would break the next deploy. Deletes
+  therefore use `?id=` query parameters rather than `[id].ts` route files.
 - **`pub-*.r2.dev` is a development endpoint** that Cloudflare rate-limits. Fine at
   current traffic; a custom bucket domain is the correct fix before relying on it.
 - No CI. Checks are run locally: `npm run typecheck`, `npm run test:api`, `npm run build`.

@@ -21,3 +21,20 @@ export async function POST(request: Request): Promise<Response> {
     .bind(slug, body.label).run();
   return json({ ok: true, slug });
 }
+
+/** Delete by `?slug=` — see the note in api/gallery/index.ts. */
+export async function DELETE(request: Request): Promise<Response> {
+  const denied = await guard(request);
+  if (denied) return denied;
+
+  const slug = new URL(request.url).searchParams.get('slug');
+  if (!slug) return bad('Missing slug');
+
+  const inUse = await db()
+    .prepare('SELECT COUNT(*) as c FROM gallery WHERE category = ?')
+    .bind(slug).first<{ c: number }>();
+  if (inUse && inUse.c > 0) return bad('Category in use', 409);
+
+  await db().prepare('DELETE FROM gallery_categories WHERE slug = ?').bind(slug).run();
+  return json({ ok: true });
+}

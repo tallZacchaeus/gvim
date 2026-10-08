@@ -77,3 +77,26 @@ export async function POST(request: Request): Promise<Response> {
 
   return json({ ok: true, count: inserted.length, items: inserted });
 }
+
+/**
+ * Delete by `?id=`, matching the existing /api/contacts convention.
+ *
+ * This lived in api/gallery/[id].ts, but Vercel creates one function per file and
+ * the Hobby plan allows twelve. A whole function for a single DELETE was the most
+ * expendable of the thirteen.
+ */
+export async function DELETE(request: Request): Promise<Response> {
+  const denied = await guard(request);
+  if (denied) return denied;
+
+  const id = new URL(request.url).searchParams.get('id');
+  if (!id) return bad('Missing id');
+
+  const row = await db().prepare('SELECT file_path FROM gallery WHERE id = ?')
+    .bind(id).first<{ file_path: string }>();
+  if (!row) return bad('Not found', 404);
+
+  await deleteObject('gallery', row.file_path).catch(() => {});
+  await db().prepare('DELETE FROM gallery WHERE id = ?').bind(id).run();
+  return json({ ok: true });
+}
