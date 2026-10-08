@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useReveal } from '../lib/motion';
+import { Suspense, lazy } from 'react';
+import SafeBoundary from '../components/SafeBoundary';
+
+/* Lazy, and inside SafeBoundary: a WebGL failure must never blank the page. */
+const HeroField = lazy(() => import('../components/HeroField'));
 import { Link } from 'react-router-dom';
 import { api, GalleryItem } from '../lib/api';
 
@@ -54,6 +59,9 @@ export default function Home() {
   return (
     <>
       <section className="hero">
+        <SafeBoundary>
+          <Suspense fallback={null}><HeroField /></Suspense>
+        </SafeBoundary>
         <div className="hero-inner">
           <div className="hero-content">
             <span className="eyebrow"><i className="fas fa-dove"></i> Vessels of Truth · Edmonton, Canada</span>
