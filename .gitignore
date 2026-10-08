@@ -12,3 +12,6 @@ d1-export/
 *.tsbuildinfo
 .env*
 .vite
+
+# Local MCP server configuration — not project source
+.mcp.json
