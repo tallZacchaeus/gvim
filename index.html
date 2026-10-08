@@ -7,8 +7,23 @@
   <link rel="icon" type="image/jpeg" href="/gvim-logo-128.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+
+  <!-- Fonts stay render-blocking ON PURPOSE. They carry display=swap, so text
+       paints immediately in a fallback and reflows when Fraunces/Inter arrive;
+       deferring the stylesheet instead would guarantee a flash of unstyled text. -->
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Font Awesome is NOT render-blocking. It only styles decorative icons, and
+       measurement showed first paint waiting on this third-party CDN — a text
+       LCP of 11-13s on a slow link. media="print" makes the browser fetch it at
+       low priority without blocking; onload promotes it once it has arrived.
+       This is what the original PHP site did; the React rewrite lost it. -->
+  <link rel="stylesheet" media="print" onload="this.media='all'"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  </noscript>
 </head>
 <body>
   <div id="root"></div>
