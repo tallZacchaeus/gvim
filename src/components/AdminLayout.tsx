@@ -1,7 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
-import { AdminFeedbackProvider } from './AdminFeedback';
 
 const NAV = [
   { to: '/admin/dashboard',      icon: 'fa-gauge-high',    label: 'Dashboard' },
@@ -42,8 +41,7 @@ export default function AdminLayout({
   }
 
   return (
-    <AdminFeedbackProvider>
-      <div className={`admin-wrap${navOpen ? ' nav-open' : ''}`}>
+    <div className={`admin-wrap${navOpen ? ' nav-open' : ''}`}>
         <aside className="admin-sidebar" id="admin-sidebar">
           <div className="admin-brand">
             <img src="/gvim-logo.jpg" alt="" width={44} height={44} />
@@ -98,7 +96,6 @@ export default function AdminLayout({
           </header>
           <div className="admin-content">{children}</div>
         </main>
-      </div>
-    </AdminFeedbackProvider>
+    </div>
   );
 }
