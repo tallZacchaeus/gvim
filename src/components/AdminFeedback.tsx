@@ -1,12 +1,20 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState, ReactNode } from 'react';
+import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
+import { toast } from 'sonner';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
+} from '@/components/ui/alert-dialog';
 
 /**
  * Confirmation dialogs and toasts for the admin area.
  *
- * Replaces window.confirm / window.alert, which could not be styled, read as a
- * browser error rather than part of the app, and on mobile appear detached from
- * the page. confirm() keeps the same call shape — it resolves to a boolean — so
- * pages read as `if (!(await confirm(...))) return;`.
+ * The call shape is unchanged from the hand-rolled version — confirm() still
+ * resolves to a boolean — so pages keep reading as:
+ *   if (!(await confirm({...}))) return;
+ *
+ * What changed is the implementation: Radix AlertDialog brings focus trapping,
+ * focus restoration, Escape handling, scroll locking and correct ARIA roles,
+ * all of which the previous version maintained by hand. Toasts move to Sonner.
  */
 
 interface ConfirmOptions {
@@ -30,11 +38,15 @@ export function useFeedback(): FeedbackApi {
   return ctx;
 }
 
+/**
+ * NOTE ON PLACEMENT — this provider lives in ProtectedRoute, ABOVE the page
+ * components. It must stay there. When it was inside AdminLayout, pages called
+ * useFeedback() and then returned <AdminLayout>, making the provider a child of
+ * its own consumer; four admin pages crashed to a blank screen as a result.
+ */
 export function AdminFeedbackProvider({ children }: { children: ReactNode }) {
-  const [dialog, setDialog] = useState<(ConfirmOptions & { resolve: (v: boolean) => void }) | null>(null);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  const confirmBtn = useRef<HTMLButtonElement>(null);
-  const toastTimer = useRef<ReturnType<typeof setTimeout>>();
+  const [dialog, setDialog] =
+    useState<(ConfirmOptions & { resolve: (v: boolean) => void }) | null>(null);
 
   const confirm = useCallback(
     (opts: ConfirmOptions) => new Promise<boolean>(resolve => setDialog({ ...opts, resolve })),
@@ -42,68 +54,46 @@ export function AdminFeedbackProvider({ children }: { children: ReactNode }) {
   );
 
   const notify = useCallback((message: string, type: 'success' | 'error' = 'success') => {
-    setToast({ message, type });
-    clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), type === 'error' ? 5000 : 3000);
+    if (type === 'error') toast.error(message);
+    else toast.success(message);
   }, []);
-
-  useEffect(() => () => clearTimeout(toastTimer.current), []);
 
   function close(result: boolean) {
     dialog?.resolve(result);
     setDialog(null);
   }
 
-  // Escape cancels, and focus moves into the dialog so keyboard and screen
-  // reader users are not left behind on the page underneath.
-  useEffect(() => {
-    if (!dialog) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close(false); };
-    window.addEventListener('keydown', onKey);
-    confirmBtn.current?.focus();
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [dialog]);
-
   return (
     <Ctx.Provider value={{ confirm, notify }}>
       {children}
 
-      {dialog && (
-        <div
-          className="admin-dialog-backdrop"
-          onMouseDown={e => { if (e.target === e.currentTarget) close(false); }}
-        >
-          <div className="admin-dialog" role="alertdialog" aria-modal="true" aria-labelledby="admin-dialog-title">
-            <h3 id="admin-dialog-title">{dialog.title}</h3>
-            {dialog.message && <p>{dialog.message}</p>}
-            <div className="admin-dialog-actions">
-              <button type="button" className="btn btn-outline" onClick={() => close(false)}>
-                {dialog.cancelLabel || 'Cancel'}
-              </button>
-              <button
-                ref={confirmBtn}
-                type="button"
-                className={`btn ${dialog.destructive ? 'btn-danger' : 'btn-primary'}`}
-                onClick={() => close(true)}
-              >
-                {dialog.confirmLabel || 'Confirm'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {toast && (
-        <div className={`admin-toast${toast.type === 'error' ? ' is-error' : ''}`} role="status" aria-live="polite">
-          <i className={`fas ${toast.type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}`} aria-hidden="true" />
-          {toast.message}
-        </div>
-      )}
+      <AlertDialog
+        open={dialog !== null}
+        // Covers Escape and outside-click alike: either is a cancel.
+        onOpenChange={open => { if (!open) close(false); }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{dialog?.title}</AlertDialogTitle>
+            {dialog?.message && (
+              <AlertDialogDescription>{dialog.message}</AlertDialogDescription>
+            )}
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => close(false)}>
+              {dialog?.cancelLabel || 'Cancel'}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => close(true)}
+              className={dialog?.destructive
+                ? 'bg-destructive text-white hover:bg-destructive/90'
+                : undefined}
+            >
+              {dialog?.confirmLabel || 'Confirm'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Ctx.Provider>
   );
 }

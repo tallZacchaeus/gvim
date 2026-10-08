@@ -1,68 +1,123 @@
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import AdminLayout from '../../components/AdminLayout';
+import { useFeedback } from '../../components/AdminFeedback';
 import { api, uploadFiles, UploadedFile } from '../../lib/api';
+import { sermonSchema, type SermonValues } from '../../lib/schemas';
+import {
+  Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 
 export default function SermonAdd() {
-  const [title, setTitle] = useState('');
-  const [speaker, setSpeaker] = useState('Rev. Godwin BB. Olutimi');
-  const [sermon_date, setDate] = useState('');
-  const [scripture, setScripture] = useState('');
-  const [description, setDescription] = useState('');
-  const [youtube_url, setYoutube] = useState('');
-  const [duration, setDuration] = useState('');
+  const { notify } = useFeedback();
   const [file, setFile] = useState<File | null>(null);
-  const [status, setStatus] = useState<{type:'success'|'error'; msg:string} | null>(null);
-  const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setBusy(true); setStatus(null); setProgress(0);
+  const form = useForm<SermonValues>({
+    resolver: zodResolver(sermonSchema),
+    defaultValues: {
+      title: '', speaker: 'Rev. Godwin BB. Olutimi', sermon_date: '',
+      scripture: '', description: '', youtube_url: '', duration: ''
+    },
+    mode: 'onBlur'
+  });
+
+  async function onSubmit(values: SermonValues) {
+    setProgress(0);
     try {
-      // Sermon media is large, so it goes browser -> R2 directly and only the
-      // key is sent to our API. Keeps the request small and shows real progress.
+      /* UNCHANGED upload path: sermon media goes browser -> R2 directly via a
+         presigned PUT, and only the key reaches our API. */
       let uploaded: UploadedFile | null = null;
       if (file) {
         const [f] = await uploadFiles('sermons', [file], { onProgress: setProgress });
         uploaded = f;
       }
       await api.sermons.add({
-        title, speaker, scripture, description, youtube_url, duration,
-        sermon_date: sermon_date || undefined,
+        ...values,
+        sermon_date: values.sermon_date || undefined,
         file: uploaded
       });
-      setStatus({ type: 'success', msg: 'Sermon added' });
-      setTitle(''); setSermonReset();
-    } catch (e: any) { setStatus({ type: 'error', msg: e.message || 'Failed' }); }
-    finally { setBusy(false); setProgress(0); }
+      notify('Sermon added');
+      form.reset();
+      setFile(null);
+      const f = document.getElementById('sermon-file') as HTMLInputElement | null;
+      if (f) f.value = '';
+    } catch (e: any) {
+      notify(e.message || 'Could not add the sermon', 'error');
+    } finally {
+      setProgress(0);
+    }
   }
 
-  function setSermonReset() {
-    setScripture(''); setDescription(''); setYoutube(''); setDuration(''); setDate(''); setFile(null);
-    const f = document.getElementById('sermon-file') as HTMLInputElement | null;
-    if (f) f.value = '';
-  }
+  const busy = form.formState.isSubmitting;
+  const text = (name: keyof SermonValues, label: string, placeholder?: string, hint?: string) => (
+    <FormField control={form.control} name={name} render={({ field }) => (
+      <FormItem>
+        <FormLabel>{label}</FormLabel>
+        <FormControl><Input {...field} placeholder={placeholder} /></FormControl>
+        {hint && <FormDescription>{hint}</FormDescription>}
+        <FormMessage />
+      </FormItem>
+    )} />
+  );
 
   return (
     <AdminLayout title="Add Sermon">
-      <form onSubmit={onSubmit} className="admin-form">
-        {status && <div className={`alert alert-${status.type}`}>{status.msg}</div>}
-        <div className="form-group"><label htmlFor="s-title">Title *</label><input id="s-title" required value={title} onChange={e => setTitle(e.target.value)} /></div>
-        <div className="form-group"><label htmlFor="s-speaker">Speaker</label><input id="s-speaker" value={speaker} onChange={e => setSpeaker(e.target.value)} /></div>
-        <div className="form-group"><label htmlFor="s-date">Date</label><input id="s-date" type="date" value={sermon_date} onChange={e => setDate(e.target.value)} /></div>
-        <div className="form-group"><label htmlFor="s-scripture">Scripture</label><input id="s-scripture" value={scripture} onChange={e => setScripture(e.target.value)} placeholder="e.g. John 3:16" /></div>
-        <div className="form-group"><label htmlFor="s-desc">Description</label><textarea id="s-desc" rows={4} value={description} onChange={e => setDescription(e.target.value)} /></div>
-        <div className="form-group"><label htmlFor="s-yt">YouTube URL or ID</label><input id="s-yt" value={youtube_url} onChange={e => setYoutube(e.target.value)} /></div>
-        <div className="form-group"><label htmlFor="s-duration">Duration</label><input id="s-duration" value={duration} onChange={e => setDuration(e.target.value)} placeholder="e.g. 45:30" /></div>
-        <div className="form-group"><label htmlFor="sermon-file">Audio/Video File (optional, max 50MB)</label><input id="sermon-file" type="file" accept="audio/*,video/*" onChange={e => setFile(e.target.files?.[0] || null)} /></div>
-        {busy && file && (
-          <div className="upload-progress" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
-            <div className="upload-progress-bar" style={{ width: `${progress}%` }} />
-            <span className="upload-progress-label">{progress}%</span>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="admin-form">
+          {text('title', 'Title', 'e.g. Walking in Divine Purpose')}
+          {text('speaker', 'Speaker')}
+
+          <FormField control={form.control} name="sermon_date" render={({ field }) => (
+            <FormItem>
+              <FormLabel>Date</FormLabel>
+              <FormControl><Input {...field} type="date" /></FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
+
+          {text('scripture', 'Scripture', 'e.g. John 3:16')}
+
+          <FormField control={form.control} name="description" render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl><Textarea {...field} rows={4} /></FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
+
+          {text('youtube_url', 'YouTube URL or ID', 'https://youtu.be/…',
+                'Paste the full link or the 11-character video ID.')}
+          {text('duration', 'Duration', 'e.g. 45:30')}
+
+          <div className="form-group">
+            <Label htmlFor="sermon-file">Audio or video file</Label>
+            <Input id="sermon-file" type="file" accept="audio/*,video/*"
+              aria-describedby="sermon-file-hint"
+              onChange={e => setFile(e.target.files?.[0] || null)} />
+            <p id="sermon-file-hint" className="form-hint">
+              Optional, up to 50 MB. Leave empty if you are linking to YouTube.
+            </p>
           </div>
-        )}
-        <button type="submit" className="btn btn-primary" disabled={busy}>{busy ? (file ? `Uploading… ${progress}%` : 'Saving…') : 'Save Sermon'}</button>
-      </form>
+
+          {busy && file && (
+            <div className="upload-progress" role="progressbar"
+              aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
+              <div className="upload-progress-bar" style={{ width: `${progress}%` }} />
+              <span className="upload-progress-label">{progress}%</span>
+            </div>
+          )}
+
+          <Button type="submit" disabled={busy}>
+            {busy ? (file ? `Uploading… ${progress}%` : 'Saving…') : 'Save sermon'}
+          </Button>
+        </form>
+      </Form>
     </AdminLayout>
   );
 }

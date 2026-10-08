@@ -8,13 +8,18 @@
    style.css over .alert and .admin-table.
    ============================================================ */
 
-.admin-wrap,
-.admin-login {
+/* On :root, not .admin-wrap: Radix portals Sheet, Dialog and Command content to
+   <body>, outside .admin-wrap, so tokens scoped there would not reach them. */
+:root {
     --sidebar-w: 260px;
     --admin-bg: hsl(224 24% 97%);
     --admin-ink: var(--foreground);
     --admin-panel: var(--surface);
     --admin-line: var(--border);
+}
+
+.admin-wrap,
+.admin-login {
     font-family: var(--font-sans);
 }
 
@@ -383,21 +388,11 @@
 @media (max-width: 900px) {
     .admin-menu-btn { display: inline-flex; }
 
-    .admin-sidebar {
-        position: fixed; inset: 0 auto 0 0;
-        z-index: 1200;
-        transform: translateX(-100%);
-        transition: transform 0.25s var(--ease);
-        box-shadow: 0 0 40px hsl(224 50% 10% / 0.35);
-        height: 100dvh;
-    }
-    .admin-wrap.nav-open .admin-sidebar { transform: translateX(0); }
-
-    .admin-scrim {
-        position: fixed; inset: 0; z-index: 1100;
-        background: hsl(224 40% 10% / 0.5);
-        border: 0; padding: 0; cursor: pointer;
-    }
+    /* shadcn Sheet now provides the drawer — with focus trapping, Escape,
+       scroll lock and focus restoration built in, which the previous
+       hand-rolled version maintained by hand. The static sidebar is hidden
+       here; the Sheet renders its own copy. */
+    .admin-wrap > .admin-sidebar { display: none; }
 
     /* Tables become stacked cards; each cell labels itself from data-label. */
     .admin-table-wrap { background: transparent; border: 0; border-radius: 0; overflow: visible; }
@@ -421,6 +416,15 @@
         gap: 0.75rem; align-items: baseline;
     }
     .admin-wrap .admin-table td:last-child { border-bottom: 0; }
+    /* A column whose header is JSX (the selection checkbox) has no text label.
+       Such cells span the full width instead of reserving an empty label gutter. */
+    .admin-wrap .admin-table td:not([data-label]),
+    .admin-wrap .admin-table td[data-label=""] {
+        grid-template-columns: 1fr;
+    }
+    .admin-wrap .admin-table td:not([data-label])::before,
+    .admin-wrap .admin-table td[data-label=""]::before { content: none; }
+
     .admin-wrap .admin-table td::before {
         content: attr(data-label);
         font-size: 0.7rem; font-weight: 700;
@@ -465,4 +469,88 @@
     position: absolute; inset: 0;
     display: flex; align-items: center; justify-content: center;
     font-size: 0.75rem; font-weight: 600; color: var(--admin-ink);
+}
+
+
+/* ─── Sheet-hosted sidebar (mobile) ────────────────────────── */
+.admin-sidebar--sheet {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    position: static;
+    box-shadow: none;
+}
+[data-slot="sheet-content"].admin-sheet {
+    background: var(--brand-900);
+    border: 0;
+}
+
+/* ─── Header: breadcrumbs + palette trigger ────────────────── */
+.admin-heading { min-width: 0; }
+.admin-crumbs {
+    display: flex; gap: 0.4rem; align-items: center;
+    font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--subtle-foreground);
+    margin-bottom: 0.15rem;
+}
+.admin-crumbs a { color: inherit; text-decoration: none; }
+.admin-crumbs a:hover { color: var(--brand); }
+.admin-crumbs [aria-current="page"] { color: var(--admin-ink); }
+
+.admin-palette-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    min-height: 40px; padding: 0 0.7rem;
+    border: 1px solid var(--admin-line); border-radius: var(--radius-sm);
+    background: var(--surface); color: var(--subtle-foreground);
+    font: inherit; font-size: 0.875rem; cursor: pointer;
+    transition: border-color var(--t-fast), color var(--t-fast);
+}
+.admin-palette-btn:hover { border-color: var(--border-strong); color: var(--admin-ink); }
+.admin-palette-btn kbd {
+    font: inherit; font-size: 0.72rem;
+    padding: 0.1rem 0.3rem; border-radius: 4px;
+    background: var(--surface-2); color: var(--subtle-foreground);
+}
+/* The label and shortcut are noise on a phone; the icon alone is clear. */
+@media (max-width: 640px) {
+    .admin-palette-btn span, .admin-palette-btn kbd { display: none; }
+    .admin-palette-btn { padding: 0 0.6rem; }
+}
+
+/* ─── DataTable affordances ────────────────────────────────── */
+.admin-th-sort {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    background: none; border: 0; padding: 0; cursor: pointer;
+    font: inherit; color: inherit; letter-spacing: inherit;
+    text-transform: inherit;
+}
+.admin-th-sort:hover { color: var(--admin-ink); }
+.admin-td-empty { text-align: center; color: var(--muted-foreground); padding: 2rem 1rem; }
+
+.admin-pagination {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; flex-wrap: wrap; margin-top: 1rem;
+    font-size: 0.875rem; color: var(--muted-foreground);
+}
+.admin-pagination > div { display: flex; gap: 0.5rem; }
+.admin-pagination .btn { min-height: 40px; }
+.admin-pagination .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.admin-wrap .admin-table tr[data-state="selected"] td { background: var(--brand-100); }
+.admin-bulk { display: flex; align-items: center; gap: 0.6rem; margin-left: auto; }
+.admin-bulk span { font-size: 0.875rem; color: var(--muted-foreground); }
+
+@media (max-width: 900px) {
+    /* The card collapse below relies on every <td> carrying data-label, which
+       DataTable reapplies from the column headers. A cell with no label would
+       render with an empty first column. */
+    .admin-pagination { justify-content: center; }
+    .admin-pagination > div { width: 100%; }
+    .admin-pagination .btn { flex: 1; justify-content: center; }
+}
+
+/* Error text for fields outside react-hook-form (file inputs) */
+.admin-wrap .form-error {
+    margin-top: 0.35rem; font-size: 0.82rem;
+    color: var(--error); font-weight: 500;
 }

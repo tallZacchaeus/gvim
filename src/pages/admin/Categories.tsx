@@ -1,37 +1,53 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import type { ColumnDef } from '@tanstack/react-table';
 import AdminLayout from '../../components/AdminLayout';
+import { DataTable } from '../../components/admin/DataTable';
 import { useFeedback } from '../../components/AdminFeedback';
 import { api, Category } from '../../lib/api';
+import { categorySchema, type CategoryValues } from '../../lib/schemas';
+import {
+  Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 export default function Categories() {
   const { confirm, notify } = useFeedback();
   const [cats, setCats] = useState<Category[] | null>(null);
-  const [label, setLabel] = useState('');
-  const [slug, setSlug] = useState('');
   const [slugTouched, setSlugTouched] = useState(false);
-  const [busy, setBusy] = useState(false);
+
+  const form = useForm<CategoryValues>({
+    resolver: zodResolver(categorySchema),
+    defaultValues: { label: '', slug: '' },
+    mode: 'onBlur'
+  });
 
   function load() { api.categories.list().then(setCats).catch(() => setCats([])); }
   useEffect(load, []);
 
-  /* The slug is derived from the label as you type. Previously both were typed
-     by hand, which let the two drift apart and made it easy to create an
-     invalid slug the API would then reject. */
-  function onLabel(v: string) {
-    setLabel(v);
-    if (!slugTouched) setSlug(v.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''));
+  /* The slug is derived from the name as it is typed, until the user edits the
+     slug themselves. Typing both by hand let them drift apart and made it easy
+     to submit a slug the API would reject. */
+  function onLabelChange(v: string) {
+    form.setValue('label', v, { shouldValidate: true });
+    if (!slugTouched) {
+      form.setValue('slug', v.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+        { shouldValidate: true });
+    }
   }
 
-  async function add(e: React.FormEvent) {
-    e.preventDefault();
-    setBusy(true);
+  async function onSubmit(values: CategoryValues) {
     try {
-      await api.categories.add(slug, label);
-      notify(`Category “${label}” added`);
-      setLabel(''); setSlug(''); setSlugTouched(false);
+      await api.categories.add(values.slug, values.label);
+      notify(`Category “${values.label}” added`);
+      form.reset({ label: '', slug: '' });
+      setSlugTouched(false);
       load();
-    } catch (e: any) { notify(e.message || 'Could not add category', 'error'); }
-    finally { setBusy(false); }
+    } catch (e: any) {
+      notify(e.message || 'Could not add category', 'error');
+    }
   }
 
   async function remove(c: Category) {
@@ -45,26 +61,53 @@ export default function Categories() {
     catch (e: any) { notify(e.message || 'Could not delete', 'error'); }
   }
 
+  const columns = useMemo<ColumnDef<Category, any>[]>(() => [
+    { accessorKey: 'label', header: 'Name',
+      cell: ({ row }) => <span className="cell-strong">{row.original.label}</span> },
+    { accessorKey: 'slug', header: 'Slug',
+      cell: ({ row }) => <span className="cell-muted">{row.original.slug}</span> },
+    { id: 'actions', header: 'Actions', enableSorting: false,
+      cell: ({ row }) => (
+        <div className="cell-actions">
+          <button className="btn btn-danger" onClick={() => remove(row.original)}>Delete</button>
+        </div>
+      ) }
+  ], []);
+
   return (
     <AdminLayout title="Categories">
-      <form onSubmit={add} className="admin-form">
-        <div className="form-group">
-          <label htmlFor="cat-label">Name</label>
-          <input id="cat-label" required value={label} onChange={e => onLabel(e.target.value)} placeholder="e.g. Worship Services" />
-        </div>
-        <div className="form-group">
-          <label htmlFor="cat-slug">Slug</label>
-          <input
-            id="cat-slug" required value={slug}
-            onChange={e => { setSlug(e.target.value); setSlugTouched(true); }}
-            placeholder="e.g. worship-services"
-          />
-          <span className="form-hint">Used in the web address. Filled in automatically — edit if you need to.</span>
-        </div>
-        <button type="submit" className="btn btn-primary" disabled={busy || !label.trim()}>
-          {busy ? 'Adding…' : 'Add category'}
-        </button>
-      </form>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="admin-form">
+          <FormField control={form.control} name="label" render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="e.g. Worship Services"
+                  onChange={e => onLabelChange(e.target.value)} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
+
+          <FormField control={form.control} name="slug" render={({ field }) => (
+            <FormItem>
+              <FormLabel>Slug</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="e.g. worship-services"
+                  onChange={e => { field.onChange(e); setSlugTouched(true); }} />
+              </FormControl>
+              <FormDescription>
+                Used in the web address. Filled in automatically — edit if you need to.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )} />
+
+          <Button type="submit" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? 'Adding…' : 'Add category'}
+          </Button>
+        </form>
+      </Form>
 
       <h2 className="admin-section-title">Existing categories</h2>
       {cats === null ? (
@@ -78,24 +121,7 @@ export default function Categories() {
           <p>Add one above so photos can be grouped on the gallery page.</p>
         </div>
       ) : (
-        <div className="admin-table-wrap">
-          <table className="admin-table">
-            <thead><tr><th>Name</th><th>Slug</th><th aria-label="Actions" /></tr></thead>
-            <tbody>
-              {cats.map(c => (
-                <tr key={c.slug}>
-                  <td data-label="Name" className="cell-strong">{c.label}</td>
-                  <td data-label="Slug" className="cell-muted">{c.slug}</td>
-                  <td data-label="Actions" className="cell-actions-wrap">
-                    <div className="cell-actions">
-                      <button className="btn btn-danger" onClick={() => remove(c)}>Delete</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable columns={columns} data={cats} emptyMessage="No categories match." />
       )}
     </AdminLayout>
   );

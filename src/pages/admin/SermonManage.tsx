@@ -1,6 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import type { ColumnDef } from '@tanstack/react-table';
+import { Plus } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
+import { DataTable } from '../../components/admin/DataTable';
 import { useFeedback } from '../../components/AdminFeedback';
 import { api, Sermon } from '../../lib/api';
 import { formatDate } from '../../lib/format';
@@ -23,10 +26,31 @@ export default function SermonManage() {
     catch (e: any) { notify(e.message || 'Could not delete', 'error'); }
   }
 
+  const columns = useMemo<ColumnDef<Sermon, any>[]>(() => [
+    { accessorKey: 'title', header: 'Title',
+      cell: ({ row }) => <span className="cell-strong">{row.original.title}</span> },
+    { accessorKey: 'speaker', header: 'Speaker',
+      cell: ({ row }) => row.original.speaker || '—' },
+    { accessorKey: 'sermon_date', header: 'Date',
+      cell: ({ row }) => formatDate(row.original.sermon_date) },
+    { id: 'media', header: 'Media', enableSorting: false,
+      cell: ({ row }) => row.original.youtube_id
+        ? <a href={`https://youtube.com/watch?v=${row.original.youtube_id}`} target="_blank" rel="noopener noreferrer">YouTube</a>
+        : row.original.file_path
+          ? <a href={row.original.url} target="_blank" rel="noopener noreferrer">Audio</a>
+          : <span className="cell-muted">None</span> },
+    { id: 'actions', header: 'Actions', enableSorting: false,
+      cell: ({ row }) => (
+        <div className="cell-actions">
+          <button className="btn btn-danger" onClick={() => remove(row.original)}>Delete</button>
+        </div>
+      ) }
+  ], []);
+
   return (
     <AdminLayout
       title="Sermons"
-      actions={<Link to="/admin/sermon-add" className="btn btn-primary"><i className="fas fa-plus" /> Add</Link>}
+      actions={<Link to="/admin/sermon-add" className="btn btn-primary"><Plus size={16} /> Add</Link>}
     >
       {items === null ? (
         <div className="admin-table-wrap" style={{ padding: '0.75rem' }}>
@@ -40,33 +64,9 @@ export default function SermonManage() {
           <Link to="/admin/sermon-add" className="btn btn-primary">Add your first sermon</Link>
         </div>
       ) : (
-        <div className="admin-table-wrap">
-          <table className="admin-table">
-            <thead>
-              <tr><th>Title</th><th>Speaker</th><th>Date</th><th>Media</th><th aria-label="Actions" /></tr>
-            </thead>
-            <tbody>
-              {items.map(s => (
-                <tr key={s.id}>
-                  <td data-label="Title" className="cell-strong">{s.title}</td>
-                  <td data-label="Speaker">{s.speaker || '—'}</td>
-                  <td data-label="Date">{formatDate(s.sermon_date)}</td>
-                  <td data-label="Media">
-                    {s.youtube_id
-                      ? <a href={`https://youtube.com/watch?v=${s.youtube_id}`} target="_blank" rel="noopener noreferrer">YouTube</a>
-                      : s.file_path ? <a href={s.url} target="_blank" rel="noopener noreferrer">Audio</a>
-                      : <span className="cell-muted">None</span>}
-                  </td>
-                  <td data-label="Actions" className="cell-actions-wrap">
-                    <div className="cell-actions">
-                      <button className="btn btn-danger" onClick={() => remove(s)}>Delete</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable columns={columns} data={items}
+          searchPlaceholder="Search title or speaker…"
+          emptyMessage="No sermons match your search." />
       )}
     </AdminLayout>
   );
