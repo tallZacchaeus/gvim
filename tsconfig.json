@@ -13,7 +13,9 @@
     "noEmit": true,
     // "node" is here for Vercel's function builder, which compiles lib/*.ts
     // against this config and otherwise reports `process` as undefined.
-    "types": ["vite/client", "node"]
+    "types": ["vite/client", "node"],
+    "baseUrl": ".",
+    "paths": { "@/*": ["./src/*"] }
   },
   "include": ["src"]
 }

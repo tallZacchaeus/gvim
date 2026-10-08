@@ -6,6 +6,7 @@ import App from './App';
 import SafeBoundary from './components/SafeBoundary';
 import './styles/style.css';
 import './styles/admin.css';
+import './styles/tailwind.css';
 
 /**
  * Vercel Web Analytics — page views only.

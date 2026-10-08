@@ -1,0 +1,155 @@
+/* ============================================================
+   Tailwind — scoped to the admin only
+   ============================================================
+
+   Two deliberate departures from the stock `@import "tailwindcss"`:
+
+   1. PREFLIGHT IS OMITTED. The default import injects a global CSS reset that
+      would restyle the public site — stripping list styles, resetting body
+      margins and overriding font families that style.css sets. The project
+      already has its own reset at the top of style.css. Importing only the
+      theme and utilities layers leaves the public pages untouched.
+
+   2. source(none) + explicit @source. Tailwind v4 auto-detects source files,
+      which would generate utilities for the public pages too. Restricting
+      detection to the admin and shadcn directories keeps the output small and
+      makes it impossible for a Tailwind utility to leak into public markup.
+
+   Tokens are NOT redefined here. @theme maps Tailwind's names onto the custom
+   properties already declared in style.css, so the admin and the public site
+   cannot drift apart: change a token once, both follow.
+   ============================================================ */
+
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+
+@source "../pages/admin";
+@source "../components/ui";
+@source "../components/admin";
+@source "../components/AdminLayout.tsx";
+@source "../components/AdminFeedback.tsx";
+@source "../components/SafeBoundary.tsx";
+
+/* ------------------------------------------------------------
+   Collision-breaking aliases.
+
+   Three token families share names between this project and Tailwind:
+   --radius-sm/lg/xl, --font-sans, and --shadow-sm/lg. Writing
+   `@theme inline { --radius-sm: var(--radius-sm) }` is a self-reference: the
+   variable resolves against itself, so Tailwind silently falls back to its own
+   defaults (which is why a shadcn button rendered at 6px instead of the
+   project's 12px). Copying the literal values into @theme would work but would
+   let the two systems drift apart.
+
+   These aliases point at the project tokens under names Tailwind does not use,
+   and @theme references the aliases. One indirection, no cycle, no drift.
+   ------------------------------------------------------------ */
+:root {
+  --gvim-font-display: var(--font-display);
+  --gvim-font-sans:    var(--font-sans);
+
+  --gvim-radius-sm:  var(--radius-sm);
+  --gvim-radius:     var(--radius);
+  --gvim-radius-lg:  var(--radius-lg);
+  --gvim-radius-xl:  var(--radius-xl);
+  --gvim-radius-2xl: var(--radius-2xl);
+
+  --gvim-shadow-xs: var(--shadow-xs);
+  --gvim-shadow-sm: var(--shadow-sm);
+  --gvim-shadow:    var(--shadow);
+  --gvim-shadow-lg: var(--shadow-lg);
+}
+
+@theme inline {
+  /* Brand + accent — defined in style.css, referenced here */
+  --color-brand-900: var(--brand-900);
+  --color-brand-800: var(--brand-800);
+  --color-brand-700: var(--brand-700);
+  --color-brand:     var(--brand);
+  --color-brand-500: var(--brand-500);
+  --color-brand-300: var(--brand-300);
+  --color-brand-100: var(--brand-100);
+
+  --color-gold-600: var(--gold-600);
+  --color-gold:     var(--gold);
+  --color-gold-300: var(--gold-300);
+  --color-gold-100: var(--gold-100);
+
+  /* Surfaces and text */
+  --color-background:        var(--background);
+  --color-surface:           var(--surface);
+  --color-surface-2:         var(--surface-2);
+  --color-foreground:        var(--foreground);
+  --color-muted-foreground:  var(--muted-foreground);
+  --color-subtle-foreground: var(--subtle-foreground);
+  --color-border:            var(--border);
+  --color-border-strong:     var(--border-strong);
+
+  --color-success: var(--success);
+  --color-error:   var(--error);
+
+  /* Type */
+  --font-display: var(--gvim-font-display);
+  --font-sans:    var(--gvim-font-sans);
+
+  /* Radii. --radius-md is included because shadcn's components use rounded-md. */
+  --radius-sm:  var(--gvim-radius-sm);
+  --radius-md:  var(--gvim-radius);
+  --radius-lg:  var(--gvim-radius-lg);
+  --radius-xl:  var(--gvim-radius-xl);
+  --radius-2xl: var(--gvim-radius-2xl);
+
+  /* Elevation */
+  --shadow-xs: var(--gvim-shadow-xs);
+  --shadow-sm: var(--gvim-shadow-sm);
+  --shadow-md: var(--gvim-shadow);
+  --shadow-lg: var(--gvim-shadow-lg);
+
+  /* ----------------------------------------------------------
+     shadcn semantic names, bound to this project's tokens.
+
+     shadcn components are written against bg-primary, text-muted-foreground,
+     border-input and so on. Rather than let shadcn install its own slate
+     palette — which would give the admin a second, competing colour system —
+     each semantic name points at a token already defined in style.css. A
+     shadcn component therefore renders in GVIM navy and Inter by default, and
+     changing a token in style.css moves both the admin and the public site.
+     ---------------------------------------------------------- */
+  --color-primary:                var(--brand-500);
+  --color-primary-foreground:     var(--surface);
+  --color-secondary:              var(--surface-2);
+  --color-secondary-foreground:   var(--foreground);
+  --color-muted:                  var(--surface-2);
+  --color-accent:                 var(--brand-100);
+  --color-accent-foreground:      var(--brand-900);
+  --color-destructive:            var(--error);
+  --color-destructive-foreground: var(--surface);
+  --color-card:                   var(--surface);
+  --color-card-foreground:        var(--foreground);
+  --color-popover:                var(--surface);
+  --color-popover-foreground:     var(--foreground);
+  --color-input:                  var(--border-strong);
+  --color-ring:                   var(--brand-500);
+}
+
+
+@layer base {
+  /* Preflight is omitted, so <button>/<input> keep the browser's default font
+     (Arial). shadcn components all carry data-slot, which scopes this precisely
+     — including portalled dialogs — without touching public markup. */
+  [data-slot] {
+    font-family: var(--font-sans);
+  }
+  [data-slot] button,
+  [data-slot] input,
+  [data-slot] select,
+  [data-slot] textarea,
+  button[data-slot],
+  input[data-slot],
+  select[data-slot],
+  textarea[data-slot] {
+    font-family: inherit;
+  }
+}

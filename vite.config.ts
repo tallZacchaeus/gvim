@@ -1,5 +1,7 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
+import path from 'node:path';
 
 /**
  * `npm run dev` serves only the React app — the API lives in Vercel Functions and
@@ -76,7 +78,8 @@ function adminMock(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), ...(process.env.ADMIN_MOCK === '1' ? [adminMock()] : [])],
+  plugins: [react(), tailwindcss(), ...(process.env.ADMIN_MOCK === '1' ? [adminMock()] : [])],
+  resolve: { alias: { '@': path.resolve(__dirname, './src') } },
   server: {
     port: 5173,
     proxy: {
