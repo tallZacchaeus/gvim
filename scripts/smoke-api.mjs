@@ -207,6 +207,65 @@ const srow = await c.execute('SELECT * FROM sermons WHERE title = ?', ['Sunday W
 check('sermon stores youtube id and file path',
   srow.rows[0]?.youtube_id === 'dQw4w9WgXcQ' && srow.rows[0]?.file_path === sup.key);
 
+console.log('\nContact notifications');
+globalThis.__SENT = [];
+const realFetch = globalThis.fetch;
+let fetchMode = 'ok';
+globalThis.fetch = async (url, init) => {
+  if (String(url).includes('api.resend.com')) {
+    globalThis.__SENT.push(JSON.parse(init.body));
+    if (fetchMode === 'fail')    return new Response('rate limited', { status: 429 });
+    if (fetchMode === 'timeout') { const e = new Error('timed out'); e.name = 'TimeoutError'; throw e; }
+    if (fetchMode === 'throw')   throw new Error('network down');
+    return new Response(JSON.stringify({ id: 'eml_1' }), { status: 200 });
+  }
+  return realFetch(url, init);
+};
+
+const submit = (over = {}) => contactPOST(req('https://x/api/contact', {
+  method: 'POST', headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ name: 'Ada', email: 'ada@example.com', subject: 'Visiting',
+                         message: 'What time is the Sunday service?', ...over })
+}));
+
+// Unconfigured: the form must work and send nothing.
+delete process.env.RESEND_API_KEY; delete process.env.CONTACT_NOTIFY_TO;
+r = await submit();
+check('unconfigured → submission still succeeds', r.status===200);
+check('unconfigured → no email attempted', globalThis.__SENT.length===0);
+
+// Configured and healthy.
+process.env.RESEND_API_KEY='re_test_key'; process.env.CONTACT_NOTIFY_TO='church@example.com';
+globalThis.__SENT.length=0; fetchMode='ok';
+r = await submit({ subject:'Prayer', message:'Please pray for my family.' });
+check('configured → submission succeeds', r.status===200);
+check('configured → one email sent', globalThis.__SENT.length===1);
+const sent = globalThis.__SENT[0] || {};
+check('email goes to the configured recipient', JSON.stringify(sent.to)==='["church@example.com"]', JSON.stringify(sent.to));
+check('reply_to is the enquirer, so Reply reaches them', sent.reply_to==='ada@example.com', sent.reply_to);
+check('subject carries the enquiry subject', (sent.subject||'').includes('Prayer'), sent.subject);
+check('body contains the message', (sent.text||'').includes('Please pray for my family.'));
+
+// HTML injection in the message must not become live markup.
+globalThis.__SENT.length=0;
+r = await submit({ message: 'Hello <img src=x onerror=alert(1)> world, please reply.' });
+const esc = globalThis.__SENT[0] || {};
+check('message HTML is escaped in the email body',
+  !(esc.html||'').includes('<img src=x') && (esc.html||'').includes('&lt;img'), 'unescaped markup in html');
+
+// Provider failures must never fail the submission.
+for (const [mode,label] of [['fail','provider 4xx'],['timeout','provider timeout'],['throw','network error']]) {
+  fetchMode = mode; globalThis.__SENT.length = 0;
+  r = await submit();
+  check(label+' → submission still returns 200', r.status===200);
+}
+
+// And the row is still written in every one of those cases.
+const rows = await c.execute('SELECT COUNT(*) AS n FROM contact_submissions');
+check('every submission persisted regardless of email outcome', Number(rows.rows[0].n) >= 7, 'rows='+rows.rows[0].n);
+
+globalThis.fetch = realFetch;
+
 console.log(`\n${fail===0 ? '✓ ALL PASS' : '✘ FAILURES'} — ${pass} passed, ${fail} failed`);
 rmSync(work, { recursive: true, force: true });
 rmSync(OUT, { recursive: true, force: true });

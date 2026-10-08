@@ -14,7 +14,7 @@
 | 6 | Retire PHP and Cloudflare builds | ✅ Done |
 | 7 | Design system restoration & public site redesign | ✅ Done |
 | 8 | Admin overhaul & mobile responsiveness | ✅ Done & verified |
-| 9 | Contact email notifications | ⬜ Pending |
+| 9 | Contact email notifications | ✅ Done — needs an API key to activate |
 | 10 | Analytics | ⬜ Pending |
 | 11 | Accessibility audit | ⬜ Pending |
 | 12 | Custom R2 domain | ⬜ Pending |
@@ -99,15 +99,25 @@ about whether a page renders. Load the pages.
 
 ## Pending
 
-### Phase 9 — Contact email notifications ⬜ *(highest value)*
-Enquiries land in the database with no notification, so someone must remember to
-check the admin inbox. A missed enquiry from a prospective visitor is the most
-costly failure this site can have.
+### Phase 9 — Contact email notifications ✅ *(inactive until a key is set)*
+Enquiries now email the church on arrival, via Resend's REST API over `fetch`
+(no SDK, no new dependency). Implemented inside the existing `/api/contact`
+handler rather than a new file, because Hobby caps a deployment at 12 functions
+and the project is at 10.
 
-- Add an email provider (Resend free tier ≈ 3,000/month)
-- Send to `godvesselsinternational@gmail.com` on successful `POST /api/contact`
-- Send after the row is written, and never fail the request if the email fails
-- **Depends on:** nothing. **Estimate:** small.
+Design: the row is committed first and the notification is strictly best-effort —
+awaited (an un-awaited promise can be killed when the function returns) but
+bounded by a 6s timeout, with every failure logged and swallowed. `reply_to` is
+the enquirer, so staff can simply hit Reply. Message content is HTML-escaped.
+
+Covered by 13 new assertions in `npm run test:api`: unconfigured, healthy,
+provider 4xx, timeout, network error, and HTML injection — in every case the
+submission returns 200 and the row is persisted.
+
+**To activate:** create a Resend account, then set `RESEND_API_KEY` and
+`CONTACT_NOTIFY_TO` in Vercel. Until then the form works exactly as before.
+Verify the domain in Resend and set `CONTACT_NOTIFY_FROM` to send from a real
+church address.
 
 ### Phase 10 — Analytics ⬜
 No measurement exists, so none of the PRD metrics can be evaluated.

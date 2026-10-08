@@ -23,6 +23,22 @@ for (const key of required) {
   if (!process.env[key]) problems.push(`${key} is not set`);
 }
 
+/* Optional: the contact form works without these — the enquiry is still saved,
+   only the email alert is skipped. Absence is a warning, never a failure. */
+if (!process.env.RESEND_API_KEY || !process.env.CONTACT_NOTIFY_TO) {
+  warnings.push('contact notifications are off (RESEND_API_KEY / CONTACT_NOTIFY_TO unset) — enquiries are saved but nobody is emailed');
+} else {
+  if (!/^re_/.test(process.env.RESEND_API_KEY)) {
+    problems.push('RESEND_API_KEY does not look like a Resend key (expected it to start with "re_")');
+  }
+  if (!process.env.CONTACT_NOTIFY_TO.includes('@')) {
+    problems.push('CONTACT_NOTIFY_TO must be an email address');
+  }
+  if (!process.env.CONTACT_NOTIFY_FROM) {
+    warnings.push('CONTACT_NOTIFY_FROM unset — falling back to onboarding@resend.dev, which can only deliver to the Resend account owner');
+  }
+}
+
 const url = process.env.TURSO_DATABASE_URL;
 if (url && !/^(libsql|https|file):/.test(url)) {
   problems.push(`TURSO_DATABASE_URL should start with libsql:// (got "${url.slice(0, 20)}…")`);

@@ -53,16 +53,28 @@ compile error (TS2835) instead of a production outage.
 |---|---|---|
 | Turso | All relational data | `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN` |
 | Cloudflare R2 | Gallery and sermon media | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` |
+| **Resend** | Emails the church when an enquiry arrives (optional) | `RESEND_API_KEY` |
 | Google Fonts / Font Awesome | Typography and icons | none |
 
-### Environment variables (12)
+### Environment variables (12 required, 3 optional)
 ```
+# required
 TURSO_DATABASE_URL      TURSO_AUTH_TOKEN
 ADMIN_USERNAME          ADMIN_PASSWORD_HASH      JWT_SECRET
 R2_ACCOUNT_ID           R2_ACCESS_KEY_ID         R2_SECRET_ACCESS_KEY
 R2_GALLERY_BUCKET       R2_SERMONS_BUCKET
 PUBLIC_GALLERY_BASE     PUBLIC_SERMONS_BASE
+
+# optional — contact notifications
+RESEND_API_KEY          CONTACT_NOTIFY_TO        CONTACT_NOTIFY_FROM
 ```
+Without the optional three the contact form still works: the enquiry is saved and
+readable in the admin inbox, only the email alert is skipped. `check:env` reports
+their absence as a warning, never a failure.
+
+`CONTACT_NOTIFY_FROM` defaults to Resend's `onboarding@resend.dev`, which can only
+deliver to the address owning the Resend account. Verify the domain in Resend and
+set a real sender to reach any other inbox.
 `.env.example` documents each. `npm run check:env` validates presence and shape
 before a deploy. `scripts/push-env-to-vercel.mjs` syncs them to all three Vercel
 environments over stdin, so values never enter shell history.

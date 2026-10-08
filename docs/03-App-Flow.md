@@ -65,6 +65,7 @@ sequenceDiagram
   participant UI as Contact page
   participant API as POST /api/contact
   participant DB as Turso
+  participant Mail as Resend
   V->>UI: fills name, email, subject, message
   UI->>API: JSON
   API->>API: honeypot check (silently 200 if tripped)
@@ -74,13 +75,21 @@ sequenceDiagram
     UI-->>V: inline error
   else valid
     API->>DB: INSERT contact_submissions (+ x-forwarded-for IP)
+    API->>Mail: notifyContact() — best effort, 6s timeout
+    Note over API,Mail: failures logged, never surfaced to the visitor
     API-->>UI: 200
     UI-->>V: confirmation
   end
 ```
 
-No email notification is sent — staff must check the admin inbox. This is the
-most requested gap (`06-Implementation-Plan.md`, Phase 8).
+The notification is sent **after** the row is committed and cannot affect the
+response: the enquiry is already safe, so a provider outage must not turn a
+successful submission into an error. It is awaited (an un-awaited promise can be
+killed when a serverless function returns) but bounded by a timeout, so a hung
+provider cannot hang the visitor's form.
+
+Unconfigured — no `RESEND_API_KEY` — the form behaves exactly as before and staff
+read enquiries in the admin inbox.
 
 ### 3.2 Administrator signs in
 
