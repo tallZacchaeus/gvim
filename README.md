@@ -64,6 +64,19 @@ CORS rule — see `R2_UPLOAD_SETUP.md`.
 
 ## Documentation
 
+Project docs live in `docs/`:
+
+| Doc | Covers |
+|---|---|
+| [01-PRD](docs/01-PRD.md) | Goals, users, features, success metrics |
+| [02-TRD](docs/02-TRD.md) | Stack, hosting, integrations, security, constraints |
+| [03-App-Flow](docs/03-App-Flow.md) | Routes, navigation, key user flows |
+| [04-UI-UX-Design-Brief](docs/04-UI-UX-Design-Brief.md) | Colour, type, components, accessibility |
+| [05-Backend-Schema](docs/05-Backend-Schema.md) | Tables, relationships, API surface |
+| [06-Implementation-Plan](docs/06-Implementation-Plan.md) | Phases, status, backlog |
+
+Operational runbooks:
+
 - `TURSO_SETUP.md` — database setup and the D1 → Turso migration
 - `R2_UPLOAD_SETUP.md` — R2 API token, CORS, and the upload flow
 - `VERCEL_SETUP.md` — routing, environment variables, deployment
