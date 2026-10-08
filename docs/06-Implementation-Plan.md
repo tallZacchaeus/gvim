@@ -17,8 +17,8 @@
 | 9 | Contact email notifications | ✅ Done — needs an API key to activate |
 | 10 | Analytics | ✅ Done — enable in the Vercel dashboard |
 | 11 | Accessibility audit | ✅ Done — 0 axe violations |
-| 12 | Custom R2 domain | ⬜ Pending |
-| 13 | Publish sermon content | ⬜ Pending (content, not code) |
+| 12 | Custom R2 domain | ⛔ Blocked — needs a nameserver move you must make |
+| 13 | Publish sermon content | ⛔ Blocked — content only you can supply |
 
 ---
 
@@ -169,15 +169,61 @@ Fixes, with values solved rather than guessed:
 review beyond the gallery. Automated tooling catches perhaps half of WCAG issues;
 this is a floor, not a guarantee.
 
-### Phase 12 — Custom R2 domain ⬜
-`pub-*.r2.dev` is a development endpoint that Cloudflare rate-limits. Attach a
-custom bucket domain (e.g. `media.godsvesselinternationalministry.org`) and update
-`PUBLIC_GALLERY_BASE` / `PUBLIC_SERMONS_BASE`. No data migration — `file_path`
-stores keys, not URLs.
-**Depends on:** DNS access. **Estimate:** small.
+### Phase 12 — Custom R2 domain ⛔ *blocked on a decision only you can make*
+Investigated and **not** done, because every route requires an action at your
+registrar or money.
 
-### Phase 13 — Publish sermons ⬜
-Content, not code. The sermons feature is built and unused.
+`pub-*.r2.dev` is documented as rate-limited and "meant only for development, not
+production". It also rules out WAF rules, caching and access controls.
+
+Attaching a custom domain needs the zone to exist in the same Cloudflare account.
+Two ways to get there:
+
+| Route | Cost | Blocker |
+|---|---|---|
+| Partial (CNAME) zone, DNS stays at Hostinger | **Business plan** | Confirmed Business/Enterprise only — not Free or Pro |
+| Full zone — move nameservers to Cloudflare | Free | You must change nameservers at Hostinger |
+
+So the free route is a nameserver move. The good news is that it is unusually
+low-risk here — the whole zone is two records, and **there are no MX or TXT
+records**, so no email or domain verification can break:
+
+```
+apex A  godsvesselinternationalministry.org  ->  216.198.79.1
+CNAME   www                                  ->  8adda17e70e6f03b.vercel-dns-017.com
+```
+
+**Runbook, when you want it:**
+1. Add `godsvesselinternationalministry.org` to Cloudflare (Free plan).
+2. Recreate exactly the two records above. Set both to **DNS only** (grey cloud) —
+   proxying them would put Cloudflare in front of Vercel, which you do not want.
+3. Change the nameservers at Hostinger to the two Cloudflare gives you. Allow a
+   propagation window; the site keeps resolving via the old nameservers until it
+   completes.
+4. Confirm the site still loads, then R2 → each bucket → Settings → Custom Domain,
+   e.g. `media.godsvesselinternationalministry.org`.
+5. Update `PUBLIC_GALLERY_BASE` / `PUBLIC_SERMONS_BASE` in Vercel and redeploy.
+   **No data migration** — `file_path` stores keys, not URLs (see `05-Backend-Schema.md`).
+6. Add the new origin to the R2 CORS rules (`R2_UPLOAD_SETUP.md`).
+
+**Is it worth doing now?** Probably not urgently. The rate limit is undocumented in
+magnitude and a single congregation's traffic is unlikely to reach it. Do it before
+any campaign that might drive real traffic, or if images ever start failing to load.
+
+### Phase 13 — Publish sermons ⛔ *content, not code*
+The feature is built and verified; there is simply nothing to publish. I have not
+created placeholder sermons: they would be attributed to a named real person
+(Rev. Godwin BB. Olutimi) and would appear to a visitor as genuine teaching.
+
+Verified that the path is ready:
+- `/sermons` with zero sermons renders a proper "Sermons Coming Soon" empty state
+  with a route to the YouTube channel — visitors do not meet a blank page.
+- The admin form at `/admin/sermon-add` renders, and its fields now carry proper
+  label associations (Phase 11).
+- A sermon needs only a title; a YouTube URL or an audio file is optional.
+
+**To publish one:** `/admin` → Add Sermon → title, speaker, date, and a YouTube
+URL. It appears on `/sermons` immediately.
 
 ---
 

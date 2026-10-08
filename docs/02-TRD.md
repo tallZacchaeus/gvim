@@ -133,8 +133,11 @@ the Cloudflare dashboard displays. See `R2_UPLOAD_SETUP.md`.
   file in `api/`. The project currently uses **10**. This is a hard deploy-time
   failure, not a warning — adding three files would break the next deploy. Deletes
   therefore use `?id=` query parameters rather than `[id].ts` route files.
-- **`pub-*.r2.dev` is a development endpoint** that Cloudflare rate-limits. Fine at
-  current traffic; a custom bucket domain is the correct fix before relying on it.
+- **`pub-*.r2.dev` is a development endpoint** that Cloudflare rate-limits and that
+  excludes WAF rules, caching and access controls. A custom bucket domain is the
+  fix, but it requires the zone to be in the same Cloudflare account: partial
+  (CNAME) setup is **Business-plan only**, so the free route is moving nameservers
+  to Cloudflare. Runbook and trade-offs in `06-Implementation-Plan.md`, Phase 12.
 - No CI. Checks are run locally: `npm run typecheck`, `npm run test:api`, `npm run build`.
 
 ### Analytics
