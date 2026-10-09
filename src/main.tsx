@@ -5,6 +5,7 @@ import { Analytics } from '@vercel/analytics/react';
 import App from './App';
 import SafeBoundary from './components/SafeBoundary';
 import './styles/style.css';
+import './styles/public.css';
 import './styles/admin.css';
 import './styles/tailwind.css';
 

@@ -1,0 +1,4 @@
+{
+  "_comment": "Seed/fallback sermon list. The /api/sermons endpoint is the primary source; entries here render when the API returns nothing, so the page is never empty once you fill this in. Delete the example object and add real records. youtubeId is the 11-character ID from the watch URL (youtube.com/watch?v=THIS_PART).",
+  "sermons": []
+}
