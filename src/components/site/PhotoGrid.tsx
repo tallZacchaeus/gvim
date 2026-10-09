@@ -14,7 +14,10 @@ export default function PhotoGrid({ items }: { items: GalleryItem[] }) {
               <figure>
                 <img
                   src={item.url}
-                  alt={caption ?? ''}
+                  /* Empty when a <figcaption> is shown: repeating it in alt
+                     makes a screen reader announce the same sentence twice. */
+                  alt=""
+
                   loading="lazy"
                   decoding="async"
                   width={800}

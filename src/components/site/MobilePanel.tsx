@@ -44,9 +44,16 @@ export default function MobilePanel({
     document.addEventListener('keydown', onKey);
     return () => {
       document.removeEventListener('keydown', onKey);
-      previouslyFocused.current?.focus?.();
+      /* Return focus to whatever opened the panel. Fall back to the toggle
+         itself: a pointer tap does not necessarily focus the button, so the
+         captured element can be <body>, which would strand keyboard users at
+         the top of the document. */
+      const prev = previouslyFocused.current;
+      const toggle = document.querySelector<HTMLElement>(`[aria-controls="${id}"]`);
+      const target = prev && prev !== document.body ? prev : toggle;
+      target?.focus?.();
     };
-  }, [open, onClose]);
+  }, [open, onClose, id]);
 
   return (
     <>

@@ -1,110 +1,151 @@
-import { useEffect, useRef, useState } from 'react';
-import { useReveal } from '../lib/motion';
+import { useEffect, useMemo, useState } from 'react';
 import { api, Category, GalleryItem } from '../lib/api';
+import { captionFor, categoryLabel } from '../data/gallery';
+import PageHeader from '../components/site/PageHeader';
+import Lightbox from '../components/site/Lightbox';
+
+const SKELETONS = 12;
 
 export default function Gallery() {
-  const gridRef = useRef<HTMLDivElement>(null);
   const [cats, setCats] = useState<Category[]>([]);
   const [items, setItems] = useState<GalleryItem[]>([]);
-  const [filter, setFilter] = useState<string>('all');
-  const [modal, setModal] = useState<GalleryItem | null>(null);
+  /* Three states, not two: loading is distinct from "loaded and empty".
+     Conflating them is what produced the "No media yet" flash. */
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [filter, setFilter] = useState('all');
+  const [lightbox, setLightbox] = useState<number | null>(null);
 
   useEffect(() => {
-    api.categories.list().then(setCats).catch(() => {});
-    api.gallery.list().then(setItems).catch(() => {});
+    let live = true;
+    Promise.all([
+      api.categories.list().catch(() => [] as Category[]),
+      api.gallery.list()
+    ])
+      .then(([c, g]) => {
+        if (!live) return;
+        setCats(c);
+        setItems(g);
+        setStatus('ready');
+      })
+      .catch(() => { if (live) setStatus('error'); });
+    return () => { live = false; };
   }, []);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setModal(null); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  /* Only offer categories that actually have photographs. A filter that leads
+     to an empty grid is a dead end. */
+  const available = useMemo(() => {
+    const present = new Set(items.map(i => i.category));
+    const named = cats.filter(c => present.has(c.slug));
+    const known = new Set(named.map(c => c.slug));
+    const extra = [...present].filter(s => !known.has(s)).map(s => ({ slug: s, label: s }));
+    return [...named, ...extra];
+  }, [cats, items]);
 
-  useEffect(() => { document.body.style.overflow = modal ? 'hidden' : ''; }, [modal]);
+  const visible = useMemo(
+    () => (filter === 'all' ? items : items.filter(i => i.category === filter)),
+    [items, filter]
+  );
 
-  const visible = filter === 'all' ? items : items.filter(i => i.category === filter);
-
-  /* Keyed on the visible count so the stagger re-runs after the fetch resolves
-     and whenever the category filter changes the set of tiles. */
-  useReveal(gridRef, { children: '.gallery-item', y: 18, stagger: 0.03, duration: 0.5 });
+  useEffect(() => { setLightbox(null); }, [filter]);
 
   return (
     <>
-      <section className="page-header">
-        <div className="container">
-          <span className="eyebrow">Moments of Grace</span>
-          <h1>Photo &amp; Video Gallery</h1>
-          <p>Celebrating moments of worship, fellowship, and community service.</p>
-        </div>
-      </section>
+      <PageHeader
+        crumb="Gallery"
+        title="Gallery"
+        lede="Worship, fellowship and community service — photographed as it happened."
+      />
 
-      <section className="gallery-filter">
-        <div className="container">
-          <div className="filter-buttons">
-            <button className={`filter-btn${filter === 'all' ? ' active' : ''}`} onClick={() => setFilter('all')}>All Media</button>
-            {cats.map(c => (
-              <button key={c.slug} className={`filter-btn${filter === c.slug ? ' active' : ''}`} onClick={() => setFilter(c.slug)}>{c.label}</button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="gallery">
-        <div className="container">
-          {visible.length === 0 ? (
-            <p className="text-center" style={{ padding: '3rem' }}>No media yet. Check back soon!</p>
-          ) : (
-            <div className="gallery-grid" ref={gridRef}>
-              {/* The tile is not itself a control: it used to carry role="button"
-                  while containing a real <button>, which nests interactive controls
-                  (axe flagged all 91 tiles). The inner button is now the single
-                  accessible control; the div's click handler is a mouse convenience. */}
-              {visible.map(item => (
-                <div key={item.id} className="gallery-item" onClick={() => setModal(item)}>
-                  {item.type === 'video' ? (
-                    <>
-                      <video src={item.url} preload="metadata" muted className="gallery-media" />
-                      <div className="video-badge"><i className="fas fa-play-circle"></i></div>
-                    </>
-                  ) : (
-                    <img src={item.url} alt={item.title} loading="lazy" className="gallery-media" width={400} height={300} />
-                  )}
-                  <div className="gallery-overlay">
-                    {/* A caption, not document structure — an <h4> here skipped from
-                        <h2> and broke heading order. */}
-                    <span className="gallery-title">{item.title}</span>
-                    {item.description && <p>{item.description}</p>}
-                    <button
-                      className="view-btn"
-                      onClick={e => { e.stopPropagation(); setModal(item); }}
-                      aria-label={`${item.type === 'video' ? 'Play' : 'View'} ${item.title}`}
-                    >
-                      {item.type === 'video' ? <><i className="fas fa-play" aria-hidden="true"></i> Play</> : <><i className="fas fa-expand" aria-hidden="true"></i> View</>}
-                    </button>
-                  </div>
-                </div>
-              ))}
+      <section className="p-section">
+        <div className="p-container">
+          {available.length > 0 && (
+            <div className="p-filters" role="group" aria-label="Filter photographs by category">
+              <button
+                type="button"
+                className={'p-filters__btn' + (filter === 'all' ? ' is-on' : '')}
+                aria-pressed={filter === 'all'}
+                onClick={() => setFilter('all')}
+              >
+                All <span className="p-filters__n">{items.length}</span>
+              </button>
+              {available.map(c => {
+                const n = items.filter(i => i.category === c.slug).length;
+                return (
+                  <button
+                    key={c.slug}
+                    type="button"
+                    className={'p-filters__btn' + (filter === c.slug ? ' is-on' : '')}
+                    aria-pressed={filter === c.slug}
+                    onClick={() => setFilter(c.slug)}
+                  >
+                    {categoryLabel(c.slug, c.label)} <span className="p-filters__n">{n}</span>
+                  </button>
+                );
+              })}
             </div>
+          )}
+
+          {status === 'loading' && (
+            <ul className="p-grid" aria-busy="true" aria-label="Loading photographs">
+              {Array.from({ length: SKELETONS }, (_, i) => (
+                <li key={i} className="p-grid__item"><div className="p-skel" /></li>
+              ))}
+            </ul>
+          )}
+
+          {status === 'error' && (
+            <p className="p-empty">The gallery could not be loaded. Please try again later.</p>
+          )}
+
+          {status === 'ready' && visible.length === 0 && (
+            <p className="p-empty">No photographs in this category yet.</p>
+          )}
+
+          {status === 'ready' && visible.length > 0 && (
+            <ul className="p-grid">
+              {visible.map((item, i) => {
+                const caption = captionFor(item);
+                return (
+                  <li key={item.id} className="p-grid__item">
+                    <button
+                      type="button"
+                      className="p-grid__btn"
+                      onClick={() => setLightbox(i)}
+                      aria-label={caption ? `Open: ${caption}` : 'Open photograph'}
+                    >
+                      {item.type === 'video' ? (
+                        <video src={item.url} muted preload="metadata" className="p-grid__media" />
+                      ) : (
+                        /* width/height give the browser the ratio before the
+                           bytes arrive, so the grid never shifts. */
+                        <img
+                          src={item.url}
+                          /* The visible .p-grid__cap and the button's
+                             aria-label already describe this image. */
+                          alt=""
+                          loading="lazy"
+                          decoding="async"
+                          width={800}
+                          height={600}
+                          className="p-grid__media"
+                        />
+                      )}
+                      {item.type === 'video' && (
+                        <span className="p-grid__play" aria-hidden="true">
+                          <i className="fas fa-play"></i>
+                        </span>
+                      )}
+                    </button>
+                    {caption && <p className="p-grid__cap">{caption}</p>}
+                  </li>
+                );
+              })}
+            </ul>
           )}
         </div>
       </section>
 
-      {modal && (
-        <div className="modal open" role="dialog" aria-modal="true" onClick={e => { if (e.target === e.currentTarget) setModal(null); }}>
-          <div className="modal-content modal-media-content">
-            <button className="close" aria-label="Close" onClick={() => setModal(null)}>×</button>
-            <div className="modal-media">
-              {modal.type === 'video'
-                ? <video src={modal.url} controls autoPlay style={{ maxWidth: '100%', maxHeight: '60vh', display: 'block', margin: '0 auto' }} />
-                : <img src={modal.url} alt={modal.title} style={{ maxWidth: '100%', maxHeight: '60vh', objectFit: 'contain', display: 'block', margin: '0 auto' }} />}
-            </div>
-            <div className="modal-info">
-              <h3>{modal.title}</h3>
-              <p>{modal.description}</p>
-            </div>
-          </div>
-        </div>
-      )}
+      <Lightbox items={visible} index={lightbox} onClose={() => setLightbox(null)} onMove={setLightbox} />
     </>
   );
 }
