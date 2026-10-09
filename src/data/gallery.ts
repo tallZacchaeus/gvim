@@ -4,19 +4,20 @@ import type { GalleryItem } from '../lib/api';
    Hero image.
    Served from public/img rather than the R2 public bucket: this is the LCP
    image, and the r2.dev domain is rate-limited and costs an extra DNS + TLS
-   handshake. Derivatives were generated from gallery/community/IMG_1315.jpg.
+   handshake. Derivatives were generated from gallery/community/IMG_1332.jpg,
+   chosen because it shows no children's faces.
 --------------------------------------------------------------------------- */
 export const hero = {
-  src: '/img/hero-outreach-1280.jpg',
+  src: '/img/hero-team-1280.jpg',
   srcSet:
-    '/img/hero-outreach-800.webp 800w, ' +
-    '/img/hero-outreach-1280.webp 1280w, ' +
-    '/img/hero-outreach-1920.webp 1920w',
+    '/img/hero-team-800.webp 800w, ' +
+    '/img/hero-team-1280.webp 1280w, ' +
+    '/img/hero-team-1920.webp 1920w',
   sizes: '100vw',
   width: 1920,
   height: 1080,
   /* Describes what is actually in the frame. Not decorative: it carries meaning. */
-  alt: 'Children holding new school bags given out at a God’s Vessels outreach, with volunteers either side'
+  alt: 'Volunteers and partners of God\u2019s Vessels International Ministry standing together outside after a community outreach'
 };
 
 /* ---------------------------------------------------------------------------
@@ -83,7 +84,7 @@ export const featuredFilenames = [
   'IMG_1220.jpg',
   'ws_008.jpeg',
   'christmas_06.jpg',
-  'IMG_1332.jpg'
+  'IMG_1318.jpg'
 ];
 
 /** Pick the curated six out of a gallery response, falling back to whatever

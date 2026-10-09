@@ -337,7 +337,11 @@
 .p-hero { position: relative; isolation: isolate; background: var(--p-navy); }
 .p-hero__img {
   position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; object-position: center 30%;
+  object-fit: cover;
+  /* 22%, not 30%: this is a group portrait with faces near the top of the
+     frame, and at desktop the container crops ~198px vertically. 30% left
+     only ~12px of headroom. */
+  object-position: center 22%;
   z-index: -2;
 }
 /* Flat solid colour at 60%. Not a gradient. */

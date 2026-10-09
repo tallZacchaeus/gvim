@@ -147,6 +147,28 @@ Generating derivatives on upload is the real fix.
 | 3 | **Sermon records** (title, speaker, date, scripture, series, YouTube ID) | Admin, or seed `src/data/sermons.json` | Sermons page shows its empty state |
 | 4 | **Confirm the monthly schedule** is current | `src/data/serviceTimes.ts` | No |
 | 5 | **Re-file the mislabelled gallery photos** | Admin | No, but the filters mislead until done |
-| 6 | **Confirm the hero photograph** (`IMG_1315.jpg`) is one you are happy to lead with — it shows identifiable children | `src/data/gallery.ts` | Worth an explicit decision |
+| 6 | ~~Confirm the hero photograph~~ — **resolved 2026-10-09**: swapped to `IMG_1332.jpg`, a group of adult volunteers and partners, so no children's faces appear on the front page | `src/data/gallery.ts` | Done |
 
 No static map image is needed: the embedded Google Map works.
+
+### Hero photograph — changed 2026-10-09
+
+The front page originally led with `IMG_1315.jpg`, children holding new school
+bags. It was replaced at your request with `IMG_1332.jpg` — eight adult
+volunteers and partners outside after the outreach — so no children's faces
+appear in the hero.
+
+It was the only candidate that was natively landscape **and** large enough:
+every other photograph without children is either portrait (1980x3520) or too
+small to fill a 1920px hero (780px and 608px wide). Crop raised to
+`object-position: center 22%` because this is a group portrait with faces near
+the top of the frame; at 30% the desktop crop left only ~12px of headroom.
+
+`IMG_1332` was also the sixth photograph in the home grid, so that slot moved to
+`IMG_1318.jpg` rather than showing the same picture twice.
+
+**Children still appear elsewhere on the site** — in the home "ministry in
+action" grid and throughout the gallery, which is most of the outreach
+photography. If the consent concern applies site-wide rather than just to the
+front page, say so and those can be filtered too.
+
