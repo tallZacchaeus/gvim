@@ -1,152 +1,155 @@
-import { useEffect, useState } from 'react';
-import { api, Sermon } from '../lib/api';
+import { useEffect, useMemo, useState } from 'react';
+import { api, SITE } from '../lib/api';
+import type { SermonRecord } from '../data/sermonsSchema';
+import { seedSermons } from '../data/sermonsSchema';
+import PageHeader from '../components/site/PageHeader';
+import SermonCard from '../components/site/SermonCard';
 
-function isAudio(path: string) {
-  const ext = (path.split('.').pop() || '').toLowerCase();
-  return ['mp3','wav','m4a','ogg'].includes(ext);
-}
-
-function isVideo(path: string) {
-  const ext = (path.split('.').pop() || '').toLowerCase();
-  return ['mp4','webm','mov'].includes(ext);
-}
-
-function FeaturedMedia({ s }: { s: Sermon }) {
-  if (s.file_path && isVideo(s.file_path)) {
-    return (
-      <video controls preload="metadata" style={{ width: '100%', borderRadius: '0.75rem' }}>
-        <source src={s.url} />
-      </video>
-    );
-  }
-  if (s.file_path && isAudio(s.file_path)) {
-    return (
-      <>
-        <div className="video-placeholder">
-          <img src="/gvim-logo-128.jpg" alt="GVIM" className="sermon-logo" />
-          <div className="play-overlay"><i className="fas fa-headphones fa-3x"></i></div>
-        </div>
-        <audio controls style={{ width: '100%', marginTop: '1rem' }}>
-          <source src={s.url} type="audio/mpeg" />
-        </audio>
-      </>
-    );
-  }
-  if (s.youtube_id) {
-    return (
-      <iframe src={`https://www.youtube.com/embed/${s.youtube_id}`} title={s.title}
-        allowFullScreen style={{ width: '100%', aspectRatio: '16/9', borderRadius: '0.75rem', border: 0 }} loading="lazy" />
-    );
-  }
-  return (
-    <div className="video-placeholder">
-      <img src="/gvim-logo-128.jpg" alt="GVIM" className="sermon-logo" />
-      <div className="play-overlay"><i className="fas fa-play-circle fa-4x"></i></div>
-    </div>
-  );
+/* The API is the primary source. sermons.json seeds the page so it is not empty
+   before anything has been uploaded. */
+function fromApi(rows: Awaited<ReturnType<typeof api.sermons.list>>): SermonRecord[] {
+  return rows.map(r => ({
+    id: r.id,
+    title: r.title,
+    speaker: r.speaker,
+    date: r.sermon_date ?? '',
+    scripture: r.scripture || undefined,
+    youtubeId: r.youtube_id || undefined,
+    description: r.description || undefined
+  }));
 }
 
 export default function Sermons() {
-  const [sermons, setSermons] = useState<Sermon[] | null>(null);
-  useEffect(() => { api.sermons.list().then(setSermons).catch(() => setSermons([])); }, []);
+  const [sermons, setSermons] = useState<SermonRecord[]>(seedSermons);
+  const [status, setStatus] = useState<'loading' | 'ready'>('loading');
+  const [speaker, setSpeaker] = useState('all');
+  const [series, setSeries] = useState('all');
 
-  const featured = sermons && sermons.length > 0 ? sermons[0] : null;
-  const rest = sermons ? sermons.slice(1) : [];
+  useEffect(() => {
+    let live = true;
+    api.sermons.list()
+      .then(rows => {
+        if (!live) return;
+        const mapped = fromApi(rows);
+        if (mapped.length > 0) setSermons(mapped);
+        setStatus('ready');
+      })
+      .catch(() => { if (live) setStatus('ready'); });
+    return () => { live = false; };
+  }, []);
+
+  /* Filters are derived from the data, so the bar can never offer a speaker or
+     series with nothing behind it. */
+  const speakers = useMemo(
+    () => [...new Set(sermons.map(s => s.speaker).filter(Boolean))].sort(),
+    [sermons]
+  );
+  const allSeries = useMemo(
+    () => [...new Set(sermons.map(s => s.series).filter((s): s is string => Boolean(s)))].sort(),
+    [sermons]
+  );
+
+  const visible = sermons.filter(s =>
+    (speaker === 'all' || s.speaker === speaker) &&
+    (series === 'all' || s.series === series)
+  );
+
+  const featured = visible.find(s => s.youtubeId) ?? null;
+  const rest = featured ? visible.filter(s => s.id !== featured.id) : visible;
 
   return (
     <>
-      <section className="page-header">
-        <div className="container">
-          <h1>Sermons & Messages</h1>
-          <p>Be encouraged and inspired by God's Word through our sermons and teachings</p>
+      <PageHeader
+        crumb="Sermons"
+        title="Sermons & messages"
+        lede="Teaching from God&rsquo;s Vessels International Ministry. New messages are posted to YouTube."
+      />
+
+      <section className="p-section">
+        <div className="p-container">
+          {featured && (
+            <div className="p-featured">
+              <div className="p-featured__video">
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${featured.youtubeId}`}
+                  title={featured.title}
+                  loading="lazy"
+                  allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+              <div className="p-featured__meta">
+                <p className="p-featured__kicker">Latest message</p>
+                <h2>{featured.title}</h2>
+                <p className="p-sermon__meta"><span>{featured.speaker}</span></p>
+                {featured.scripture && <p className="p-sermon__ref">{featured.scripture}</p>}
+                {featured.description && <p>{featured.description}</p>}
+              </div>
+            </div>
+          )}
+
+          {(speakers.length > 1 || allSeries.length > 0) && (
+            <div className="p-filters" role="group" aria-label="Filter sermons">
+              {allSeries.length > 0 && (
+                <label className="p-select">
+                  <span className="p-select__label">Series</span>
+                  <select value={series} onChange={e => setSeries(e.target.value)}>
+                    <option value="all">All series</option>
+                    {allSeries.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </label>
+              )}
+              {speakers.length > 1 && (
+                <label className="p-select">
+                  <span className="p-select__label">Speaker</span>
+                  <select value={speaker} onChange={e => setSpeaker(e.target.value)}>
+                    <option value="all">All speakers</option>
+                    {speakers.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </label>
+              )}
+            </div>
+          )}
+
+          {rest.length > 0 && (
+            <ul className="p-sermons">
+              {rest.map(s => <SermonCard key={s.id} sermon={s} />)}
+            </ul>
+          )}
+
+          {/* An empty state that reads as deliberate, with somewhere to go. */}
+          {status === 'ready' && visible.length === 0 && (
+            <div className="p-noSermons">
+              <h2>Messages are published on YouTube</h2>
+              <p>
+                Recordings are not listed here yet. In the meantime every message is on
+                our YouTube channel, and you are welcome to join us in person.
+              </p>
+              <div className="p-btn-row">
+                <a className="p-btn p-btn--primary" href={SITE.youtube} target="_blank" rel="noopener noreferrer">
+                  Watch on YouTube
+                </a>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
-      {featured ? (
-        <section className="featured-sermon">
-          <div className="container">
-            <h2>Latest Message</h2>
-            <div className="featured-content">
-              <div className="sermon-video"><FeaturedMedia s={featured} /></div>
-              <div className="sermon-details">
-                <h3>{featured.title}</h3>
-                <p className="sermon-meta">
-                  <i className="fas fa-calendar"></i> {featured.sermon_date || ''}  | 
-                  <i className="fas fa-user"></i> {featured.speaker || 'Rev. Godwin BB. Olutimi'}  | 
-                  <i className="fas fa-clock"></i> {featured.duration || ''}
-                </p>
-                <p className="sermon-description" style={{ whiteSpace: 'pre-line' }}>{featured.description}</p>
-                {featured.scripture && <p className="sermon-verse"><strong>Key Scripture:</strong> {featured.scripture}</p>}
-                <div className="sermon-actions">
-                  {featured.youtube_id && (
-                    <a href={`https://www.youtube.com/watch?v=${featured.youtube_id}`} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
-                      <i className="fab fa-youtube"></i> Watch on YouTube
-                    </a>
-                  )}
-                  {featured.file_path && isAudio(featured.file_path) && (
-                    <a href={featured.url} download className="btn btn-outline"><i className="fas fa-download"></i> Download Audio</a>
-                  )}
-                </div>
-              </div>
-            </div>
+      <section className="p-section p-section--navy">
+        <div className="p-container p-follow">
+          <div>
+            <h2>Never miss a message</h2>
+            <p className="p-visit__lede">
+              Subscribe on YouTube for every service, or follow along on Facebook.
+            </p>
           </div>
-        </section>
-      ) : sermons !== null && (
-        <section style={{ padding: '4rem 0', textAlign: 'center' }}>
-          <div className="container">
-            <i className="fas fa-microphone-slash fa-3x" style={{ color: '#a0aec0', marginBottom: '1rem' }}></i>
-            <h2>Sermons Coming Soon</h2>
-            <p>Check back soon or subscribe to our YouTube channel for the latest messages.</p>
-          </div>
-        </section>
-      )}
-
-      {rest.length > 0 && (
-        <section className="recent-sermons">
-          <div className="container">
-            <h2>More Messages</h2>
-            <div className="sermons-grid">
-              {rest.map(s => (
-                <div key={s.id} className="sermon-card">
-                  <div className="sermon-thumbnail">
-                    <img src="/gvim-logo-128.jpg" alt="GVIM" className="sermon-thumbnail-logo" loading="lazy" />
-                    <div className="sermon-play-overlay"><i className="fas fa-play-circle fa-3x"></i></div>
-                  </div>
-                  <div className="sermon-info">
-                    <h3>{s.title}</h3>
-                    <p className="sermon-date"><i className="fas fa-calendar"></i> {s.sermon_date || ''}</p>
-                    <p className="sermon-speaker"><i className="fas fa-user"></i> {s.speaker || 'Rev. Godwin BB. Olutimi'}</p>
-                    <p className="sermon-excerpt">{(s.description || '').slice(0, 120)}...</p>
-                    <div className="sermon-links">
-                      {s.youtube_id ? (
-                        <a href={`https://www.youtube.com/watch?v=${s.youtube_id}`} target="_blank" rel="noopener noreferrer" className="watch-link">
-                          <i className="fas fa-play"></i> Watch
-                        </a>
-                      ) : s.file_path && (
-                        <a href={s.url} className="watch-link"><i className="fas fa-play"></i> Play</a>
-                      )}
-                      {s.file_path && isAudio(s.file_path) && (
-                        <a href={s.url} download className="audio-link"><i className="fas fa-download"></i> Audio</a>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      <section className="sermon-subscribe">
-        <div className="container">
-          <div className="subscribe-content">
-            <h2>Stay Connected</h2>
-            <p>Subscribe to our YouTube channel, follow us on Facebook, and join our live Bible study sessions.</p>
-            <div className="subscribe-links">
-              <a href="https://www.youtube.com/@godsvesselsinternationalmi4365" target="_blank" rel="noopener noreferrer" className="subscribe-btn youtube"><i className="fab fa-youtube"></i> Subscribe on YouTube</a>
-              <a href="https://web.facebook.com/GVIMM" target="_blank" rel="noopener noreferrer" className="subscribe-btn facebook"><i className="fab fa-facebook"></i> Follow on Facebook</a>
-              <a href="https://us02web.zoom.us/j/5723669101?pwd=QzY3R2lKYXNpQy81QTdwaEJQUEZDUT09" target="_blank" rel="noopener noreferrer" className="subscribe-btn zoom"><i className="fas fa-video"></i> Join Us Live</a>
-            </div>
+          <div className="p-btn-row">
+            <a className="p-btn p-btn--outline" href={SITE.youtube} target="_blank" rel="noopener noreferrer">
+              Subscribe on YouTube
+            </a>
+            <a className="p-btn p-btn--outline" href={SITE.facebook} target="_blank" rel="noopener noreferrer">
+              Follow on Facebook
+            </a>
           </div>
         </div>
       </section>
