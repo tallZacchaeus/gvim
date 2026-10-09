@@ -52,34 +52,37 @@ opaque network error.
 Note the schema: wrangler wants the **R2 API** shape (`rules` / `allowed`), which is
 *not* the S3-style JSON the Cloudflare dashboard shows.
 
-```json
-{
-  "rules": [
-    {
-      "allowed": {
-        "origins": ["https://<your-project>.vercel.app", "http://localhost:5173"],
-        "methods": ["PUT"],
-        "headers": ["content-type"]
-      },
-      "exposeHeaders": ["etag"],
-      "maxAgeSeconds": 3600
-    }
-  ]
-}
-```
+The live configuration for both buckets is committed at `infra/r2-cors.json` — edit
+that file rather than writing a new one, so the repo stays the source of truth.
 
 ```bash
-npx wrangler r2 bucket cors set gvim-gallery --file r2-cors.json --force
-npx wrangler r2 bucket cors set gvim-sermons --file r2-cors.json --force
+npx wrangler r2 bucket cors set gvim-gallery --file infra/r2-cors.json --force
+npx wrangler r2 bucket cors set gvim-sermons --file infra/r2-cors.json --force
 ```
 
 Check it with `npx wrangler r2 bucket cors list gvim-gallery`.
 
-### Current state
+### Current state — configured and verified (2026-10-09)
 
-`http://localhost:5173` is already configured on both buckets, so local development
-works. **The production origin still has to be added after the first Vercel deploy** —
-re-run the two commands above with the real URL in `origins`.
+Both buckets allow `PUT` from: the apex and `www` production origins,
+`https://gvim.vercel.app`, the project-scoped Vercel alias,
+`https://gvim-*-zacchaeus-projects-719b8ec1.vercel.app`, and `http://localhost:5173`.
+
+The wildcard entry matters: every Vercel deployment gets its own hash subdomain
+(`gvim-3qvl8bqsb-...`), so enumerating preview URLs one at a time is futile. R2 does
+match a `*` inside an origin string — verified by preflight, not assumed:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" -X OPTIONS \
+  -H "Origin: https://gvim-3qvl8bqsb-zacchaeus-projects-719b8ec1.vercel.app" \
+  -H "Access-Control-Request-Method: PUT" \
+  -H "Access-Control-Request-Headers: content-type" \
+  "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com/gvim-gallery/probe.jpg"
+```
+
+That returns `204`; an unlisted origin returns `403`, so the wildcard did not widen
+the bucket to the whole internet. Re-run the same probe after any CORS change —
+`cors list` only proves what was *stored*, not what R2 *matches*.
 
 ## 3. Verify
 

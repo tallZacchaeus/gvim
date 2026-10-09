@@ -84,7 +84,14 @@ environments over stdin, so values never enter shell history.
 The browser uploads directly to R2, so both buckets need a CORS rule allowing
 `PUT` from the site origin. Without it uploads fail with an opaque network error.
 Wrangler expects the **R2 API** shape (`rules` / `allowed`), not the S3-style JSON
-the Cloudflare dashboard displays. See `R2_UPLOAD_SETUP.md`.
+the Cloudflare dashboard displays.
+
+The live rule is committed at `infra/r2-cors.json` and applied to both buckets. It
+includes `https://gvim-*-zacchaeus-projects-719b8ec1.vercel.app`, because each Vercel
+deployment gets a unique hash subdomain and preview URLs cannot be enumerated ahead of
+time. Verified by preflight on 2026-10-09: a hash subdomain returns `204`, an unlisted
+origin returns `403`. See `R2_UPLOAD_SETUP.md` for the probe command — `cors list`
+shows what was stored, which is not the same as what R2 matches.
 
 ## 4. Security
 

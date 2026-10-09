@@ -1,0 +1,20 @@
+{
+  "rules": [
+    {
+      "allowed": {
+        "origins": [
+          "https://www.godsvesselinternationalministry.org",
+          "https://godsvesselinternationalministry.org",
+          "https://gvim.vercel.app",
+          "https://gvim-zacchaeus-projects-719b8ec1.vercel.app",
+          "https://gvim-*-zacchaeus-projects-719b8ec1.vercel.app",
+          "http://localhost:5173"
+        ],
+        "methods": ["PUT"],
+        "headers": ["content-type"]
+      },
+      "exposeHeaders": ["etag"],
+      "maxAgeSeconds": 3600
+    }
+  ]
+}
