@@ -250,3 +250,21 @@ URL. It appears on `/sermons` immediately.
 3. New admin CSS belongs scoped under `.admin-wrap` / `.admin-login`.
 4. Update `05-Backend-Schema.md` in the same change as any schema or API change,
    and tick the phase here when it lands.
+
+## Phase 14 — Executive public-site redesign (done, 2026-10-09)
+
+Branch `redesign/executive`. Full rebuild of the five public pages against the
+executive charity brief: no gradients, 6px radius ceiling, one shadow, plain CSS
+in a `--p-*` namespace scoped to `.site` so the admin's tokens in style.css are
+untouched.
+
+- Shared data layer at `src/data/` — serviceTimes, site, team, gallery, sermons.
+- New shell: utility bar, main nav with a solid Give button, accessible slide-in
+  mobile panel, four-column footer.
+- Photo hero with a flat navy overlay, served as responsive WebP from public/img.
+- GSAP and the WebGL hero removed; `gsap` dropped from dependencies.
+- 0 axe violations across all five pages; no overflow at 375px.
+
+Outstanding content, tracked in `09-Executive-Redesign-Plan.md`: online giving
+URL, team photos, sermon records, and the mislabelled gallery categories.
+

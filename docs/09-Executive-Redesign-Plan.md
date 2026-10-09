@@ -98,3 +98,55 @@ Shared: SectionHeading · Breadcrumb · Skeleton · Lightbox · TeamGrid/TeamCar
   look deliberate rather than broken.
 - **Sermons filters**: derived from the data, not hardcoded, so the filter bar cannot
   list a series with zero sermons.
+
+---
+
+## 7. Build result (2026-10-09)
+
+All five public pages rebuilt. Branch `redesign/executive`.
+
+### Decisions you made
+| Question | Answer | Effect |
+|---|---|---|
+| Founding year | **2018** | Hero reads "Est. 2018"; the "8 years" stat is consistent. The 2017 milestone, which read "Ministry founded", contradicted the ministry's own story and now reads "Rev. Godwin arrives in Canada". |
+| Scroll motion | **Remove all** | GSAP and the WebGL hero deleted; the 44 kB ScrollTrigger chunk is gone and `gsap` dropped from dependencies. |
+| Gallery categories | **Only the 4 that exist** | Filters render from the API with counts, so a new category appears by itself once photos are filed into it. |
+| Giving | **e-Transfer to the main gmail; URL pending** | The online giving button renders disabled with "coming soon" rather than linking nowhere. Set `giving.onlineUrl` in `src/data/site.ts` to switch it on. |
+
+### Verified
+- **0 axe violations** on all five pages, and with the mobile panel open, at a confirmed 1280×900 and 375×812.
+- **No horizontal overflow** on any page at 375px.
+- Hard rules: 0 gradients, radius ceiling 6px, one shadow token, no glassmorphism, no blur, no eyebrow labels, Fraunces on display text only.
+- Mobile panel: scroll lock, focus trap, Escape, and focus returned to the toggle.
+- Lightbox: native `<dialog>` (`:modal` true), arrow-key navigation, Escape.
+
+### Still unresolved — content, not code
+
+**The gallery categories do not describe the photographs.** `ws_001`–`ws_021`
+are a single indoor outreach event, but they are split across `events`,
+`worship` *and* `youth`. Consequences:
+
+- "Worship Services" contains **no worship-service photographs**.
+- `ws_021` is a screenshot of the pastor's biography text, not a photograph.
+- `youth_01` is two adults talking, filed under Youth & Children.
+
+Re-filing these in the admin would make the filters honest. Nothing in the code
+can fix this — the labels are wrong, not the rendering.
+
+**Gallery images are unoptimised originals**: 91 files averaging ~500 kB,
+roughly 34 MB in total. Lazy loading means a visitor never pays all of it, but
+each tile still downloads a multi-megapixel photograph to fill a 300px box.
+Generating derivatives on upload is the real fix.
+
+## 8. What I need from you
+
+| # | Item | Where it goes | Blocking? |
+|---|---|---|---|
+| 1 | **Online giving URL** | `giving.onlineUrl` in `src/data/site.ts` | Button says "coming soon" until set |
+| 2 | **Team photos** (lead pastor + 9 leaders) | `public/img/team/`, then set `photo` in `src/data/team.ts` | No — initials fallback is deliberate |
+| 3 | **Sermon records** (title, speaker, date, scripture, series, YouTube ID) | Admin, or seed `src/data/sermons.json` | Sermons page shows its empty state |
+| 4 | **Confirm the monthly schedule** is current | `src/data/serviceTimes.ts` | No |
+| 5 | **Re-file the mislabelled gallery photos** | Admin | No, but the filters mislead until done |
+| 6 | **Confirm the hero photograph** (`IMG_1315.jpg`) is one you are happy to lead with — it shows identifiable children | `src/data/gallery.ts` | Worth an explicit decision |
+
+No static map image is needed: the embedded Google Map works.
