@@ -104,3 +104,44 @@ design. No credentials, no network.
 - Limits unchanged: 50 MB per file, images/video for gallery, audio/video for sermons.
 - The presigned PUT must carry the exact `Content-Type` it was signed with, or the
   signature check fails. `uploadFiles()` in `src/lib/api.ts` handles this.
+
+## Troubleshooting: "check the R2 bucket's CORS rules allow PUT from this site"
+
+**CORS is usually not the cause.** Verify before changing anything:
+
+```bash
+curl -s -o /dev/null -D - -X OPTIONS \
+  -H "Origin: https://www.godsvesselinternationalministry.org" \
+  -H "Access-Control-Request-Method: PUT" \
+  -H "Access-Control-Request-Headers: content-type" \
+  "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com/gvim-gallery/probe.jpg"
+```
+
+A `204` with `Access-Control-Allow-Origin` means CORS is working and the message
+is misleading.
+
+**Why the message lies.** R2 answers the preflight with CORS headers, but its
+*error* responses do not carry `Access-Control-Allow-Origin`. Measured
+2026-10-11:
+
+| Request | Status | `Access-Control-Allow-Origin` |
+|---|---|---|
+| `OPTIONS` preflight | 204 | present |
+| `PUT` with a dead signature | 403 | **absent** |
+
+So when the PUT itself fails, the browser withholds the response from
+JavaScript, `xhr.onerror` fires with no status, and the client cannot tell a
+403 from a dropped connection. The old message guessed "CORS", which is the one
+thing already proven to work by the time the PUT runs.
+
+**Actual causes, in order of likelihood**
+1. **The signature expired.** URLs for a whole batch are signed up front, so the
+   clock starts on all of them before the first byte moves. Expiry is now 3600s
+   (was 600s), uploads run four at a time, and a failed file is re-signed and
+   retried once.
+2. **The connection dropped** — common on mobile with large video files.
+3. A genuine CORS change. Check with the command above before assuming this.
+
+**Note:** a file over 50 MB, or an unsupported type, fails earlier at
+`/api/uploads/presign` with a specific message — not this one.
+

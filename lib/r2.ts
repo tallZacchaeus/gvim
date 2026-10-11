@@ -75,8 +75,13 @@ export async function objectExists(bucket: Bucket, key: string): Promise<boolean
  * will not match. The bucket also needs a CORS rule allowing PUT from the site
  * origin — see R2_UPLOAD_SETUP.md.
  */
+/* 3600s, not 600s. A batch is signed up front and uploaded over a slow mobile
+   uplink, so the last file in a 26-file batch can be reached long after the
+   first URL was issued. An expired signature returns 403 with no CORS headers,
+   which the browser cannot surface — it looks like a network error. The URL
+   still only permits writing one server-generated key with one content type. */
 export async function presignPut(
-  bucket: Bucket, key: string, contentType: string, expiresIn = 600
+  bucket: Bucket, key: string, contentType: string, expiresIn = 3600
 ): Promise<string> {
   return getSignedUrl(s3(), new PutObjectCommand({
     Bucket: bucketName(bucket),

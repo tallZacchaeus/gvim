@@ -163,8 +163,13 @@ function putToStorage(
       if (xhr.status >= 200 && xhr.status < 300) resolve();
       else reject(new Error(`Upload of ${file.name} failed (${xhr.status})`));
     };
+    /* The browser gives no status here. R2's error responses (an expired
+       signature, for instance) carry no Access-Control-Allow-Origin header, so
+       the response is withheld from JavaScript and this fires instead. Do not
+       name CORS as the cause — the preflight has already succeeded by this
+       point, so CORS is the one thing that is demonstrably working. */
     xhr.onerror = () => reject(new Error(
-      `Upload of ${file.name} failed — check the R2 bucket's CORS rules allow PUT from this site.`
+      `Upload of ${file.name} failed — the connection dropped or the upload link expired.`
     ));
     xhr.onabort = () => reject(new Error(`Upload of ${file.name} was aborted`));
     xhr.send(file);
@@ -189,13 +194,64 @@ export async function uploadFiles(
     Math.min(100, Math.round((loaded.reduce((a, b) => a + b, 0) / total) * 100))
   );
 
-  for (let i = 0; i < uploads.length; i++) {
-    await putToStorage(uploads[i], files[i], n => { loaded[i] = n; report(); });
-    loaded[i] = files[i].size;
+  /* Signed URLs are issued for the whole batch at once, so the clock starts on
+     every one of them before the first byte moves. Two things protect the tail
+     of a long batch: uploading several at a time, and re-signing a file that
+     fails rather than giving up on it. */
+  const signed = [...uploads];
+
+  async function send(i: number): Promise<void> {
+    const file = files[i];
+    try {
+      await putToStorage(signed[i], file, n => { loaded[i] = n; report(); });
+    } catch {
+      /* Re-sign this one file and try once more. A failure here wrote nothing,
+         so the discarded key leaves no orphan object behind. */
+      loaded[i] = 0;
+      report();
+      const again = await api.uploads.presign(kind, [file], opts.category);
+      const fresh = again.uploads[0];
+      if (!fresh) throw new Error(`Could not get a new upload link for ${file.name}`);
+      signed[i] = fresh;
+      await putToStorage(fresh, file, n => { loaded[i] = n; report(); });
+    }
+    loaded[i] = file.size;
     report();
   }
 
-  return uploads.map(u => ({ key: u.key, filename: u.filename, type: u.type }));
+  /* Four at a time. Sequential uploads of a large batch on a phone can take
+     longer than the signature is valid; saturating the uplink with all of them
+     at once is just as bad, because every transfer then crawls. */
+  const CONCURRENCY = 4;
+  let next = 0;
+  const failures: string[] = [];
+
+  /* Each worker swallows its own failure and keeps going. Letting one rejection
+     escape would reject Promise.all while three transfers are still in flight,
+     and their later rejections would surface as unhandled. */
+  const workers = Array.from(
+    { length: Math.min(CONCURRENCY, files.length) },
+    async () => {
+      for (let i = next++; i < files.length; i = next++) {
+        try {
+          await send(i);
+        } catch (err) {
+          failures.push(err instanceof Error ? err.message : `Upload of ${files[i].name} failed`);
+        }
+      }
+    }
+  );
+  await Promise.all(workers);
+
+  if (failures.length > 0) {
+    throw new Error(
+      failures.length === 1
+        ? failures[0]
+        : `${failures.length} of ${files.length} files failed to upload. ${failures[0]}`
+    );
+  }
+
+  return signed.map(u => ({ key: u.key, filename: u.filename, type: u.type }));
 }
 
 export const SITE = {
