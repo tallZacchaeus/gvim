@@ -15,3 +15,7 @@ d1-export/
 
 # Local MCP server configuration — not project source
 .mcp.json
+
+# Photographs staged for upload. These belong in R2, not in git history.
+incoming/*
+!incoming/README.md
