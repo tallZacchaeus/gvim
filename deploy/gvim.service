@@ -1,0 +1,30 @@
+# systemd unit for the GVIM site API.
+# Installed by deploy/setup-vps.sh to /etc/systemd/system/gvim.service
+[Unit]
+Description=God's Vessels International Ministry — site API
+After=network.target
+
+[Service]
+Type=simple
+User=gvim
+Group=gvim
+WorkingDirectory=/srv/gvim/app
+EnvironmentFile=/etc/gvim/env
+Environment=NODE_ENV=production
+# 3000 belongs to cheersglobal.
+Environment=PORT=3001
+Environment=HOSTNAME=127.0.0.1
+ExecStart=/usr/bin/node dist-server/server/index.js
+Restart=always
+RestartSec=5
+
+# Hardening. The process needs to write uploaded media and nothing else:
+# the SQLite file and the media tree both live under /var/lib/gvim.
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/gvim
+
+[Install]
+WantedBy=multi-user.target

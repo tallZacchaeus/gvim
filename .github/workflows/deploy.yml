@@ -1,0 +1,78 @@
+name: Deploy to VPS
+
+# Build on CI, ship the result. The VPS never compiles: a failed build fails
+# here and the running site is untouched.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: vps-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build client and server
+        run: |
+          npm run build
+          npx tsc -p tsconfig.server.json
+
+      - name: Collect production dependencies
+        run: |
+          npm ci --omit=dev
+          mv node_modules deploy-node_modules
+
+      - name: Add the host key
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+      - name: Ship the build
+        env:
+          SSH: ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes
+          TARGET: ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}
+        run: |
+          # Mirror code directories so files deleted from the repo also leave
+          # the server. Media and the database live under /var/lib/gvim and
+          # are never touched by a deploy.
+          rsync -az --delete -e "$SSH" dist/            "$TARGET:/srv/gvim/app/dist/"
+          rsync -az --delete -e "$SSH" dist-server/     "$TARGET:/srv/gvim/app/dist-server/"
+          rsync -az --delete -e "$SSH" deploy-node_modules/ "$TARGET:/srv/gvim/app/node_modules/"
+          rsync -az          -e "$SSH" package.json deploy/ "$TARGET:/srv/gvim/app/"
+
+      - name: Restart and verify
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes \
+            "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" bash -se <<'EOF'
+          set -euo pipefail
+          chown -R gvim:gvim /srv/gvim/app
+          systemctl restart gvim
+          # Poll the readiness probe rather than sleeping and hoping.
+          for i in $(seq 1 20); do
+            if curl -fsS --max-time 3 http://127.0.0.1:3001/api/health | grep -q '"ok":true'; then
+              echo "healthy after ${i} attempt(s)"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "API did not become healthy — recent logs:" >&2
+          journalctl -u gvim -n 40 --no-pager >&2
+          exit 1
+          EOF
