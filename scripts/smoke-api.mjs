@@ -32,9 +32,9 @@ process.env.ADMIN_PASSWORD_HASH =
 process.env.PUBLIC_GALLERY_BASE = 'https://cdn.example.com';
 process.env.PUBLIC_SERMONS_BASE = 'https://sermons.example.com';
 // Consumed by the stubbed S3 client; no network calls are made.
-process.env.R2_ACCOUNT_ID = 'test-account';
-process.env.R2_ACCESS_KEY_ID = 'test-key';
-process.env.R2_SECRET_ACCESS_KEY = 'test-secret';
+/* Media now lands on disk rather than in R2, so the suite needs a throwaway
+   media root. It lives under the same temp dir and is removed with it. */
+process.env.MEDIA_ROOT = join(work, 'media');
 
 // Recompute the hash so the fixture can never drift from the password.
 {
@@ -47,13 +47,11 @@ execFileSync('npx', [
   'esbuild',
   'api/auth/login.ts', 'api/auth/me.ts', 'api/categories/index.ts',
   'api/gallery/index.ts', 'api/contact.ts', 'api/contacts.ts',
-  'api/uploads/presign.ts', 'api/sermons/index.ts',
+  'api/uploads/index.ts', 'api/sermons/index.ts',
   '--bundle', '--platform=node', '--format=esm',
   `--outdir=${OUT}`, '--out-extension:.js=.mjs',
   '--external:@libsql/client',
   // R2 is replaced by an in-memory bucket so the upload path is testable offline.
-  '--alias:@aws-sdk/client-s3=./scripts/stubs/aws-s3.mjs',
-  '--alias:@aws-sdk/s3-request-presigner=./scripts/stubs/aws-presigner.mjs'
 ], { cwd: ROOT, stdio: 'pipe' });
 
 // ── fixtures ──
@@ -68,7 +66,7 @@ const { POST: loginPOST }   = await import(`file://${OUT}/auth/login.mjs`);
 const { GET: meGET }        = await import(`file://${OUT}/auth/me.mjs`);
 const { POST: contactPOST } = await import(`file://${OUT}/contact.mjs`);
 const { GET: contactsGET }  = await import(`file://${OUT}/contacts.mjs`);
-const { POST: presignPOST } = await import(`file://${OUT}/uploads/presign.mjs`);
+const { POST: uploadPOST } = await import(`file://${OUT}/uploads/index.mjs`);
 const { POST: galleryPOST } = await import(`file://${OUT}/gallery/index.mjs`);
 const { POST: sermonPOST }  = await import(`file://${OUT}/sermons/index.mjs`);
 
@@ -136,40 +134,58 @@ r = await contactPOST(req('https://x/api/contact',{method:'POST',headers:{'conte
 const after = await c.execute('SELECT COUNT(*) AS n FROM contact_submissions');
 check('honeypot silently drops bots', r.status===200 && Number(after.rows[0].n)===1);
 
-console.log('\nPresigned upload flow');
+console.log('\nUpload flow');
 const auth = { Cookie: `gvim_admin=${token}`, 'content-type': 'application/json' };
-const presign = (payload, headers = auth) =>
-  presignPOST(req('https://x/api/uploads/presign', { method:'POST', headers, body: JSON.stringify(payload) }));
+/* Multipart requests must NOT carry an explicit content-type: the runtime has
+   to set it, because only it knows the boundary. Passing the JSON auth headers
+   here made formData() throw, and every upload assertion then "passed" against
+   a parse error instead of the rule it claimed to test. */
+const authCookie = { Cookie: `gvim_admin=${token}` };
+/* Uploads are multipart now, one file per request: presigning went away with
+   Vercel's 4.5 MB body cap, and the bytes come to our own origin instead. */
+const upload = (fields, headers = authCookie) => {
+  const body = new FormData();
+  for (const [k, v] of Object.entries(fields)) {
+    if (v !== undefined) body.append(k, v);
+  }
+  return uploadPOST(req('https://x/api/uploads', { method: 'POST', headers, body }));
+};
+const filePart = (name, type, size) =>
+  new File([new Uint8Array(size)], name, { type });
 
-r = await presign({ kind:'gallery', category:'worship', files:[{name:'a.jpg',type:'image/jpeg',size:9_000_000}] }, { 'content-type':'application/json' });
-check('presign requires auth -> 401', r.status===401);
+r = await upload({ kind:'gallery', category:'worship', file: filePart('a.jpg','image/jpeg',1024) }, {});
+check('upload requires auth -> 401', r.status===401);
 
-r = await presign({ kind:'gallery', category:'worship', files:[{name:'big.jpg',type:'image/jpeg',size:60*1024*1024}] });
-check('presign rejects >50MB -> 400', r.status===400);
-
-r = await presign({ kind:'gallery', category:'nope', files:[{name:'a.jpg',type:'image/jpeg',size:100}] });
-check('presign rejects unknown category -> 400', r.status===400);
-
-r = await presign({ kind:'gallery', category:'worship', files:[{name:'x.exe',type:'application/x-msdownload',size:100}] });
-check('presign rejects non-media type -> 400', r.status===400);
-
-// A 9 MB photo — large enough that relaying it through a function would be wasteful.
-r = await presign({ kind:'gallery', category:'worship', files:[{name:'big-photo.jpg',type:'image/jpeg',size:9_000_000}] });
+r = await upload({ kind:'gallery', category:'worship', file: filePart('big.jpg','image/jpeg',51*1024*1024) });
 body = await r.json();
-const up = body.uploads?.[0];
-check('presign signs a 9MB photo', r.status===200 && !!up?.url);
-check('presign generates server-side key under the category',
+check('upload rejects >50MB -> 400', r.status===400 && /exceeds 50MB/.test(body.error||''), body.error);
+
+r = await upload({ kind:'gallery', category:'nope', file: filePart('a.jpg','image/jpeg',100) });
+body = await r.json();
+check('upload rejects unknown category -> 400', r.status===400 && /Unknown category/.test(body.error||''), body.error);
+
+r = await upload({ kind:'gallery', category:'worship', file: filePart('x.exe','application/x-msdownload',100) });
+body = await r.json();
+check('upload rejects non-media type -> 400', r.status===400 && /Unsupported type/.test(body.error||''), body.error);
+
+// A 2 MB photo. The 4.5 MB ceiling that forced presigning is gone; nginx
+// allows 56 MB and the API enforces the 50 MB per-file cap itself.
+r = await upload({ kind:'gallery', category:'worship', file: filePart('big-photo.jpg','image/jpeg',2_000_000) });
+body = await r.json();
+const up = body.upload;
+check('upload accepts a 2MB photo', r.status===200 && !!up);
+check('upload generates a server-side key under the category',
   /^gallery\/worship\/[a-f0-9]{16}\.jpg$/.test(up?.key || ''), up?.key);
 
 console.log('\nCommit');
 const commit = (payload, headers = auth) =>
   galleryPOST(req('https://x/api/gallery', { method:'POST', headers, body: JSON.stringify(payload) }));
 
-r = await commit({ title:'T', category:'worship', files:[{ key: up.key, filename:'big-photo.jpg', type:'image' }] });
-check('commit before upload -> 409 (no phantom rows)', r.status===409);
-
-// simulate the browser PUT landing in R2
-globalThis.__R2_STORE.add(up.key);
+/* A well-formed key for a file that was never uploaded. Objects really land
+   on disk now, so this can no longer reuse the uploaded key. */
+r = await commit({ title:'T', category:'worship',
+                   files:[{ key:'gallery/worship/0123456789abcdef.jpg', filename:'ghost.jpg', type:'image' }] });
+check('commit without the file on disk -> 409 (no phantom rows)', r.status===409);
 
 r = await commit({ title:'T', category:'worship', files:[{ key:'gallery/worship/../../etc/passwd', filename:'x', type:'image' }] });
 check('commit rejects traversal-style key -> 400', r.status===400);
@@ -192,15 +208,15 @@ check('gallery GET returns a usable public url',
   fresh?.url === `https://cdn.example.com/${up.key}`, fresh?.url);
 
 console.log('\nSermon upload');
-r = await presign({ kind:'sermons', files:[{name:'sermon.mp3',type:'audio/mpeg',size:40*1024*1024}] });
+r = await upload({ kind:'sermons', file: filePart('sermon.mp3','audio/mpeg',1_000_000) });
 body = await r.json();
-const sup = body.uploads?.[0];
-check('presign signs a 40MB sermon audio', r.status===200 && /^sermons\/[a-f0-9]{16}\.mp3$/.test(sup?.key||''), sup?.key);
+const sup = body.upload;
+check('upload accepts sermon audio', r.status===200 && /^sermons\/[a-f0-9]{16}\.mp3$/.test(sup?.key||''), sup?.key);
 
-r = await sermonPOST(req('https://x/api/sermons',{method:'POST',headers:auth,body:JSON.stringify({title:'S', file:{ key: sup.key, filename:'sermon.mp3' }})}));
-check('sermon commit before upload -> 409', r.status===409);
+/* Never-uploaded key: the real file is on disk now, so this cannot reuse it. */
+r = await sermonPOST(req('https://x/api/sermons',{method:'POST',headers:auth,body:JSON.stringify({title:'S', file:{ key:'sermons/0123456789abcdef.mp3', filename:'ghost.mp3' }})}));
+check('sermon commit without the file on disk -> 409', r.status===409);
 
-globalThis.__R2_STORE.add(sup.key);
 r = await sermonPOST(req('https://x/api/sermons',{method:'POST',headers:auth,body:JSON.stringify({title:'Sunday Word', speaker:'Rev', youtube_url:'https://youtu.be/dQw4w9WgXcQ', file:{ key: sup.key, filename:'sermon.mp3' }})}));
 check('sermon commit after upload -> 200', r.status===200);
 const srow = await c.execute('SELECT * FROM sermons WHERE title = ?', ['Sunday Word']);
