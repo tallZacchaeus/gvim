@@ -820,3 +820,30 @@
 .p-map { position: relative; aspect-ratio: 16 / 7; border-radius: var(--p-radius-lg); overflow: hidden; border: 1px solid var(--p-line); }
 .p-map iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 @media (max-width: 720px) { .p-map { aspect-ratio: 4 / 3; } }
+
+/* === 404 ================================================================ */
+
+/* A readable label, not a giant pale numeral. At --p-line-2 it measured
+   1.56:1 against the 3:1 large-text minimum, and it said nothing the heading
+   underneath does not already say more clearly. */
+.p-404__code {
+  font-size: var(--p-text-sm);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--p-ink-3);
+  margin-bottom: var(--p-2);
+}
+.p-404__path {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9em;
+  background: var(--p-surface);
+  border: 1px solid var(--p-line);
+  border-radius: var(--p-radius);
+  padding: 0.1em 0.4em;
+  /* A long mistyped path must not push the page sideways on a phone. */
+  overflow-wrap: anywhere;
+}
+.p-404__links { margin: var(--p-6) 0; padding-top: var(--p-5); border-top: 1px solid var(--p-line); }
+.p-404__links ul { display: flex; flex-wrap: wrap; gap: var(--p-4) var(--p-5); list-style: none; margin: 0; padding: 0; }
+.p-404__cta { margin-top: var(--p-5); }

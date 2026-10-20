@@ -6,6 +6,7 @@ import About from './pages/About';
 import Sermons from './pages/Sermons';
 import Gallery from './pages/Gallery';
 import Contact from './pages/Contact';
+import NotFound from './pages/NotFound';
 
 /**
  * Admin routes are code-split.
@@ -26,6 +27,7 @@ import Contact from './pages/Contact';
 const ProtectedRoute = lazy(() => import('./components/ProtectedRoute'));
 
 const Login         = lazy(() => import('./pages/admin/Login'));
+const AdminNotFound = lazy(() => import('./pages/admin/AdminNotFound'));
 const Dashboard     = lazy(() => import('./pages/admin/Dashboard'));
 const GalleryUpload = lazy(() => import('./pages/admin/GalleryUpload'));
 const GalleryManage = lazy(() => import('./pages/admin/GalleryManage'));
@@ -66,6 +68,9 @@ export default function App() {
         <Route path="/sermons" element={<Sermons />} />
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/contact" element={<Contact />} />
+        {/* Anything else under the public shell, so the header and footer are
+            still there to leave by. */}
+        <Route path="*" element={<NotFound />} />
       </Route>
       <Route path="/admin" element={admin(<Login />, false)} />
       <Route path="/admin/dashboard" element={admin(<Dashboard />)} />
@@ -75,6 +80,11 @@ export default function App() {
       <Route path="/admin/sermon-manage" element={admin(<SermonManage />)} />
       <Route path="/admin/categories" element={admin(<Categories />)} />
       <Route path="/admin/contacts" element={admin(<Contacts />)} />
+      {/* Unknown admin path. React Router ranks by specificity, not source
+          order, so the exact routes above still win over this. Protected, so
+          a signed-out visitor is sent to the login rather than shown the
+          admin shell. */}
+      <Route path="/admin/*" element={admin(<AdminNotFound />)} />
     </Routes>
   );
 }

@@ -226,3 +226,38 @@
     margin-top: 0.25rem;
   }
 }
+
+/* === Admin 404 ========================================================== */
+
+.admin-404 { padding: clamp(1.25rem, 4vw, 2rem); }
+/* Same reasoning as the public 404: readable label over pale decoration. */
+.admin-404__code {
+  font-size: 0.8125rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted-foreground); margin: 0 0 0.4rem;
+}
+.admin-404 h2 { margin: 0 0 0.75rem; }
+.admin-404__path { margin: 0 0 0.75rem; }
+.admin-404__path code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.875rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.15em 0.45em;
+  overflow-wrap: anywhere;
+}
+.admin-404__hint { margin: 0 0 1.25rem; color: var(--muted-foreground); }
+.admin-404__links {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0.5rem; list-style: none; margin: 0; padding: 0;
+}
+.admin-404__links a {
+  display: flex; align-items: center;
+  min-height: 48px; padding: 0 0.875rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--foreground); text-decoration: none; font-weight: 600;
+}
+.admin-404__links a:hover { border-color: var(--brand-500); color: var(--brand-500); }
