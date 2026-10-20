@@ -8,6 +8,7 @@ import './styles/style.css';
 import './styles/public.css';
 import './styles/admin.css';
 import './styles/admin-mobile.css';
+import './styles/admin-type.css';
 import './styles/tailwind.css';
 
 /**

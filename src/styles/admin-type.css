@@ -1,0 +1,129 @@
+/* ===========================================================================
+   GVIM ADMIN — typography
+   ---------------------------------------------------------------------------
+   Apple's type rules, applied to the admin:
+
+   · Tracking is size-specific. One letter-spacing for every size is wrong
+     somewhere — large text reads too loose as it grows and wants negative
+     tracking; small text wants a touch of positive.
+   · Leading moves inversely to size: tight on large numerals, looser on body.
+   · Hierarchy comes from weight + size + leading together, not from size
+     alone and not from SHOUTING. The caps labels went.
+   · Sizes are rem-anchored so a larger system text size scales the layout
+     with it rather than overflowing it.
+
+   Loads after admin.css, so these win without needing extra specificity.
+=========================================================================== */
+
+.admin-wrap {
+  /* Size-specific tracking, named by role rather than by value. */
+  --track-display: -0.021em;   /* large numerals: close the gaps up */
+  --track-title:   -0.011em;
+  --track-body:     0;
+  --track-micro:    0.006em;   /* small text opens up very slightly */
+}
+
+/* === Page title ========================================================= */
+.admin-wrap .admin-heading h1 {
+  font-size: clamp(1.4rem, 1.3rem + 0.5vw, 1.75rem);
+  line-height: 1.15;
+  letter-spacing: var(--track-title);
+}
+
+/* The breadcrumb is the one place caps still earn their keep: it is a
+   two-word locator, not something you read as prose. */
+.admin-wrap .admin-crumbs {
+  font-size: 0.6875rem;
+  letter-spacing: 0.07em;
+  line-height: 1.3;
+}
+
+/* === Section headings =================================================== */
+.admin-wrap .admin-section-title {
+  font-size: 1.25rem;
+  line-height: 1.25;
+  letter-spacing: var(--track-title);
+  margin: 2.25rem 0 0.9rem;
+}
+
+/* === Stat cards ========================================================= */
+
+/* Was `clamp(1.9rem, 4vw, 2.4rem)`: a viewport-driven size ignores the
+   reader's own text setting. Anchored in rem, it scales with them. */
+.admin-wrap .stat-card .stat-value {
+  font-size: clamp(2rem, 1.75rem + 1vw, 2.5rem);
+  line-height: 1;
+  letter-spacing: var(--track-display);
+  font-variant-numeric: tabular-nums;
+  /* Lining figures so 91 and 2 sit on the same baseline in a row of cards. */
+  font-weight: 600;
+}
+
+/* The label was 0.8rem uppercase with 0.08em tracking. Caps cost word-shape
+   legibility and made every card shout equally; sentence case with more
+   weight reads faster and leaves the numeral as the loudest thing. */
+.admin-wrap .stat-card p {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: var(--track-body);
+  text-transform: none;
+  color: var(--foreground);
+  margin-top: 0.35rem;
+}
+
+.admin-wrap .stat-card .stat-note {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: var(--track-micro);
+  color: var(--muted-foreground);
+  margin-top: 0.2rem;
+}
+
+/* === Tables ============================================================= */
+
+/* Same reasoning as the stat labels: a column head is a label, not a shout.
+   Weight and colour carry it; the uppercase transform is gone. */
+.admin-wrap .admin-table th {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: var(--track-body);
+  text-transform: none;
+  color: var(--muted-foreground);
+}
+
+.admin-wrap .admin-table td {
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  letter-spacing: var(--track-body);
+}
+
+/* Figures in a column must line up to be comparable at a glance. */
+.admin-wrap .admin-table td[data-label="Photos"],
+.admin-wrap .admin-table td[data-label="Share"] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* === Quick actions ====================================================== */
+.admin-wrap .admin-quick .btn {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: var(--track-body);
+}
+
+/* === Responsive table labels ===========================================
+   Below 900px each row collapses to a card and every cell labels itself via
+   `td::before { content: attr(data-label) }`. Those labels were 0.7rem caps
+   with 0.07em tracking — on a phone they became the loudest text on screen,
+   competing with the values they are meant to introduce. Same treatment as
+   the table head: sentence case, weight carries it. */
+@media (max-width: 899px) {
+  .admin-wrap .admin-table td::before {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: var(--track-body);
+    text-transform: none;
+    color: var(--muted-foreground);
+  }
+}
