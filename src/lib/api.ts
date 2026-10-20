@@ -39,14 +39,6 @@ export interface AdminStats {
   byCategory: { slug: string; label: string; total: number }[];
 }
 
-export interface PresignedUpload {
-  key: string;
-  url: string;
-  filename: string;
-  contentType: string;
-  type: 'image' | 'video' | 'audio';
-}
-
 /** What the commit endpoints (POST /api/gallery, /api/sermons) expect back. */
 export interface UploadedFile {
   key: string;
@@ -121,17 +113,6 @@ export const api = {
   stats: {
     get: () => http<AdminStats>('/api/stats')
   },
-  uploads: {
-    presign: (kind: 'gallery' | 'sermons', files: File[], category?: string) =>
-      http<{ ok: boolean; uploads: PresignedUpload[] }>('/api/uploads/presign', {
-        method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          kind,
-          category,
-          files: files.map(f => ({ name: f.name, type: f.type, size: f.size }))
-        })
-      })
-  },
   auth: {
     login: (username: string, password: string) => http<{ ok: boolean }>('/api/auth/login', {
       method: 'POST', headers: { 'content-type': 'application/json' },
@@ -143,85 +124,95 @@ export const api = {
 };
 
 /**
- * PUT one file straight to R2 using a presigned URL.
+ * POST one file to our own API and resolve with the descriptor the commit
+ * endpoints expect.
  *
- * Uses XMLHttpRequest rather than fetch because only XHR reports upload
- * progress, which matters for large sermon media. The request must carry the
- * exact Content-Type the URL was signed with, and must not send cookies.
+ * XMLHttpRequest rather than fetch, because only XHR reports upload progress —
+ * which matters when the connection is a phone on mobile data.
+ *
+ * This replaces a presigned cross-origin PUT to R2. Same-origin means no
+ * preflight, no signature that can expire mid-batch, and — unlike R2's error
+ * responses, which carry no CORS headers — a status the browser will actually
+ * hand back when something fails.
  */
-function putToStorage(
-  upload: PresignedUpload,
+function postFile(
+  kind: 'gallery' | 'sermons',
   file: File,
+  category: string | undefined,
   onProgress?: (loaded: number) => void
-): Promise<void> {
+): Promise<UploadedFile> {
   return new Promise((resolve, reject) => {
+    const body = new FormData();
+    body.append('kind', kind);
+    if (category) body.append('category', category);
+    body.append('file', file);
+
     const xhr = new XMLHttpRequest();
-    xhr.open('PUT', upload.url, true);
-    xhr.setRequestHeader('Content-Type', upload.contentType);
+    xhr.open('POST', '/api/uploads', true);
+    xhr.withCredentials = true;
     xhr.upload.onprogress = e => { if (e.lengthComputable) onProgress?.(e.loaded); };
     xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) resolve();
-      else reject(new Error(`Upload of ${file.name} failed (${xhr.status})`));
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const parsed = JSON.parse(xhr.responseText) as { upload?: UploadedFile };
+          if (!parsed.upload) throw new Error('missing upload descriptor');
+          resolve(parsed.upload);
+        } catch {
+          reject(new Error(`Upload of ${file.name} returned an unreadable response`));
+        }
+        return;
+      }
+      /* Same origin, so the body is readable and can say what was wrong. */
+      let detail = '';
+      try { detail = (JSON.parse(xhr.responseText) as { error?: string }).error || ''; } catch { /* non-JSON */ }
+      reject(new Error(detail || `Upload of ${file.name} failed (${xhr.status})`));
     };
-    /* The browser gives no status here. R2's error responses (an expired
-       signature, for instance) carry no Access-Control-Allow-Origin header, so
-       the response is withheld from JavaScript and this fires instead. Do not
-       name CORS as the cause — the preflight has already succeeded by this
-       point, so CORS is the one thing that is demonstrably working. */
     xhr.onerror = () => reject(new Error(
-      `Upload of ${file.name} failed — the connection dropped or the upload link expired.`
+      `Upload of ${file.name} failed — the connection dropped.`
     ));
     xhr.onabort = () => reject(new Error(`Upload of ${file.name} was aborted`));
-    xhr.send(file);
+    xhr.send(body);
   });
 }
 
 /**
- * Full upload flow: ask the API to sign each file, PUT them all to R2, and
- * return the descriptors the commit endpoints need. Reports 0-100 overall.
+ * Upload every file, then hand back the descriptors the commit endpoints need.
+ * Reports 0-100 across the whole batch.
  */
 export async function uploadFiles(
   kind: 'gallery' | 'sermons',
   files: File[],
   opts: { category?: string; onProgress?: (percent: number) => void } = {}
 ): Promise<UploadedFile[]> {
-  const { uploads } = await api.uploads.presign(kind, files, opts.category);
-  if (uploads.length !== files.length) throw new Error('Storage did not sign every file');
-
   const total = files.reduce((sum, f) => sum + f.size, 0) || 1;
   const loaded = new Array(files.length).fill(0);
+  const done = new Array<UploadedFile | null>(files.length).fill(null);
   const report = () => opts.onProgress?.(
     Math.min(100, Math.round((loaded.reduce((a, b) => a + b, 0) / total) * 100))
   );
 
-  /* Signed URLs are issued for the whole batch at once, so the clock starts on
-     every one of them before the first byte moves. Two things protect the tail
-     of a long batch: uploading several at a time, and re-signing a file that
-     fails rather than giving up on it. */
-  const signed = [...uploads];
-
   async function send(i: number): Promise<void> {
     const file = files[i];
     try {
-      await putToStorage(signed[i], file, n => { loaded[i] = n; report(); });
-    } catch {
-      /* Re-sign this one file and try once more. A failure here wrote nothing,
-         so the discarded key leaves no orphan object behind. */
+      done[i] = await postFile(kind, file, opts.category, n => { loaded[i] = n; report(); });
+    } catch (err) {
+      /* One retry, for a dropped connection. There is no signature to refresh
+         any more, so this is simply the same request again. A failed POST
+         wrote nothing, so nothing is left behind to clean up. */
+      if (err instanceof Error && /\(4\d\d\)|Unsupported|exceeds|Category|Unknown/.test(err.message)) {
+        throw err;   /* the server rejected it on its merits; retrying cannot help */
+      }
       loaded[i] = 0;
       report();
-      const again = await api.uploads.presign(kind, [file], opts.category);
-      const fresh = again.uploads[0];
-      if (!fresh) throw new Error(`Could not get a new upload link for ${file.name}`);
-      signed[i] = fresh;
-      await putToStorage(fresh, file, n => { loaded[i] = n; report(); });
+      done[i] = await postFile(kind, file, opts.category, n => { loaded[i] = n; report(); });
     }
     loaded[i] = file.size;
     report();
   }
 
-  /* Four at a time. Sequential uploads of a large batch on a phone can take
-     longer than the signature is valid; saturating the uplink with all of them
-     at once is just as bad, because every transfer then crawls. */
+  /* Four at a time: a phone uploading a large batch one file after another is
+     needlessly slow, and starting all of them at once makes every transfer
+     crawl on a single uplink. */
   const CONCURRENCY = 4;
   let next = 0;
   const failures: string[] = [];
@@ -251,7 +242,7 @@ export async function uploadFiles(
     );
   }
 
-  return signed.map(u => ({ key: u.key, filename: u.filename, type: u.type }));
+  return done.filter((u): u is UploadedFile => u !== null);
 }
 
 export const SITE = {
