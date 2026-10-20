@@ -84,3 +84,57 @@ box** — otherwise a disk failure loses both the site and every photograph.
   the live domain.
 - An SSH deploy key in GitHub secrets for Actions.
 - Contact-form email still needs Resend keys; unchanged by this move.
+
+---
+
+## Status — 2026-10-20
+
+The VPS is provisioned and running the full stack. Vercel is still live and
+serving the real domain; nothing has been cut over and no DNS has changed.
+
+### Done
+- `gvim` service user, `/srv/gvim/app`, `/var/lib/gvim`, `/etc/gvim/env` (0600).
+- systemd unit on port 3001, enabled and **active**.
+- nginx vhost for `vps.godsvesselinternationalministry.org`, serving the SPA
+  and `/media` directly and proxying `/api`.
+- Database: all 91 gallery rows, 6 categories, 1 contact — row counts matched
+  against Turso.
+- Media: all 91 objects, 36 MB, fetched over public HTTPS.
+- Secrets generated **on the box**; the temporary admin password exists only
+  in `/root/gvim-temp-admin.txt` (0600) and has never left it.
+
+### Verified on the VPS, through nginx, using a Host header so no DNS was needed
+
+| Check | Result |
+|---|---|
+| `/`, `/gallery`, `/admin` | 200 |
+| `/api/health` | 200 `{"ok":true}` |
+| `/api/gallery` | 200, 91 items |
+| `/api/stats` | 401 (auth intact) |
+| `/api/nope` | 404 JSON, not swallowed by the SPA fallback |
+| `/media/gallery/community/IMG_1215.jpg` | 200, 513883 bytes, image/jpeg |
+| unknown page | SPA fallback renders |
+| **cheersglobal.org** | **301 / 200 — unchanged from baseline** |
+
+### One failure worth recording
+The first start died with `MODULE_NOT_FOUND` on `libsql`. `node_modules` had
+been built on macOS arm64 and rsynced to x64 Linux, so it resolved
+`@libsql/darwin-arm64`. Native addons do not travel between platforms.
+
+The deploy now installs dependencies **on the target** from the lock file, and
+the workflow does the same, so this cannot recur.
+
+## Remaining, and what needs you
+
+| # | Item | Who |
+|---|---|---|
+| 1 | A record: `vps.godsvesselinternationalministry.org` → `72.62.237.128` | you |
+| 2 | `certbot --nginx -d vps.godsvesselinternationalministry.org` | me, once DNS resolves |
+| 3 | Replace the temporary admin password (instructions in `/root/gvim-temp-admin.txt`) | you |
+| 4 | GitHub secrets `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` for Actions | you |
+| 5 | Schedule `deploy/backup.sh` **and copy the output off the box** | you |
+| 6 | Cutover: point the apex and www at the VPS, retire Vercel | you, when ready |
+
+Until 5 is done there is no backup at all: Turso and R2 were replicated and
+managed, a single disk is not.
+
