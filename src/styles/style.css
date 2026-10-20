@@ -135,7 +135,10 @@ strong { color: var(--foreground); font-weight: 650; }
 .lede { font-size: 1.125rem; color: var(--muted-foreground); max-width: 44rem; }
 
 .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
-main { margin-top: 80px; }
+/* The old public layout had a fixed 80px header; it does not any more, and
+   this rule was pushing every <main> down — including the admin login, which
+   is a <main class="admin-login"> and showed an 80px cream band above it.
+   The public shell sets its own spacing in public.css. */
 
 /* === HEADER & NAV === */
 .header { background: var(--white); box-shadow: var(--shadow); position: fixed; top: 0; width: 100%; z-index: 1000; }
