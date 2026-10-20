@@ -1,6 +1,6 @@
 import { json, bad, genId, guard } from '../../lib/util.js';
 import { db } from '../../lib/db.js';
-import { objectExists, deleteObject, publicBase } from '../../lib/r2.js';
+import { objectExists, deleteObject, publicBase } from '../../lib/storage.js';
 
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
