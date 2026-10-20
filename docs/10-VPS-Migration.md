@@ -183,3 +183,56 @@ site self-contained and drop two DNS + TLS round trips from first paint.
 4. Point the apex and `www` at 72.62.237.128, add them to the nginx
    `server_name`, re-run certbot for all three names, then retire Vercel.
 
+---
+
+## Cutover complete — 2026-10-20
+
+`godsvesselinternationalministry.org` and `www` both resolve to 72.62.237.128
+and are served by the VPS. `vps/migration` merged to `main` (8854cfe).
+
+### An incident found during cutover
+Before changing anything, the live apex was checked. It was serving **Cheers
+Global's website under Cheers Global's certificate**: the apex A record already
+pointed at the VPS, but no `server_name` matched it, so nginx fell through to
+the default server — the first block loaded, which `sites-enabled/*` globs
+alphabetically as `cheersglobal`.
+
+This fails silently and plausibly: visitors got a working site, just the wrong
+organisation's. It was fixed by adding the apex to the gvim `server_name` and
+expanding the certificate.
+
+`www` was pre-registered in `server_name` **before** the DNS change, so it
+could not land in the same trap during propagation.
+
+### Certificate
+One Let's Encrypt ECDSA cert, SANs:
+`godsvesselinternationalministry.org`, `www.…`, `vps.…`, expiring 2027-01-18.
+`certbot.timer` is enabled and `certbot renew --dry-run` passes for both this
+and cheersglobal.
+
+### Verified on the live domain
+Every public route 200, `/api/gallery` 91 items, media served with real bytes,
+`/api/stats` 401 signed out, `/api/nope` a JSON 404, HTTP 301s to HTTPS on
+both names, strict TLS verification passes (no browser warning), **0 axe
+violations**, and a request census showing **no calls to R2 or Vercel**.
+cheersglobal.org measured throughout and unchanged.
+
+### Backups — now running
+`sqlite3` was missing, so `backup.sh` would have failed on its first run. It is
+installed, and a real run produced a 6.9K database snapshot and a 36M media
+archive, self-verified with `PRAGMA integrity_check` and a row count of 91.
+`/etc/cron.d/gvim-backup` runs it nightly at 03:15 with 14 days retained.
+
+**They are still on the same disk as the data.** Nothing yet copies
+`/var/backups/gvim` off the host, so a disk failure still loses both the site
+and every photograph.
+
+### Remaining
+| # | Item | Who |
+|---|---|---|
+| 1 | Replace the temporary admin password — see `/root/gvim-temp-admin.txt` | you |
+| 2 | GitHub secrets `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`; the workflow fails without them | you |
+| 3 | Copy `/var/backups/gvim` off the box | you |
+| 4 | Retire the Vercel project (left running as a fallback; it no longer serves the domain) | you |
+| 5 | Optional: self-host Google Fonts and Font Awesome — the last third-party requests | me |
+
