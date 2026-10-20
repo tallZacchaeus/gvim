@@ -138,3 +138,48 @@ the workflow does the same, so this cannot recur.
 Until 5 is done there is no backup at all: Turso and R2 were replicated and
 managed, a single disk is not.
 
+---
+
+## TLS and live verification — 2026-10-20
+
+`vps.godsvesselinternationalministry.org` resolves to 72.62.237.128 (checked
+against 1.1.1.1, 8.8.8.8 and the system resolver). Certificate issued with
+certbot, reusing the ACME account already on the box from cheersglobal, so no
+new registration was needed.
+
+Cert: Let's Encrypt, CN=vps.godsvesselinternationalministry.org, valid to
+2027-01-18, auto-renew scheduled by certbot. HTTP 301s to HTTPS.
+
+### Verified over real HTTPS
+
+| Check | Result |
+|---|---|
+| `/`, `/about`, `/gallery`, `/sermons`, `/contact`, `/admin` | 200 |
+| `/api/health` | 200 |
+| `/api/gallery` | 200, 91 items |
+| `/api/stats` (signed in) | 200 — gallery 91, categories 6, contacts 1 |
+| `/api/stats` (signed out) | 401 |
+| `/api/nope` | 404 JSON |
+| `/media/.../IMG_1215.jpg` | 200, 513883 bytes, image/jpeg |
+| Home + gallery, axe | **0 violations** |
+| Gallery tiles | 91 rendered |
+| **Requests to R2 or Vercel** | **none** |
+| **cheersglobal.org** | **200 — unchanged** |
+
+Full admin cycle exercised over HTTPS, run on the box so the temporary
+password never left it: login → upload → file on disk → commit → served back
+at its public URL → delete → file removed → gallery back to 91.
+
+### Still third-party
+Google Fonts and cdnjs (Font Awesome) are still fetched from outside. They are
+assets rather than data, so the migration goal holds, but they are now the only
+part of a page load not under your control. Self-hosting both would make the
+site self-contained and drop two DNS + TLS round trips from first paint.
+
+### Before cutover
+1. Replace the temporary admin password — see `/root/gvim-temp-admin.txt`.
+2. GitHub secrets `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`.
+3. Schedule `deploy/backup.sh` **and copy its output off the box**.
+4. Point the apex and `www` at 72.62.237.128, add them to the nginx
+   `server_name`, re-run certbot for all three names, then retire Vercel.
+
