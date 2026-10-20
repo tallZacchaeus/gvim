@@ -10,6 +10,7 @@ import {
   CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList
 } from '@/components/ui/command';
 import { Toaster } from '@/components/ui/sonner';
+import BottomTabs from './admin/BottomTabs';
 
 const NAV = [
   { to: '/admin/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
@@ -146,6 +147,10 @@ export default function AdminLayout({
           </header>
           <div className="admin-content">{children}</div>
         </main>
+
+        {/* Phones only. Navigation belongs in the thumb zone, not behind a
+            hamburger in the top-left corner. "More" reuses the same Sheet. */}
+        <BottomTabs onMore={() => setNavOpen(true)} />
 
         <CommandDialog open={paletteOpen} onOpenChange={setPaletteOpen} title="Admin search"
           description="Jump to a section">

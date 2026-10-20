@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import FilePicker from '../../components/admin/FilePicker';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from '@/components/ui/select';
@@ -19,7 +20,7 @@ import {
 export default function GalleryUpload() {
   const { notify } = useFeedback();
   const [cats, setCats] = useState<Category[]>([]);
-  const [files, setFiles] = useState<FileList | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [fileError, setFileError] = useState('');
   const [progress, setProgress] = useState(0);
 
@@ -32,7 +33,7 @@ export default function GalleryUpload() {
   useEffect(() => { api.categories.list().then(setCats).catch(() => {}); }, []);
 
   async function onSubmit(values: GalleryUploadValues) {
-    if (!files || files.length === 0) {
+    if (files.length === 0) {
       setFileError('Select at least one file');
       return;
     }
@@ -42,7 +43,7 @@ export default function GalleryUpload() {
       /* UNCHANGED upload path: presign -> browser PUTs straight to R2 -> commit
          metadata. File bytes never pass through the API. Only the surrounding
          form moved to react-hook-form. */
-      const uploaded = await uploadFiles('gallery', Array.from(files), {
+      const uploaded = await uploadFiles('gallery', files, {
         category: values.category,
         onProgress: setProgress
       });
@@ -55,9 +56,7 @@ export default function GalleryUpload() {
       });
       notify(`Uploaded ${r.count} file${r.count === 1 ? '' : 's'}`);
       form.reset({ title: '', description: '', category: '', item_date: '' });
-      setFiles(null);
-      const input = document.getElementById('files-input') as HTMLInputElement | null;
-      if (input) input.value = '';
+      setFiles([]);
     } catch (e: any) {
       notify(e.message || 'Upload failed', 'error');
     } finally {
@@ -114,18 +113,19 @@ export default function GalleryUpload() {
           {/* Not a react-hook-form field: a FileList cannot be controlled, so it
               keeps its own state and error. */}
           <div className="form-group">
-            <Label htmlFor="files-input">Files</Label>
-            <Input
-              id="files-input" type="file" multiple accept="image/*,video/*"
-              aria-describedby="files-hint"
-              aria-invalid={fileError ? true : undefined}
-              onChange={e => { setFiles(e.target.files); setFileError(''); }}
+            <Label htmlFor="files-input">Photos</Label>
+            <FilePicker
+              files={files}
+              onChange={f => { setFiles(f); setFileError(''); }}
+              disabled={busy}
+              hint="Images or video, up to 50 MB each."
+              describedBy="files-hint"
+              invalid={Boolean(fileError)}
             />
-            <p id="files-hint" className="form-hint">Images or video, up to 50 MB each.</p>
             {fileError && <p className="form-error" role="alert">{fileError}</p>}
           </div>
 
-          {busy && files && (
+          {busy && files.length > 0 && (
             <div className="upload-progress" role="progressbar"
               aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
               <div className="upload-progress-bar" style={{ width: `${progress}%` }} />

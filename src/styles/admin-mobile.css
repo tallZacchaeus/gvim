@@ -1,0 +1,228 @@
+/* ===========================================================================
+   GVIM ADMIN — touch & material layer
+   ---------------------------------------------------------------------------
+   The CMS is used mostly from a phone, uploading photographs. Everything here
+   is written for that case first and widened for the desktop, not the reverse.
+
+   Scoped to .admin-wrap so none of it reaches the public site.
+=========================================================================== */
+
+.admin-wrap {
+  /* Chrome heights, so content padding can reserve exactly the right space. */
+  --tabbar-h: 56px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --press: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* === Response ===========================================================
+   Feedback belongs on pointer-down, not on click. A control that waits for
+   touch-up to react reads as dead on a phone. */
+.admin-wrap button:not(:disabled):active,
+.admin-wrap a[class*="btn"]:active,
+.admin-wrap .picker__btn:not(:disabled):active,
+.admin-wrap .tabbar__tab:active {
+  transform: scale(0.97);
+  transition: transform 90ms var(--press);
+}
+
+/* === Touch targets ======================================================
+   Only on coarse pointers: a mouse does not need 44px, and enlarging every
+   desktop control would waste the density the tables rely on. */
+@media (pointer: coarse) {
+  .admin-wrap button,
+  .admin-wrap [role="button"],
+  .admin-wrap select,
+  .admin-wrap .admin-palette-btn {
+    min-height: 44px;
+  }
+  .admin-wrap input:not([type="checkbox"]):not([type="radio"]),
+  .admin-wrap select,
+  .admin-wrap textarea {
+    min-height: 44px;
+    /* 16px or iOS Safari zooms the page when the field takes focus. */
+    font-size: max(16px, 1rem);
+  }
+}
+
+/* === Header as a material ==============================================
+   Translucent chrome with content passing under it, rather than an opaque
+   strip that permanently costs vertical space. */
+.admin-wrap .admin-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: color-mix(in srgb, var(--admin-panel) 72%, transparent);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  /* A scroll edge effect, not a hard 1px rule: the boundary appears only
+     where floating chrome actually overlaps content. */
+  border-bottom: 1px solid color-mix(in srgb, var(--admin-line) 60%, transparent);
+}
+
+/* === Bottom tab bar (phones) =========================================== */
+.tabbar { display: none; }
+
+@media (max-width: 899px) {
+  .tabbar {
+    display: block;
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 40;
+    padding-bottom: var(--safe-b);          /* clear the home indicator */
+    background: color-mix(in srgb, var(--admin-panel) 80%, transparent);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-top: 1px solid color-mix(in srgb, var(--admin-line) 70%, transparent);
+  }
+  .tabbar ul {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .tabbar__tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    width: 100%;
+    /* Explicit height, not min-height: a <button> and an <a> resolve
+       min-height differently here and the bar came out 2px uneven. */
+    height: var(--tabbar-h);
+    padding: 6px 2px;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    color: var(--muted-foreground);
+    font: inherit;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tabbar__tab.is-on { color: var(--brand-500); font-weight: 600; }
+
+  /* Reserve room so the last row of content is never trapped under the bar. */
+  .admin-wrap .admin-content {
+    padding-bottom: calc(var(--tabbar-h) + var(--safe-b) + 1.5rem);
+  }
+  /* The hamburger is redundant once the tab bar carries navigation. */
+  .admin-wrap .admin-menu-btn { display: none; }
+}
+
+/* === File picker ======================================================== */
+
+.picker { display: grid; gap: 0.75rem; }
+
+.picker__actions { display: grid; grid-template-columns: 1fr; gap: 0.5rem; }
+@media (min-width: 480px) { .picker__actions { grid-template-columns: 1fr 1fr; } }
+
+.picker__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 56px;                 /* generous: this is the primary control */
+  padding: 0.75rem 1rem;
+  background: var(--admin-panel);
+  border: 1.5px dashed var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--foreground);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.picker__btn:hover:not(:disabled) { border-color: var(--brand-500); color: var(--brand-500); }
+.picker__btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.picker[data-invalid="true"] .picker__btn { border-color: var(--error); }
+
+/* capture= is a no-op on desktop, so the camera button only earns its place
+   on a touch device. */
+.picker__btn--camera { display: none; }
+@media (pointer: coarse) { .picker__btn--camera { display: flex; } }
+
+.picker__hint, .picker__summary {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+.picker__summary { font-weight: 600; color: var(--foreground); }
+.picker__error { margin: 0; font-size: 0.875rem; color: var(--error); font-weight: 500; }
+
+.picker__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.picker__item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+.picker__item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.picker__item[data-oversize="true"] { border-color: var(--error); border-width: 2px; }
+.picker__file {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%;
+  font-size: 0.75rem; font-weight: 700; color: var(--muted-foreground);
+}
+.picker__remove {
+  position: absolute; top: 4px; right: 4px;
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  background: hsl(224 40% 12% / 0.68);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 0; border-radius: 999px;
+  color: #fff; cursor: pointer;
+}
+.picker__size {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 2px 4px;
+  background: hsl(224 40% 12% / 0.6);
+  color: #fff; font-size: 0.6875rem; text-align: center;
+}
+
+/* === Reduced motion / transparency / contrast ==========================
+   Reduced motion does not mean no feedback — it means a non-vestibular one,
+   so the press scale is dropped but colour feedback stays. */
+@media (prefers-reduced-motion: reduce) {
+  .admin-wrap button:active,
+  .admin-wrap .picker__btn:active,
+  .admin-wrap .tabbar__tab:active { transform: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .admin-wrap .admin-header,
+  .tabbar {
+    background: var(--admin-panel);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+@media (prefers-contrast: more) {
+  .tabbar { border-top-width: 2px; }
+  .picker__btn { border-style: solid; border-width: 2px; }
+}
+
+/* === Primary form action ================================================
+   On a phone the submit is the end of a long scroll and the single most
+   important target on the screen; a 36px auto-width button in the corner is
+   the wrong weight for it. Desktop keeps the compact inline button. */
+@media (max-width: 899px) {
+  .admin-wrap form > button[type="submit"],
+  .admin-wrap form > .admin-form-actions > button[type="submit"] {
+    width: 100%;
+    min-height: 52px;
+    font-size: 1rem;
+    margin-top: 0.25rem;
+  }
+}

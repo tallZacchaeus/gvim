@@ -1,5 +1,17 @@
+/* Layer order for the whole app. Declared here because style.css is imported
+   first; tailwind.css appends theme/base/components/utilities after `reset`,
+   so Tailwind utilities win over the reset below.
+
+   This matters: an UNLAYERED `* { padding: 0 }` beats every layered style
+   regardless of specificity, which silently zeroed `px-4`/`py-2` on every
+   shadcn control in the admin. Buttons rendered with no horizontal padding.
+   A reset belongs in a layer precisely so utilities can override it. */
+@layer reset;
+
 /* === RESET & BASE === */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+}
 
 :root {
     /* — Brand — */

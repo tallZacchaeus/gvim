@@ -7,6 +7,7 @@ import SafeBoundary from './components/SafeBoundary';
 import './styles/style.css';
 import './styles/public.css';
 import './styles/admin.css';
+import './styles/admin-mobile.css';
 import './styles/tailwind.css';
 
 /**
