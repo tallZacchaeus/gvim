@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.api.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "dist-server",
+    "rootDir": ".",
+    "sourceMap": true
+  },
+  "include": ["api", "lib", "server"]
+}

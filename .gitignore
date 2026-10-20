@@ -19,3 +19,7 @@ d1-export/
 # Photographs staged for upload. These belong in R2, not in git history.
 incoming/*
 !incoming/README.md
+
+# Local migration staging (database + media copies)
+.local/
+dist-server/
